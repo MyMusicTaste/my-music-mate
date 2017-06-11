@@ -21,18 +21,16 @@ provider:
         - dynamodb:PutItem
       Resource:
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.TEAMS_TABLE}
-    - Effect: Allow
-      Action:
-        - lambda:invokeFunction
-      Resource:
-        - arn:aws:lambda:*:*:function:${self:custom.namespace}-actions
+#    - Effect: Allow
+#      Action:
+#        - lambda:invokeFunction
+#      Resource:
+#        - arn:aws:lambda:*:*:function:${self:custom.namespace}-actions
     - Effect: Allow
       Action:
         - SNS:Publish
       Resource:
         - arn:aws:sns:*:*:${self:custom.namespace}-dispatch
-#       { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-dispatch" ] ]  }
-
 
 # you can define service wide environment variables here
   environment:
@@ -68,8 +66,8 @@ functions:
       - http:
           path: events
           method: post
-  dispatcher:
-    handler: src/dispatcher.handler
+  dispatch:
+    handler: src/dispatch.handler
     events:
       - sns: ${self:custom.namespace}-dispatch
 
