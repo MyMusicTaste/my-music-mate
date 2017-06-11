@@ -4,6 +4,7 @@ frameworkVersion: "=1.15.1"
 custom:
   namespace: ${self:service}-${self:custom.stage}
   stage: ${opt:stage, self:provider.stage}
+  lex: TodaysWeather
 
 provider:
   name: aws
@@ -31,6 +32,11 @@ provider:
         - SNS:Publish
       Resource:
         - arn:aws:sns:*:*:${self:custom.namespace}-dispatch
+    - Effect: Allow
+      Action:
+        - lex:PostText
+      Resource:
+        - arn:aws:lex:*:*:bot:${self:custom.lex}:*
 
 # you can define service wide environment variables here
   environment:
@@ -70,6 +76,8 @@ functions:
     handler: src/dispatch.handler
     events:
       - sns: ${self:custom.namespace}-dispatch
+  fullfill:
+    handler: src/fullfill.handler
 
 
 #    The following are a few example events you can configure

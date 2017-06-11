@@ -87,6 +87,6 @@ def handler(event, context):
             "statusCode": 400,
             "body": json.dumps({"message": str(e)})
         }
-        log.info(response)
+        log.error(response)
         return response
 
