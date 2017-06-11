@@ -1,5 +1,7 @@
 # Created by jongwonkim on 10/06/2017.
 
+# This lambda function will request a slack bot oauth2.0 token and store into a dynanodb table.
+
 import os
 import logging
 import boto3
@@ -9,14 +11,10 @@ import requests
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
-
-log.debug('Invoking `install` function.')
-
 dynamodb = boto3.resource('dynamodb')
 
 
 def get_code(event):
-    log.debug(json.dumps(event))
     code = None
     if event['queryStringParameters'] is not None and event['queryStringParameters']['code'] is not None:
         code = event['queryStringParameters']['code']
@@ -24,21 +22,16 @@ def get_code(event):
 
 
 def request_token(code):
-    log.debug(code)
-    log.debug('Requesting token with' + code)
-    log.debug(os.environ)
     if code is None:
-        return None
+        Exception('Slack API Error while fetching a temporary token!')
     params = {
         "client_id": os.environ['CLIENT_ID'],
         "client_secret": os.environ['CLIENT_SECRET'],
         "code": code,
     }
     url = 'https://slack.com/api/oauth.access?' + urlencode(params)
-    log.debug('Fetching' + code)
     response = requests.get(url)
     response_json = response.json()
-    log.debug(response_json)
     if response_json['ok']:
         return response_json
     raise Exception('Slack API Error while requesting an API token!')
@@ -50,21 +43,24 @@ def save_response(response):
 
 
 def handler(event, context):
+    log.info(json.dumps(event))
     try:
         code = get_code(event)
         token_response = request_token(code)
+        log.info(json.dumps(token_response))
         db_response = save_response(token_response)
+        log.info(json.dumps(db_response))
 
         response = {
             "statusCode": 200,
-            "body": json.dumps(db_response)
+            "body": json.dumps({"message": os.environ['BOT_NAME'] + ' has been installed.'})
         }
-        log.debug(response)
+        log.info(response)
         return response
     except Exception as e:
         response = {
             "statusCode": 400,
-            "body": str(e)
+            "body": json.dumps({"message": str(e)})
         }
         log.error(response)
         return response

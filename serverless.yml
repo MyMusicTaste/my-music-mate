@@ -26,11 +26,20 @@ provider:
         - lambda:invokeFunction
       Resource:
         - arn:aws:lambda:*:*:function:${self:custom.namespace}-actions
+    - Effect: Allow
+      Action:
+        - SNS:Publish
+      Resource:
+        - arn:aws:sns:*:*:${self:custom.namespace}-dispatch
+#       { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-dispatch" ] ]  }
+
 
 # you can define service wide environment variables here
   environment:
+    BOT_NAME: ${self:service}
     CLIENT_ID: '189333670117.191926149280'
     CLIENT_SECRET: fa1ebaabfb691b08e662654762c539ee
+    VERIFICATION_TOKEN: 6ib3YPi7VHjaMyeXQr04pySF
     NAMESPACE: ${self:custom.namespace}
     TEAMS_TABLE: ${self:custom.namespace}-teams
 
@@ -51,6 +60,19 @@ functions:
       - http:
           path: install
           method: get
+  events:
+    handler: src/events.handler
+    environment:
+      SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-dispatch" ] ]  }  # same as `arn:aws:sns:*:*:${self:custom.namespace}-dispatch` but environment values require String format.
+    events:
+      - http:
+          path: events
+          method: post
+  dispatcher:
+    handler: src/dispatcher.handler
+    events:
+      - sns: ${self:custom.namespace}-dispatch
+
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
