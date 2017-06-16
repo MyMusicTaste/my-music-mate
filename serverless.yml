@@ -4,7 +4,9 @@ frameworkVersion: "=1.15.1"
 custom:
   namespace: ${self:service}-${self:custom.stage}
   stage: ${opt:stage, self:provider.stage}
-  lex: TodaysWeather
+  lex:
+    name: TodaysWeather
+    alias: prod
 
 provider:
   name: aws
@@ -22,7 +24,7 @@ provider:
         - dynamodb:PutItem
       Resource:
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.TEAMS_TABLE}
-#    - Effect: Allow
+#    - Effect: Allow  # This need to be uncommented if you want to make a lambda function to call another one.
 #      Action:
 #        - lambda:invokeFunction
 #      Resource:
@@ -36,7 +38,13 @@ provider:
       Action:
         - lex:PostText
       Resource:
-        - arn:aws:lex:*:*:bot:${self:custom.lex}:*
+        - arn:aws:lex:*:*:bot:${self:custom.lex.name}:${self:custom.lex.alias}
+    - Effect: Allow
+      Action:
+        - 	lex:PutBot
+      Resource:
+        - arn:aws:lex:*:*:bot:${self:custom.lex.name}:$LATEST
+
 
 # you can define service wide environment variables here
   environment:
