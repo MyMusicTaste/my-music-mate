@@ -24,7 +24,8 @@ var/
 mmt-bot/
 
 # NPM
-node_modules/
+node_modules/*
+!node_modules/serverless-lex-model/*
 
 # Etc
 .idea

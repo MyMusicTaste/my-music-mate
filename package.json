@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "aws-sdk": "^2.72.0",
     "serverless-python-requirements": "^2.3.3"
   },
   "devDependencies": {},

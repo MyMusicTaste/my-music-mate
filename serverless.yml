@@ -39,16 +39,16 @@ provider:
         - lex:PostText
       Resource:
         - arn:aws:lex:*:*:bot:${self:custom.lex.name}:${self:custom.lex.alias}
-    - Effect: Allow
-      Action:
-        - lex:PutBot
-      Resource:
-        - arn:aws:lex:*:*:bot:${self:custom.lex.name}:*
-    - Effect: Allow
-      Action:
-        - lex:GetBot
-      Resource:
-        - arn:aws:lex:*:*:bot:${self:custom.lex.name}:*
+    # - Effect: Allow
+    #   Action:
+    #     - lex:PutBot
+    #   Resource:
+    #     - arn:aws:lex:*:*:bot:${self:custom.lex.name}:*
+    # - Effect: Allow
+    #   Action:
+    #     - lex:GetBot
+    #   Resource:
+    #     - arn:aws:lex:*:*:bot:${self:custom.lex.name}:*
 
 
 # you can define service wide environment variables here
@@ -59,8 +59,6 @@ provider:
     VERIFICATION_TOKEN: 6ib3YPi7VHjaMyeXQr04pySF
     NAMESPACE: ${self:custom.namespace}
     TEAMS_TABLE: ${self:custom.namespace}-teams
-    LEX_NAME: ${self:custom.lex.name}
-    LEX_ALIAS: ${self:custom.lex.alias}
 
 
 # you can add packaging information here
@@ -73,12 +71,6 @@ package:
 
 
 functions:
-  lex:
-    handler: src/lex.handler
-    events:
-      - http:
-          path: lex
-          method: get
   install:
     handler: src/install.handler
     events:
@@ -160,3 +152,4 @@ resources:
 
 plugins:
   - serverless-python-requirements
+  - serverless-lex-model
