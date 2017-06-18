@@ -64,4 +64,3 @@ def handler(event, context):
         }
         log.error(response)
         return response
-
