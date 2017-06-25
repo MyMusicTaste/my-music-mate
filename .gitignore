@@ -25,7 +25,10 @@ mmt-bot/
 
 # NPM
 node_modules/*
-!node_modules/serverless-lex-model/*
+!node_modules/serverless-lex-model/
 
 # Etc
 .idea
+
+# Temporary codes
+temp/

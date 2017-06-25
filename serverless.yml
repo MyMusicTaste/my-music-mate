@@ -6,7 +6,7 @@ custom:
   stage: ${opt:stage, self:provider.stage}
   lex:
     name: MmtLex
-    alias: dev
+    alias: prod
 
 provider:
   name: aws
@@ -26,9 +26,9 @@ provider:
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.TEAMS_TABLE}
 #    - Effect: Allow  # This need to be uncommented if you want to make a lambda function to call another one.
 #      Action:
-#        - lambda:invokeFunction
+#        - lex:invokeFunction
 #      Resource:
-#        - arn:aws:lambda:*:*:function:${self:custom.namespace}-actions
+#        - arn:aws:lambda:*:*:function:${self:custom.namespace}-temp
     - Effect: Allow
       Action:
         - SNS:Publish
@@ -38,7 +38,8 @@ provider:
       Action:
         - lex:PostText
       Resource:
-        - arn:aws:lex:*:*:bot:${self:custom.lex.name}:${self:custom.lex.alias}
+        - arn:aws:lex:*:*:bot:${self:custom.lex.name}:*
+#        - arn:aws:lex:*:*:bot:${self:custom.lex.name}:${self:custom.lex.alias}
     # - Effect: Allow
     #   Action:
     #     - lex:PutBot
@@ -91,6 +92,8 @@ functions:
       - sns: ${self:custom.namespace}-dispatch
   fullfill:
     handler: src/fullfill.handler
+  temp:
+    handler: src/temp.handler
 
 
 #    The following are a few example events you can configure
