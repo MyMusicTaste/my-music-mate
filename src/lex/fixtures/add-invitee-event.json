@@ -1,0 +1,23 @@
+{
+    "messageVersion": "1.0",
+    "invocationSource": "DialogCodeHook",
+    "userId": "120387605022",
+    "sessionAttributes": {
+        "channel": "D5SH2NMML",
+        "team_id": "T5K9TKQ3F"
+    },
+    "bot": {
+        "name": "MmtLex",
+        "alias": null,
+        "version": "$LATEST"
+    },
+    "outputDialogMode": "Text",
+    "currentIntent": {
+        "name": "AddInvitee",
+        "slots": {
+            "Invitee": "@KAY"
+        },
+        "confirmationStatus": "Confirmed"
+    },
+    "inputTranscript": "I want to go to a concert"
+}

@@ -1,0 +1,155 @@
+{
+  "bot": {
+    "name": "",
+    "description": "",
+    "intents": [],
+    "clarificationPrompt": {
+      "maxAttempts": 5,
+      "messages": [
+        {
+          "content": "Sorry, I don't understand what you said.",
+          "contentType": "PlainText"
+        }
+      ]
+    },
+    "abortStatement": {
+      "messages": [
+        {
+          "content": "I'm sorry, but you are talking gibberish.",
+          "contentType": "PlainText"
+        }
+      ]
+    },
+    "idleSessionTTLInSeconds": 300,
+    "processBehavior": "BUILD",
+    "locale": "en-US",
+    "childDirected": false
+  },
+  "alias": {
+    "name": "",
+    "botName": "",
+    "botVersion": "$LATEST"
+  },
+
+
+  "intents": [
+    {
+      "name": "AddInvitee",
+      "description": "Intent for adding Slack users on DB to invite to a Slack channel.",
+      "slots": [
+        {
+          "name": "Invitee",
+          "description": "Slot for holding the first Slack users to be invited to a channel.",
+          "slotConstraint": "Required",
+          "slotType": "AMAZON.Person",
+          "valueElicitationPrompt": {
+            "messages": [
+              {
+                "contentType": "PlainText",
+                "content": "Whom do you want to invite?"
+              }
+            ],
+            "maxAttempts": 5
+          },
+          "priority": 1,
+          "sampleUtterances": [
+            "I would like to invite {Invitee}"
+          ]
+        }
+
+      ],
+      "sampleUtterances": [
+        "I would like to go to a concert with {Invitee}",
+        "I want to have a great time with {Invitee}"
+      ],
+      "confirmationPrompt": {
+        "messages": [
+          {
+            "contentType": "PlainText",
+            "content": "Whom else do you want to go with?"
+          },
+          {
+            "contentType": "PlainText",
+            "content": "Are there any other people you want to bring with you?"
+          }
+        ],
+        "maxAttempts": 5
+      },
+      "rejectionStatement": {
+        "messages": [
+          {
+            "contentType": "PlainText",
+            "content": "Let me know again if you want to start over."
+          }
+        ]
+      },
+      "dialogCodeHook": {
+        "uri": "arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:custom.namespace}-lex-add-invitee",
+        "messageVersion": "1.0"
+      },
+      "fulfillmentActivity": {
+        "type": "ReturnIntent"
+      }
+    },
+
+
+    {
+      "name": "CreateChannel",
+      "description": "Intent for deciding a Slack channel name the bot will create and invite slack users into.",
+      "slots": [
+        {
+          "name": "Channel",
+          "description": "Slot for holding the desired name of Slack channel.",
+          "slotConstraint": "Required",
+          "slotType": "AMAZON.MusicCreativeWorkType",
+          "valueElicitationPrompt": {
+            "messages": [
+              {
+                "contentType": "PlainText",
+                "content": "Now, tell me any name that you want to create a channel with?"
+              }
+            ],
+            "maxAttempts": 5
+          },
+          "priority": 1,
+          "sampleUtterances": [
+            "I would like to create a channel name with {Channel}",
+            "What about {Channel}",
+            "{Channel} please"
+          ]
+        }
+
+      ],
+      "sampleUtterances": [
+        "I would like to create a channel name with {Channel}"
+      ],
+      "confirmationPrompt": {
+        "messages": [
+          {
+            "contentType": "PlainText",
+            "content": "Are you sure you want to create a channel name with  {Channel}?"
+          }
+        ],
+        "maxAttempts": 5
+      },
+      "rejectionStatement": {
+        "messages": [
+          {
+            "contentType": "PlainText",
+            "content": "Let me know again if you want to start over."
+          }
+        ]
+      },
+      "dialogCodeHook": {
+        "uri": "arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:custom.namespace}-lex-create-channel",
+        "messageVersion": "1.0"
+      },
+      "fulfillmentActivity": {
+        "type": "ReturnIntent"
+      }
+    }
+
+
+
+  ]
+}

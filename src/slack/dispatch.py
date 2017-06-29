@@ -14,12 +14,13 @@ lex = boto3.client('lex-runtime')
 
 
 def talk_lex(event):
-    bot_user_id = event['team']['bot']['bot_user_id']
-    message = re.sub('<@%s>' % bot_user_id, '', event['slack']['event']['text']).strip()
+    message = re.sub('<@', '@', event['slack']['event']['text'])
+    message = re.sub('>', '', message)
+
     response = lex.post_text(
-        botName="TodaysWeather",
-        botAlias="prod",
-        userId="120387605022",
+        botName=os.environ['LEX_NAME'],
+        botAlias=os.environ['LEX_ALIAS'],
+        userId=os.environ['AWS_ID'],
         sessionAttributes={
             "team_id": event['team']['team_id'],
             "channel": event['slack']['event']['channel']
@@ -31,12 +32,13 @@ def talk_lex(event):
 
 def post_message(event):
     lex_response = talk_lex(event)
+    log.info(lex_response)
     if 'dialogState' in event and event['dialogState'] == 'ReadyForFulfillment':
         return lex_response
     params = {
         "token": event['team']['bot']['bot_access_token'],
         "channel": event['slack']['event']['channel'],
-        "text": '☔ ' + lex_response['message'],
+        "text": lex_response['message'],
     }
     url = 'https://slack.com/api/chat.postMessage?' + urlencode(params)
     response = requests.get(url)
@@ -49,9 +51,7 @@ def post_message(event):
 def handler(event, context):
     log.info(json.dumps(event))
     try:
-        slack_event = json.loads(event['Records'][0]['Sns']['Message'])
-        api_response = post_message(slack_event)
-        log.info(api_response)
+        post_message(json.loads(event['Records'][0]['Sns']['Message']))
         response = {
             "statusCode": 200,
             "body": json.dumps({"message": 'message has been sent successfully.'})

@@ -1,12 +1,14 @@
-service: mmtbot
+service: mmtbot2
 frameworkVersion: "~1.15.1"
 
 custom:
   namespace: ${self:service}-${self:custom.stage}
   stage: ${opt:stage, self:provider.stage}
+  aws:
+    id: 120387605022
   lex:
     name: MmtLex
-    alias: prod
+    alias: dev
 
 provider:
   name: aws
@@ -24,6 +26,7 @@ provider:
         - dynamodb:PutItem
       Resource:
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.TEAMS_TABLE}
+        - arn:aws:dynamodb:*:*:table/${self:provider.environment.SESSIONS_TABLE}
 #    - Effect: Allow  # This need to be uncommented if you want to make a lambda function to call another one.
 #      Action:
 #        - lex:invokeFunction
@@ -54,12 +57,16 @@ provider:
 
 # you can define service wide environment variables here
   environment:
+    AWS_ID: ${self:custom.aws.id}
     BOT_NAME: ${self:service}
     CLIENT_ID: '189333670117.191926149280'
     CLIENT_SECRET: fa1ebaabfb691b08e662654762c539ee
     VERIFICATION_TOKEN: 6ib3YPi7VHjaMyeXQr04pySF
     NAMESPACE: ${self:custom.namespace}
     TEAMS_TABLE: ${self:custom.namespace}-teams
+    SESSIONS_TABLE: ${self:custom.namespace}-sessions
+    LEX_NAME: ${self:custom.lex.name}
+    LEX_ALIAS: ${self:custom.lex.alias}
 
 
 # you can add packaging information here
@@ -72,28 +79,28 @@ package:
 
 
 functions:
-  install:
-    handler: src/install.handler
+  slack-install:
+    handler: src/slack/install.handler
     events:
       - http:
           path: install
           method: get
-  events:
-    handler: src/events.handler
+  slack-events:
+    handler: src/slack/events.handler
     environment:
       SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-dispatch" ] ]  }  # same as `arn:aws:sns:*:*:${self:custom.namespace}-dispatch` but environment values require String format.
     events:
       - http:
           path: events
           method: post
-  dispatch:
-    handler: src/dispatch.handler
+  slack-dispatch:
+    handler: src/slack/dispatch.handler
     events:
       - sns: ${self:custom.namespace}-dispatch
-  fullfill:
-    handler: src/fullfill.handler
-  temp:
-    handler: src/temp.handler
+  lex-add-invitee:
+    handler: src/lex/add-invitee.handler
+  lex-create-channel:
+    handler: src/lex/create-channel.handler
 
 
 #    The following are a few example events you can configure
@@ -141,6 +148,23 @@ resources:
         KeySchema:
           - AttributeName: team_id
             KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+    SessionsDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.SESSIONS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: team_id
+            AttributeType: S
+          - AttributeName: channel
+            AttributeType: S
+        KeySchema:
+          - AttributeName: team_id
+            KeyType: HASH
+          - AttributeName: channel
+            KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
