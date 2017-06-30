@@ -53,15 +53,15 @@ def compose_validate_response(event):
 
 # End of the AddInvitee intention moves to the CreateChannel intention.
 def compose_fulfill_response(event):
-    result = ''
-    if len(event['sessionAttributes']['invitees']) > 0:
-        for i, invitee in enumerate(event['sessionAttributes']['invitees']):
-            if result != '':
-                if i < len(event['sessionAttributes']['invitees']) - 1:
-                    result += ', '
-                else:
-                    result += ', and '
-            result += '<@' + invitee + '>'
+    # result = ''
+    # if len(event['sessionAttributes']['invitees']) > 0:
+    #     for i, invitee in enumerate(event['sessionAttributes']['invitees']):
+    #         if result != '':
+    #             if i < len(event['sessionAttributes']['invitees']) - 1:
+    #                 result += ', '
+    #             else:
+    #                 result += ', and '
+    #         result += '<@' + invitee + '>'
     # response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
     #     'type': 'Close',
     #     'fulfillmentState': 'Fulfilled',
@@ -70,11 +70,17 @@ def compose_fulfill_response(event):
     #         'content': result + ' are on the queue to be invited to a channel.'
     #     }
     # }}
-    response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
-        'type': 'ElictSlot',
-        'intentName': 'CreateChannel',
-        'slotToElicit': 'Channel'
-    }}
+    response = {
+        'sessionAttributes': event['sessionAttributes'],
+        'dialogAction': {
+            'type': 'ElicitSlot',
+            'intentName': 'CreateRoom',
+            'slotToElicit': 'Room',
+            'slots': {
+                'Room': None
+            },
+        }
+    }
     return response
 
 

@@ -99,8 +99,8 @@ functions:
       - sns: ${self:custom.namespace}-dispatch
   lex-add-invitee:
     handler: src/lex/add-invitee.handler
-  lex-create-channel:
-    handler: src/lex/create-channel.handler
+  lex-create-room:
+    handler: src/lex/create-room.handler
 
 
 #    The following are a few example events you can configure

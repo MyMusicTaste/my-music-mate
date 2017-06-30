@@ -20,32 +20,58 @@ def create_session_placeholder(event):
             'team_id': 'T5K9TKQ3F',
             'channel': 'D5SH2NMML'
         }
+    event['sessionAttributes']['room'] = None
     event['sessionAttributes']['invitees'] = []
 
 
+def retrieve_session_attributes(event):
+    table = dynamodb.Table(os.environ['SESSIONS_TABLE'])
+    if 'sessionAttributes' not in event:
+        raise Exception('`team_id` and `channel` are not provided.')
+    response = table.get_item(Key={
+        'team_id': event['sessionAttributes']['team_id'],
+        'channel': event['sessionAttributes']['channel']
+    })
+    if 'Item' in response and 'room' in response['Item']:
+        event['sessionAttributes']['room'] = response['Item']['room']
+    else:
+        event['sessionAttributes']['room'] = None
+    if 'Item' in response and 'invitees' in response['Item']:
+        event['sessionAttributes']['invitees'] = response['Item']['invitees']
+    else:
+        event['sessionAttributes']['invitees'] = []
+    return event
+
+
+def store_session_attributes(event):
+    table = dynamodb.Table(os.environ['SESSIONS_TABLE'])
+    return table.put_item(Item={
+        'team_id': event['sessionAttributes']['team_id'],
+        'channel': event['sessionAttributes']['channel'],
+        'room': event['sessionAttributes']['room'],
+        'invitees': event['sessionAttributes']['invitees']
+    })
+
+
 def compose_validate_response(event):
-    slot_invitee = None
-    if event['currentIntent']['slots']['Invitee']:
-        invitees = re.findall(r'@([A-Z1-9]\w+)', event['currentIntent']['slots']['Invitee'])
-        log.info(invitees)
-        for invitee in invitees:
-            slot_invitee = invitee
-            if invitee not in event['sessionAttributes']['invitees']:
-                event['sessionAttributes']['invitees'].append(invitee)
-    if slot_invitee: # To keep getting invitees and store in the db session.
+    slot_room = None
+    if event['currentIntent']['slots']['Room']:
+        slot_room = event['currentIntent']['slots']['Room']
+        event['sessionAttributes']['room'] = slot_room
+    if slot_room:   # Waiting for the user's confirmation.
         response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
             'type': 'ConfirmIntent',
-            "intentName": "AddInvitee",
+            "intentName": "CreateRoom",
             'slots': {
-                'Invitee': slot_invitee
+                'Room': slot_room
             }
         }}
         return response
-    else:   # First time getting an invitee.
+    else:   # First time getting a Room name.
         response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
             'type': 'Delegate',
             'slots': {
-                'Invitee': slot_invitee
+                'Room': slot_room
             }
         }}
         return response
@@ -62,43 +88,20 @@ def compose_fulfill_response(event):
                 else:
                     result += ', and '
             result += '<@' + invitee + '>'
-    # response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
-    #     'type': 'Close',
-    #     'fulfillmentState': 'Fulfilled',
-    #     'message': {
-    #         'contentType': 'PlainText',
-    #         'content': result + ' are on the queue to be invited to a channel.'
-    #     }
-    # }}
     response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
-        'type': 'ElicitIntent',
-        'intentName': 'CreateChannel'
+        'type': 'Close',
+        'fulfillmentState': 'Fulfilled',
+        'message': {
+            'contentType': 'PlainText',
+            'content': result + ' are on the queue to be invited to a channel' + event['sessionAttributes']['room'] + '.'
+        }
     }}
+    # response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
+    #     'type': 'ElictSlot',
+    #     'intentName': 'CreateChannel',
+    #     'slotToElicit': 'Channel'
+    # }}
     return response
-
-
-def retrieve_session_attributes(event):
-    table = dynamodb.Table(os.environ['SESSIONS_TABLE'])
-    if 'sessionAttributes' not in event:
-        raise Exception('`team_id` and `channel` are not provided.')
-    response = table.get_item(Key={
-        'team_id': event['sessionAttributes']['team_id'],
-        'channel': event['sessionAttributes']['channel']
-    })
-    if 'Item' in response and 'invitees' in response['Item']:
-        event['sessionAttributes']['invitees'] = response['Item']['invitees']
-    else:
-        event['sessionAttributes']['invitees'] = []
-    return event
-
-
-def store_session_attributes(event):
-    table = dynamodb.Table(os.environ['SESSIONS_TABLE'])
-    return table.put_item(Item={
-        'team_id': event['sessionAttributes']['team_id'],
-        'channel': event['sessionAttributes']['channel'],
-        'invitees': event['sessionAttributes']['invitees']
-    })
 
 
 def handler(event, context):
@@ -110,7 +113,7 @@ def handler(event, context):
         create_session_placeholder(event)
         retrieve_session_attributes(event)
         # Terminating condition.
-        if event['currentIntent'] is not None and event['currentIntent']['confirmationStatus'] == 'Denied':
+        if event['currentIntent'] is not None and event['currentIntent']['confirmationStatus'] == 'Confirmed':
             response = compose_fulfill_response(event)
         # Processing the user input.
         else:
@@ -124,5 +127,6 @@ def handler(event, context):
         log.error(response)
     finally:
         response['sessionAttributes'].pop('invitees')
+        response['sessionAttributes'].pop('room')
         log.info(response)
         return response

@@ -1,0 +1,33 @@
+{
+    "slack": {
+        "token": "6ib3YPi7VHjaMyeXQr04pySF",
+        "team_id": "T5K9TKQ3F",
+        "api_app_id": "A5MT84D88",
+        "event": {
+            "type": "message",
+            "user": "U5K9TKQ69",
+            "text": "<@U5SH2NMLN> I want to go to a concert",
+            "ts": "1498779913.836339",
+            "channel": "D5SH2NMML",
+            "event_ts": "1498779913.836339"
+        },
+        "type": "event_callback",
+        "authed_users": [
+            "U5SH2NMLN"
+        ],
+        "event_id": "Ev61SJ2NKD",
+        "event_time": 1498779913
+    },
+    "team": {
+        "team_name": "mmt",
+        "user_id": "U5K9TKQ69",
+        "bot": {
+            "bot_access_token": "xoxb-196580769702-A8S5Hiu45lQ2vNpgspfdWBBl",
+            "bot_user_id": "U5SH2NMLN"
+        },
+        "scope": "identify,bot",
+        "team_id": "T5K9TKQ3F",
+        "ok": true,
+        "access_token": "xoxp-189333670117-189333670213-202481237296-f10addd0be1abab6fb3d863a8f3f5fc2"
+    }
+}
