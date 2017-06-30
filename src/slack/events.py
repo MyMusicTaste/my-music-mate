@@ -41,18 +41,22 @@ def get_team(event):
     return event
 
 
+# def save_last_called_user()
+
+
 def check_for_mention(event):
     message = event['slack']['event']['text']
     bot_user_id = event['team']['bot']['bot_user_id']
     is_bot_user_mentioned = re.match(r'^<@%s>.*$' % bot_user_id, message)
+    last_called_users = re.findall(r'^<@[A-Z1-9]\w+>', message)
+    # if len(last_called_users) > 0:
+    #     last_called_user = last_called_users[0]
+
     if is_bot_user_mentioned:
-        log.info('!!! is_bot_user_mentioned !!!')
         log.info('Bot %s is mentioned in %s' % (bot_user_id, message))
         # Remove bot_user_id in case the message comes with a @{bot_name}.
         message = re.sub('<@%s>' % bot_user_id, '', message).strip()
         event['slack']['event']['text'] = message
-        log.info('!!! message !!!')
-        log.info(message)
         return event
     raise Exception('Bot %s was not mentioned %s' % (bot_user_id, message))
 
@@ -77,13 +81,10 @@ def handler(event, context):
             response['body'] = json.dumps({"challenge": event['slack']['challenge']})
         else:
             # Response to an actual slack event.
-            log.info('!!! verify_token !!!')
             verify_token(event)
-            log.info('!!! get_team !!!')
             get_team(event)
             log.info(json.dumps(event))
-            log.info('!!! check_for_mention !!!')
-            check_for_mention(event)
+            # check_for_mention(event)
             if event['team']['bot']['bot_user_id'] != event['slack']['event']['user']:  # Ignore bot's own message.
                 publish_to_sns(event)
     except Exception as e:

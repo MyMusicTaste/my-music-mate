@@ -93,7 +93,7 @@ def compose_fulfill_response(event):
         'fulfillmentState': 'Fulfilled',
         'message': {
             'contentType': 'PlainText',
-            'content': result + ' are on the queue to be invited to a channel' + event['sessionAttributes']['room'] + '.'
+            'content': result + ' are on a queue to be invited to a channel' + event['sessionAttributes']['room'] + '.'
         }
     }}
     # response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
