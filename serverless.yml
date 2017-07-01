@@ -26,7 +26,8 @@ provider:
         - dynamodb:PutItem
       Resource:
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.TEAMS_TABLE}
-        - arn:aws:dynamodb:*:*:table/${self:provider.environment.SESSIONS_TABLE}
+        - arn:aws:dynamodb:*:*:table/${self:provider.environment.SESSIONS_TABLE
+        - arn:aws:dynamodb:*:*:table/${self:provider.environment.LEX_USER_TABLE}
 #    - Effect: Allow  # This need to be uncommented if you want to make a lambda function to call another one.
 #      Action:
 #        - lex:invokeFunction
@@ -65,6 +66,7 @@ provider:
     NAMESPACE: ${self:custom.namespace}
     TEAMS_TABLE: ${self:custom.namespace}-teams
     SESSIONS_TABLE: ${self:custom.namespace}-sessions
+    LEX_USER_TABLE: ${self:custom.namespace}-lex-user
     LEX_NAME: ${self:custom.lex.name}
     LEX_ALIAS: ${self:custom.lex.alias}
 
@@ -164,6 +166,27 @@ resources:
           - AttributeName: team_id
             KeyType: HASH
           - AttributeName: channel
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+    LexUserDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.LEX_USER_TABLE}
+        AttributeDefinitions:
+          - AttributeName: team_id
+            AttributeType: S
+          - AttributeName: channel
+            AttributeType: S
+          - AttributeName: user
+            AttributeType: S
+        KeySchema:
+          - AttributeName: team_id
+            KeyType: HASH
+          - AttributeName: channel
+            KeyType: RANGE
+          - AttributeName: user
             KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 5
