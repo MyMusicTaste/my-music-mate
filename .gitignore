@@ -22,7 +22,7 @@ var/
 .requirements
 
 # Virtual environment
-mmt-bot/
+mmm/
 
 # NPM
 node_modules/*
