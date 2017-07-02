@@ -6,12 +6,51 @@ import logging
 import boto3
 import json
 import re
-# from urllib.parse import urlencode
-# import requests
+from urllib.parse import urlencode
+import requests
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 dynamodb = boto3.resource('dynamodb')
+sns = boto3.client('sns')
+
+
+def get_team(event):
+    key = {
+        'team_id': event['sessionAttributes']['team_id']
+    }
+    table = dynamodb.Table(os.environ['TEAMS_TABLE'])
+    response = table.get_item(Key=key)
+    if 'Item' not in response:
+        raise Exception('Cannot find team info bind to the Slack bot!')
+    event['team'] = response['Item']
+    return event
+
+
+def create_room(event):
+    params = {
+        "token": event['team']['access_token'],
+        "name": event['sessionAttributes']['room']
+    }
+    url = 'https://slack.com/api/channels.create?' + urlencode(params)
+    response = requests.get(url)
+    response_json = response.json()
+    event['slack'] = response_json
+    # log.info(response_json)
+    # return response_json
+    # if 'ok' in response_json and response_json['ok'] is True:
+    #     return response_json
+    # raise Exception('Failed to create a room on Slack!')
+
+def invite_members(event):
+    for member in event['sessionAttributes']['invitees']:
+        params = {
+            'token': event['team']['access_token'],
+            'channel': event['slack']['channel']['id'],
+            "user": member
+        }
+        url = 'https://slack.com/api/channels.invite?' + urlencode(params)
+        response = requests.get(url)
 
 
 def create_session_placeholder(event):
@@ -86,25 +125,57 @@ def compose_fulfill_response(event):
                 if i < len(event['sessionAttributes']['invitees']) - 1:
                     result += ', '
                 else:
-                    if len(event['sessionAttributes']['invitees']) < 3:
-                        result += ', and '
-                    else:
-                        result += ' and '
+                    result += ', and '
             result += '<@' + invitee + '>'
-    response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
-        'type': 'Close',
-        'fulfillmentState': 'Fulfilled',
-        'message': {
-            'contentType': 'PlainText',
-            'content': result + ' are on a queue to be invited to a channel ' + event['sessionAttributes']['room'] + '.'
+
+    get_team(event)
+    create_room(event)
+
+    log.info(event)
+
+    if 'ok' in event['slack'] and event['slack']['ok'] is True:
+        invite_members(event)
+
+        response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
+            'type': 'Close',
+            'fulfillmentState': 'Fulfilled',
+            'message': {
+                'contentType': 'PlainText',
+                'content': 'You, and ' + result + ' are invited to a channel ' + event['sessionAttributes']['room'] + '.'
+            }
+        }}
+        return response
+    else:
+        response = {
+            'sessionAttributes': event['sessionAttributes'],
+            'dialogAction': {
+                'type': 'ElicitSlot',
+                'message': {
+                    'contentType': 'PlainText',
+                    'content': "It seems like the channel already exists. Please choose a different name."
+                },
+                'intentName': 'CreateRoom',
+                'slotToElicit': 'Room',
+                'slots': {
+                    'Room': None
+                },
+            }
         }
-    }}
+        return response
+    # publish_to_sns({'lex': event})
     # response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
     #     'type': 'ElictSlot',
     #     'intentName': 'CreateChannel',
     #     'slotToElicit': 'Channel'
     # }}
-    return response
+
+
+def publish_to_sns(event):
+    return sns.publish(
+        TopicArn=os.environ['SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(event)}),
+        MessageStructure='json'
+    )
 
 
 def handler(event, context):

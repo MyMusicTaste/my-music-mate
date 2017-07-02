@@ -1,0 +1,23 @@
+{
+    "messageVersion": "1.0",
+    "invocationSource": "DialogCodeHook",
+    "userId": "120387605022",
+    "sessionAttributes": {
+        "channel": "D6272CSAD",
+        "team_id": "T5K9TKQ3F"
+    },
+    "bot": {
+        "name": "MyMusicMate",
+        "alias": null,
+        "version": "$LATEST"
+    },
+    "outputDialogMode": "Text",
+    "currentIntent": {
+        "name": "CreateRoom",
+        "slots": {
+            "Room": "music-live"
+        },
+        "confirmationStatus": "Confirmed"
+    },
+    "inputTranscript": "yes"
+}

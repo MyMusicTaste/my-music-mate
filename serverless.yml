@@ -38,6 +38,7 @@ provider:
         - SNS:Publish
       Resource:
         - arn:aws:sns:*:*:${self:custom.namespace}-dispatch
+        - arn:aws:sns:*:*:${self:custom.namespace}-room
     - Effect: Allow
       Action:
         - lex:PostText
@@ -99,10 +100,16 @@ functions:
     handler: src/slack/dispatch.handler
     events:
       - sns: ${self:custom.namespace}-dispatch
+  slack-room:
+    handler: src/slack/room.handler
+    events:
+      - sns: ${self:custom.namespace}-room
   lex-add-invitee:
     handler: src/lex/add-invitee.handler
   lex-create-room:
     handler: src/lex/create-room.handler
+    environment:
+      SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-room" ] ]  }
 
 
 #    The following are a few example events you can configure

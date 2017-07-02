@@ -60,28 +60,19 @@ def retrieve_last_called_user(event):
 
 
 def check_for_mention(event):
-    log.info('!!! check_for_mention !!!')
     message = event['slack']['event']['text']
     bot_user_id = event['team']['bot']['bot_user_id']
     slack_user_id = event['slack']['event']['user']
     is_bot_user_mentioned = re.match(r'^<@%s>.*$' % bot_user_id, message)
-    log.info('!!! LOG !!!')
-    log.info(bot_user_id)
-    log.info(slack_user_id)
-    log.info(is_bot_user_mentioned)
     # Save the last called user of the mentioner (only if the mentioner is not the bot).
     last_called_users = re.findall(r'^<@[A-Z1-9]\w+>', message)
     if bot_user_id != slack_user_id and len(last_called_users) > 0:
-        log.info('!!! store_last_called_user !!!')
         store_last_called_user(event, last_called_users[0])
     else:
         response = retrieve_last_called_user(event)
-        log.info('!!! retrieve_last_called_user !!!')
-        log.info(response)
         if 'Item' in response and 'last_called' in response['Item']:
             if response['Item']['last_called'] == bot_user_id:
                 is_bot_user_mentioned = True
-                log.info('!!! is_bot_user_mentioned = true !!!')
 
     if is_bot_user_mentioned:
         log.info('Bot %s is mentioned in %s' % (bot_user_id, message))
@@ -109,7 +100,6 @@ def handler(event, context):
         event = get_slack_event(event)
         # Response to Slack challenge.
         if 'type' in event['slack'] and event['slack']['type'] == 'url_verification':
-            log.info('!!! url_verification !!!')
             response['body'] = json.dumps({"challenge": event['slack']['challenge']})
         else:
             # Response to an actual slack event.
