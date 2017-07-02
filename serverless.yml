@@ -1,5 +1,5 @@
 service: mmtbot2
-frameworkVersion: "~1.15.1"
+frameworkVersion: "~1.16.1"
 
 custom:
   namespace: ${self:service}-${self:custom.stage}
@@ -26,7 +26,7 @@ provider:
         - dynamodb:PutItem
       Resource:
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.TEAMS_TABLE}
-        - arn:aws:dynamodb:*:*:table/${self:provider.environment.SESSIONS_TABLE
+        - arn:aws:dynamodb:*:*:table/${self:provider.environment.SESSIONS_TABLE}
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.LEX_USER_TABLE}
 #    - Effect: Allow  # This need to be uncommented if you want to make a lambda function to call another one.
 #      Action:
@@ -202,4 +202,4 @@ resources:
 
 plugins:
   - serverless-python-requirements
-  - serverless-lex-model
+  - serverless-lex-deploy

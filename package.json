@@ -1,10 +1,9 @@
 {
-  "name": "mmt-bot",
+  "name": "MyMusicMate",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "AWS + Slack + Lex bot",
   "dependencies": {
-    "aws-sdk": "^2.72.0",
+    "aws-sdk": "^2.80.0",
     "serverless-python-requirements": "^2.3.3"
   },
   "devDependencies": {},

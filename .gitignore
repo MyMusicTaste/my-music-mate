@@ -26,7 +26,8 @@ mmm/
 
 # NPM
 node_modules/*
-!node_modules/serverless-lex-model/
+!node_modules/serverless-lex-deploy/
+package-lock.json
 
 # Etc
 .idea
