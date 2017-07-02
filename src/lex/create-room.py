@@ -86,7 +86,7 @@ def compose_fulfill_response(event):
                 if i < len(event['sessionAttributes']['invitees']) - 1:
                     result += ', '
                 else:
-                    if len(event['sessionAttributes']['invitees'] < 3:
+                    if len(event['sessionAttributes']['invitees']) < 3:
                         result += ', and '
                     else:
                         result += ' and '
