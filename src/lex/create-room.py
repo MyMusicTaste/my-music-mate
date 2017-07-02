@@ -36,6 +36,7 @@ def create_room(event):
     response = requests.get(url)
     response_json = response.json()
     event['slack'] = response_json
+    event['sessionAttributes']['room_id'] = event['slack']['channel']['id']
     # log.info(response_json)
     # return response_json
     # if 'ok' in response_json and response_json['ok'] is True:
@@ -61,6 +62,7 @@ def create_session_placeholder(event):
         }
     event['sessionAttributes']['room'] = None
     event['sessionAttributes']['invitees'] = []
+    event['sessionAttributes']['room_id'] = None
 
 
 def retrieve_session_attributes(event):
@@ -88,6 +90,7 @@ def store_session_attributes(event):
         'team_id': event['sessionAttributes']['team_id'],
         'channel': event['sessionAttributes']['channel'],
         'room': event['sessionAttributes']['room'],
+        'room_id': event['sessionAttributes']['room_id'],
         'invitees': event['sessionAttributes']['invitees']
     })
 
@@ -134,6 +137,7 @@ def compose_fulfill_response(event):
     log.info(event)
 
     if 'ok' in event['slack'] and event['slack']['ok'] is True:
+        store_session_attributes(event)
         invite_members(event)
 
         response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
