@@ -86,14 +86,17 @@ def compose_fulfill_response(event):
                 if i < len(event['sessionAttributes']['invitees']) - 1:
                     result += ', '
                 else:
-                    result += ', and '
+                    if len(event['sessionAttributes']['invitees'] < 3:
+                        result += ', and '
+                    else:
+                        result += ' and '
             result += '<@' + invitee + '>'
     response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
         'type': 'Close',
         'fulfillmentState': 'Fulfilled',
         'message': {
             'contentType': 'PlainText',
-            'content': result + ' are on a queue to be invited to a channel' + event['sessionAttributes']['room'] + '.'
+            'content': result + ' are on a queue to be invited to a channel ' + event['sessionAttributes']['room'] + '.'
         }
     }}
     # response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {

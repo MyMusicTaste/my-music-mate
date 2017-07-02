@@ -41,43 +41,47 @@ def get_team(event):
     return event
 
 
-# def store_last_called_user(event, last_called):
-#     table = dynamodb.Table(os.environ['LEX_USER_TABLE'])
-#     return table.put_item(Item={
-#         'team_id': event['slack']['team_id'],
-#         'channel': event['slack']['channel'],
-#         'user': event['slack']['user'],
-#         'last_called': last_called
-#     })
-#
-# def retrieve_last_called_user(event):
-#     table = dynamodb.Table(os.environ['LEX_USER_TABLE'])
-#     response = table.get_item(Key={
-#         'team_id': event['slack']['team_id'],
-#         'channel': event['slack']['channel'],
-#         'user': event['slack']['user']
-#     })
-#     return response
+def store_last_called_user(event, last_called):
+    last_called = re.sub('<@', '', last_called)
+    last_called = re.sub('>', '', last_called)
+    table = dynamodb.Table(os.environ['USERS_TABLE'])
+    return table.put_item(Item={
+        'team_id': event['slack']['team_id'],
+        'user': event['slack']['event']['user'],
+        'last_called': last_called
+    })
+
+def retrieve_last_called_user(event):
+    table = dynamodb.Table(os.environ['USERS_TABLE'])
+    return table.get_item(Key={
+        'team_id': event['slack']['team_id'],
+        'user': event['slack']['event']['user']
+    })
 
 
 def check_for_mention(event):
+    log.info('!!! check_for_mention !!!')
     message = event['slack']['event']['text']
     bot_user_id = event['team']['bot']['bot_user_id']
     slack_user_id = event['slack']['event']['user']
     is_bot_user_mentioned = re.match(r'^<@%s>.*$' % bot_user_id, message)
+    log.info('!!! LOG !!!')
+    log.info(bot_user_id)
+    log.info(slack_user_id)
+    log.info(is_bot_user_mentioned)
     # Save the last called user of the mentioner (only if the mentioner is not the bot).
     last_called_users = re.findall(r'^<@[A-Z1-9]\w+>', message)
-    # if bot_user_id != slack_user_id and len(last_called_users) > 0:
-    #     log.info('!!! store_last_called_user !!!')
-    #     store_last_called_user(event, last_called_users[0])
-    # else:
-    #     response = retrieve_last_called_user(event)
-    #     log.info('!!! retrieve_last_called_user !!!')
-    #     log.info(response)
-    #     if 'Item' in response and 'last_called' in response['Item']:
-    #         if response['Item']['last_called'] == bot_user_id:
-    #             is_bot_user_mentioned = true
-    #             log.info('!!! is_bot_user_mentioned = true !!!')
+    if bot_user_id != slack_user_id and len(last_called_users) > 0:
+        log.info('!!! store_last_called_user !!!')
+        store_last_called_user(event, last_called_users[0])
+    else:
+        response = retrieve_last_called_user(event)
+        log.info('!!! retrieve_last_called_user !!!')
+        log.info(response)
+        if 'Item' in response and 'last_called' in response['Item']:
+            if response['Item']['last_called'] == bot_user_id:
+                is_bot_user_mentioned = True
+                log.info('!!! is_bot_user_mentioned = true !!!')
 
     if is_bot_user_mentioned:
         log.info('Bot %s is mentioned in %s' % (bot_user_id, message))
@@ -105,13 +109,14 @@ def handler(event, context):
         event = get_slack_event(event)
         # Response to Slack challenge.
         if 'type' in event['slack'] and event['slack']['type'] == 'url_verification':
+            log.info('!!! url_verification !!!')
             response['body'] = json.dumps({"challenge": event['slack']['challenge']})
         else:
             # Response to an actual slack event.
             verify_token(event)
             get_team(event)
             log.info(json.dumps(event))
-            # check_for_mention(event)
+            check_for_mention(event)
             if event['team']['bot']['bot_user_id'] != event['slack']['event']['user']:  # Ignore bot's own message.
                 publish_to_sns(event)
     except Exception as e:
