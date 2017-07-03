@@ -66,7 +66,7 @@ def create_session_placeholder(event):
 
 
 def retrieve_session_attributes(event):
-    table = dynamodb.Table(os.environ['SESSIONS_TABLE'])
+    table = dynamodb.Table(os.environ['INTENTS_TABLE'])
     if 'sessionAttributes' not in event:
         raise Exception('`team_id` and `channel` are not provided.')
     response = table.get_item(Key={
@@ -85,7 +85,7 @@ def retrieve_session_attributes(event):
 
 
 def store_session_attributes(event):
-    table = dynamodb.Table(os.environ['SESSIONS_TABLE'])
+    table = dynamodb.Table(os.environ['INTENTS_TABLE'])
     return table.put_item(Item={
         'team_id': event['sessionAttributes']['team_id'],
         'channel': event['sessionAttributes']['channel'],

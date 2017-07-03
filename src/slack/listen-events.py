@@ -23,7 +23,7 @@ def get_slack_event(event):
 
 # Verify the token exists in the dynamodb.
 def verify_token(event):
-    if 'token' in event['slack'] and event['slack']['token'] != os.environ['VERIFICATION_TOKEN']:
+    if 'token' in event['slack'] and event['slack']['token'] != os.environ['SLACK_APP_TOKEN']:
         raise Exception('Slack bot api verification token does not match!')
     return event
 
@@ -44,7 +44,7 @@ def get_team(event):
 def store_last_called_user(event, last_called):
     last_called = re.sub('<@', '', last_called)
     last_called = re.sub('>', '', last_called)
-    table = dynamodb.Table(os.environ['USERS_TABLE'])
+    table = dynamodb.Table(os.environ['TALKS_TABLE'])
     return table.put_item(Item={
         'team_id': event['slack']['team_id'],
         'user': event['slack']['event']['user'],
@@ -52,7 +52,7 @@ def store_last_called_user(event, last_called):
     })
 
 def retrieve_last_called_user(event):
-    table = dynamodb.Table(os.environ['USERS_TABLE'])
+    table = dynamodb.Table(os.environ['TALKS_TABLE'])
     return table.get_item(Key={
         'team_id': event['slack']['team_id'],
         'user': event['slack']['event']['user']

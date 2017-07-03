@@ -84,7 +84,7 @@
         ]
       },
       "dialogCodeHook": {
-        "uri": "arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:custom.namespace}-lex-add-invitee",
+        "uri": "arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:custom.namespace}-lex-invite-mate",
         "messageVersion": "1.0"
       },
       "fulfillmentActivity": {
@@ -141,7 +141,7 @@
         ]
       },
       "dialogCodeHook": {
-        "uri": "arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:custom.namespace}-lex-create-room",
+        "uri": "arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:custom.namespace}-lex-reserve-lounge",
         "messageVersion": "1.0"
       },
       "fulfillmentActivity": {
