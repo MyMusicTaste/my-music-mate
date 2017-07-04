@@ -4,10 +4,12 @@ frameworkVersion: "~1.16.1"
 custom:
   namespace: ${self:service}-${self:custom.stage}
   stage: ${opt:stage, self:provider.stage}
+  aws:
+    id: 120387605022
   lex:
     name: MyMusicMate
     alias: dev
-    blurpirnt: "src/lex/bluepirnt.json"
+    blueprint: src/lex/blueprint.json
 
 provider:
   name: aws
@@ -70,13 +72,13 @@ package:
 
 functions:
   slack-install-app:
-    handler: src/slack/install-app.handler
+    handler: src/slack/lambda/install-app.handler
     events:
       - http:
           path: install
           method: get
   slack-listen-events:
-    handler: src/slack/listen-events.handler
+    handler: src/slack/lambda/listen-events.handler
     environment:
       SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-dispatch-actions" ] ]  }  # same as `arn:aws:sns:*:*:${self:custom.namespace}-dispatch-actions` but environment values require String format.
     events:
@@ -84,7 +86,7 @@ functions:
           path: events
           method: post
   slack-dispatch-actions:
-    handler: src/slack/dispatch-actions.handler
+    handler: src/slack/lambda/dispatch-actions.handler
     events:
       - sns: ${self:custom.namespace}-dispatch-actions
 #  slack-room:
@@ -92,9 +94,9 @@ functions:
 #    events:
 #      - sns: ${self:custom.namespace}-room
   lex-invite-mate:
-    handler: src/lex/invite-mate.handler
+    handler: src/lex/lambda/invite-mate.handler
   lex-reserve-lounge:
-    handler: src/lex/reserve-lounge.handler
+    handler: src/lex/lambda/reserve-lounge.handler
 #    environment:
 #      SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-room" ] ]  }
 
