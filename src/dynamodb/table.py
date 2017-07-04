@@ -5,13 +5,13 @@ import boto3
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
-dynamodb = boto3.resource('dynamodb')
+
 
 
 class DbTable(object):
     def __init__(self, name):
-        self.name = name
-        self.table = dynamodb.Table(name)
+        self.dynamodb = boto3.resource('dynamodb')
+        self.table = self.dynamodb.Table(name)
 
     def put_item(self, item):
         return self.table.put_item(Item=item)

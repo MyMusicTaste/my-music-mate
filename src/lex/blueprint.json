@@ -34,11 +34,11 @@
 
   "intents": [
     {
-      "name": "AddInvitee",
+      "name": "InviteMate",
       "description": "Intent for adding Slack users on DB to invite to a Slack channel.",
       "slots": [
         {
-          "name": "Invitee",
+          "name": "Mate",
           "description": "Slot for holding the first Slack users to be invited to a channel.",
           "slotConstraint": "Required",
           "slotType": "AMAZON.Person",
@@ -53,14 +53,14 @@
           },
           "priority": 1,
           "sampleUtterances": [
-            "I would like to invite {Invitee}"
+            "I would like to invite {Mate}"
           ]
         }
 
       ],
       "sampleUtterances": [
-        "I would like to go to a concert with {Invitee}",
-        "I want to have a great time with {Invitee}"
+        "I would like to go to a concert with {Mate}",
+        "I want to have a great time with {Mate}"
       ],
       "confirmationPrompt": {
         "messages": [
@@ -94,14 +94,14 @@
 
 
     {
-      "name": "CreateRoom",
+      "name": "ReserveLounge",
       "description": "Intent for deciding a Slack channel name the bot will create and invite slack users into.",
       "slots": [
         {
-          "name": "Room",
+          "name": "Lounge",
           "description": "Slot for holding the desired name of Slack channel.",
           "slotConstraint": "Required",
-          "slotType": "AMAZON.MusicCreativeWorkType",
+          "slotType": "AMAZON.Person",
           "valueElicitationPrompt": {
             "messages": [
               {
@@ -113,21 +113,21 @@
           },
           "priority": 1,
           "sampleUtterances": [
-            "I would like to create a channel name with {Room}",
-            "What about {Room}",
-            "{Room} please"
+            "I would like to create a channel name with {Lounge}",
+            "What about {Lounge}",
+            "{Lounge} please"
           ]
         }
 
       ],
       "sampleUtterances": [
-        "I would like to create a channel name with {Room}"
+        "I would like to create a channel name with {Lounge}"
       ],
       "confirmationPrompt": {
         "messages": [
           {
             "contentType": "PlainText",
-            "content": "Are you sure you want to create a channel name with {Room}?"
+            "content": "Are you sure you want to create a channel name with {Lounge}?"
           }
         ],
         "maxAttempts": 5

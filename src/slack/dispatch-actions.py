@@ -5,62 +5,53 @@ import logging
 import boto3
 import json
 from urllib.parse import urlencode
+from src.lex.runtime import LexRunTime
 import requests
 import re
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
-lex = boto3.client('lex-runtime')
+lex = LexRunTime(os.environ['LEX_NAME'], os.environ['LEX_ALIAS'])
 
 
-def talk_lex(event):
-    message = re.sub('<@', '@', event['slack']['event']['text'])
-    message = re.sub('>', '', message)
-
-    response = lex.post_text(
-        botName=os.environ['LEX_NAME'],
-        botAlias=os.environ['LEX_ALIAS'],
-        userId=os.environ['AWS_ID'],
-        sessionAttributes={
-            "team_id": event['team']['team_id'],
-            "channel": event['slack']['event']['channel']
-        },
-        inputText=message
+def talk_with_lex(event):
+    event['lex'] = lex.post_message(
+        team_id=event['team']['team_id'],
+        channel_id=event['slack']['event']['channel'],
+        api_token=event['team']['access_token'],
+        bot_token=event['team']['bot']['bot_access_token'],
+        message=event['slack']['event']['text']
     )
-    return response
 
 
-def post_message(event):
-    lex_response = talk_lex(event)
-    log.info(lex_response)
-    if 'dialogState' in event and event['dialogState'] == 'ReadyForFulfillment':
-        return lex_response
+def post_message_to_slack(event):
     params = {
-        "token": event['team']['bot']['bot_access_token'],
-        "channel": event['slack']['event']['channel'],
-        "text": lex_response['message'],
+        "token": event['lex']['sessionAttributes']['bot_token'],
+        "channel": event['lex']['sessionAttributes']['channel_id'],
+        "text": event['lex']['message']
     }
     url = 'https://slack.com/api/chat.postMessage?' + urlencode(params)
-    response = requests.get(url)
-    response_json = response.json()
-    if 'ok' in response_json and response_json['ok'] is True:
-        return response_json
+    response = requests.get(url).json()
+    if 'ok' in response and response['ok'] is True:
+        return
     raise Exception('Failed to post a message to a Slack channel!')
 
 
 def handler(event, context):
     log.info(json.dumps(event))
+    event = json.loads(event['Records'][0]['Sns']['Message'])
+    response = {
+        "statusCode": 200,
+        "body": json.dumps({"message": 'message has been sent successfully.'})
+    }
     try:
-        post_message(json.loads(event['Records'][0]['Sns']['Message']))
-        response = {
-            "statusCode": 200,
-            "body": json.dumps({"message": 'message has been sent successfully.'})
-        }
-        return response
+        talk_with_lex(event)
+        post_message_to_slack(event)
     except Exception as e:
         response = {
             "statusCode": 400,
             "body": json.dumps({"message": str(e)})
         }
-        log.error(response)
+    finally:
+        log.info(response)
         return response

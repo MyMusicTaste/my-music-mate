@@ -4,11 +4,10 @@ frameworkVersion: "~1.16.1"
 custom:
   namespace: ${self:service}-${self:custom.stage}
   stage: ${opt:stage, self:provider.stage}
-  aws:
-    id: 120387605022
   lex:
     name: MyMusicMate
     alias: dev
+    blurpirnt: "src/lex/bluepirnt.json"
 
 provider:
   name: aws
@@ -45,7 +44,6 @@ provider:
 
 
   environment:
-    AWS_ID: ${self:custom.aws.id}
     BOT_NAME: ${self:service}
     SLACK_APP_ID: '189333670117.206796368962'
     SLACK_APP_SECRET: 65fd12e59aa8517ddda3d9aaeaff13d0
