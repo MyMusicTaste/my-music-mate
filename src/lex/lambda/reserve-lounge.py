@@ -114,7 +114,7 @@ def compose_fulfill_response(event):
 
         event['sessionAttributes']['channel_id'] = event['intents']['lounge']['id']
 
-        publish_to_sns(event, 'Hi, I am your music mate!')
+        publish_to_sns(event, 'Hi, I am your music mate! <@' + event['intents']['host_id'] + '> asked me to invite you all for going to a concert together.')
 
         response = {
             'sessionAttributes': event['sessionAttributes'],
