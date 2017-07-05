@@ -3,109 +3,76 @@
 
 import os
 import logging
-import boto3
 import json
 import re
-# from urllib.parse import urlencode
-# import requests
+from src.dynamodb.intents import DbIntents
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
-dynamodb = boto3.resource('dynamodb')
-
-
-def create_session_placeholder(event):
-    if not event['sessionAttributes']:
-        event['sessionAttributes'] = {
-            'team_id': 'T5K9TKQ3F',
-            'channel': 'D5SH2NMML'
-        }
-    event['sessionAttributes']['invitees'] = []
+db_intents = DbIntents(os.environ['INTENTS_TABLE'])
 
 
 def compose_validate_response(event):
-    slot_invitee = None
-    if event['currentIntent']['slots']['Invitee']:
-        invitees = re.findall(r'@([A-Z1-9]\w+)', event['currentIntent']['slots']['Invitee'])
-        log.info(invitees)
-        for invitee in invitees:
-            slot_invitee = invitee
-            if invitee not in event['sessionAttributes']['invitees']:
-                event['sessionAttributes']['invitees'].append(invitee)
-    if slot_invitee: # To keep getting invitees and store in the db session.
+    event['intents']['current_intent'] = 'InviteMate'
+    if event['currentIntent']['slots']['Mate']:
+        mates = re.findall(r'@([A-Z1-9]\w+)', event['currentIntent']['slots']['Mate'])
+        for mate in mates:
+            if mate not in event['intents']['mates']:
+                event['intents']['mates'].append(mate)
+    if len(event['intents']['mates']) > 0:
+        # To keep getting mates and store in the db session.
         response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
             'type': 'ConfirmIntent',
-            "intentName": "AddInvitee",
+            "intentName": "InviteMate",
             'slots': {
-                'Invitee': slot_invitee
+                'Mate': event['intents']['mates'][0]
             }
         }}
         return response
-    else:   # First time getting an invitee.
+    else:   # First time getting an mate.
         response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
             'type': 'Delegate',
             'slots': {
-                'Invitee': slot_invitee
+                'Mate': None
             }
         }}
         return response
 
 
-# End of the AddInvitee intention moves to the CreateChannel intention.
+# End of the InviteMate intention moves to the CreateChannel intention.
 def compose_fulfill_response(event):
-    # result = ''
-    # if len(event['sessionAttributes']['invitees']) > 0:
-    #     for i, invitee in enumerate(event['sessionAttributes']['invitees']):
-    #         if result != '':
-    #             if i < len(event['sessionAttributes']['invitees']) - 1:
-    #                 result += ', '
-    #             else:
-    #                 result += ', and '
-    #         result += '<@' + invitee + '>'
-    # response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
-    #     'type': 'Close',
-    #     'fulfillmentState': 'Fulfilled',
-    #     'message': {
-    #         'contentType': 'PlainText',
-    #         'content': result + ' are on the queue to be invited to a channel.'
-    #     }
-    # }}
+    event['intents']['current_intent'] = 'ReserveLounge'
     response = {
         'sessionAttributes': event['sessionAttributes'],
         'dialogAction': {
             'type': 'ElicitSlot',
-            'intentName': 'CreateRoom',
-            'slotToElicit': 'Room',
+            'intentName': 'ReserveLounge',
+            'slotToElicit': 'Lounge',
             'slots': {
-                'Room': None
+                'Lounge': None
             },
         }
     }
     return response
 
 
-def retrieve_session_attributes(event):
-    table = dynamodb.Table(os.environ['INTENTS_TABLE'])
+def retrieve_intents(event):
     if 'sessionAttributes' not in event:
-        raise Exception('`team_id` and `channel` are not provided.')
-    response = table.get_item(Key={
-        'team_id': event['sessionAttributes']['team_id'],
-        'channel': event['sessionAttributes']['channel']
-    })
-    if 'Item' in response and 'invitees' in response['Item']:
-        event['sessionAttributes']['invitees'] = response['Item']['invitees']
-    else:
-        event['sessionAttributes']['invitees'] = []
-    return event
+        raise Exception('Required keys: `team_id` and `channel_id` are not provided.')
+    event['intents'] = db_intents.retrieve_intents(
+        event['sessionAttributes']['team_id'],
+        event['sessionAttributes']['channel_id']
+    )
 
 
-def store_session_attributes(event):
-    table = dynamodb.Table(os.environ['INTENTS_TABLE'])
-    return table.put_item(Item={
-        'team_id': event['sessionAttributes']['team_id'],
-        'channel': event['sessionAttributes']['channel'],
-        'invitees': event['sessionAttributes']['invitees']
-    })
+def store_intents(event):
+    return db_intents.store_intents(
+        keys={
+            'team_id': event['sessionAttributes']['team_id'],
+            'channel_id': event['sessionAttributes']['channel_id']
+        },
+        attributes=event['intents']
+    )
 
 
 def handler(event, context):
@@ -114,22 +81,19 @@ def handler(event, context):
         "statusCode": 200
     }
     try:
-        create_session_placeholder(event)
-        retrieve_session_attributes(event)
-        # Terminating condition.
+        retrieve_intents(event)
         if event['currentIntent'] is not None and event['currentIntent']['confirmationStatus'] == 'Denied':
+            # Terminating condition.
             response = compose_fulfill_response(event)
-        # Processing the user input.
         else:
+            # Processing the user input.
             response = compose_validate_response(event)
-        store_session_attributes(event)
+        store_intents(event)
     except Exception as e:
         response = {
             "statusCode": 400,
             "body": json.dumps({"message": str(e)})
         }
-        log.error(response)
     finally:
-        response['sessionAttributes'].pop('invitees')
         log.info(response)
         return response

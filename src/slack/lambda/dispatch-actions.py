@@ -4,14 +4,12 @@ import os
 import logging
 import boto3
 import json
-from urllib.parse import urlencode
 from src.lex.runtime import LexRunTime
-import requests
-import re
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 lex = LexRunTime(os.environ['LEX_NAME'], os.environ['LEX_ALIAS'])
+sns = boto3.client('sns')
 
 
 def talk_with_lex(event):
@@ -24,17 +22,29 @@ def talk_with_lex(event):
     )
 
 
-def post_message_to_slack(event):
-    params = {
-        "token": event['lex']['sessionAttributes']['bot_token'],
-        "channel": event['lex']['sessionAttributes']['channel_id'],
-        "text": event['lex']['message']
+def publish_to_sns(event):
+    sns_event = {
+        'token': event['lex']['sessionAttributes']['bot_token'],
+        'channel': event['lex']['sessionAttributes']['channel_id'],
+        'text': event['lex']['message']
     }
-    url = 'https://slack.com/api/chat.postMessage?' + urlencode(params)
-    response = requests.get(url).json()
-    if 'ok' in response and response['ok'] is True:
-        return
-    raise Exception('Failed to post a message to a Slack channel!')
+    return sns.publish(
+        TopicArn=os.environ['SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(sns_event)}),
+        MessageStructure='json'
+    )
+
+# def post_message_to_slack(event):
+#     params = {
+#         "token": event['lex']['sessionAttributes']['bot_token'],
+#         "channel": event['lex']['sessionAttributes']['channel_id'],
+#         "text": event['lex']['message']
+#     }
+#     url = 'https://slack.com/api/chat.postMessage?' + urlencode(params)
+#     response = requests.get(url).json()
+#     if 'ok' in response and response['ok'] is True:
+#         return
+#     raise Exception('Failed to post a message to a Slack channel!')
 
 
 def handler(event, context):
@@ -46,7 +56,7 @@ def handler(event, context):
     }
     try:
         talk_with_lex(event)
-        post_message_to_slack(event)
+        publish_to_sns(event)
     except Exception as e:
         response = {
             "statusCode": 400,

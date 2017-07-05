@@ -121,7 +121,7 @@
 
       ],
       "sampleUtterances": [
-        "I would like to create a channel name with {Lounge}"
+        "THIS RESERVE LOUNGE INTENT SOULDN'T INVOKED BY ANY UTTERANCES"
       ],
       "confirmationPrompt": {
         "messages": [
@@ -142,6 +142,61 @@
       },
       "dialogCodeHook": {
         "uri": "arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:custom.namespace}-lex-reserve-lounge",
+        "messageVersion": "1.0"
+      },
+      "fulfillmentActivity": {
+        "type": "ReturnIntent"
+      }
+    },
+
+
+    {
+      "name": "AskCity",
+      "description": "Intent for asking mates' desired city for concert recommendation.",
+      "slots": [
+        {
+          "name": "City",
+          "description": "Slot for holding the city name.",
+          "slotConstraint": "Required",
+          "slotType": "AMAZON.US_CITY",
+          "valueElicitationPrompt": {
+            "messages": [
+              {
+                "contentType": "PlainText",
+                "content": "Could you tell the city that you want to go for a concert?"
+              }
+            ],
+            "maxAttempts": 5
+          },
+          "priority": 1,
+          "sampleUtterances": [
+            "I live in {City}"
+          ]
+        }
+
+      ],
+      "sampleUtterances": [
+        "THIS ASK CITY INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES"
+      ],
+      "confirmationPrompt": {
+        "messages": [
+          {
+            "contentType": "PlainText",
+            "content": "Are you sure your desired city for going for a concert?"
+          }
+        ],
+        "maxAttempts": 5
+      },
+      "rejectionStatement": {
+        "messages": [
+          {
+            "contentType": "PlainText",
+            "content": "Let me know again if you want to start over."
+          }
+        ]
+      },
+      "dialogCodeHook": {
+        "uri": "arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:custom.namespace}-lex-ask-city",
         "messageVersion": "1.0"
       },
       "fulfillmentActivity": {

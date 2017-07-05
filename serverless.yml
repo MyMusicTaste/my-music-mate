@@ -23,6 +23,7 @@ provider:
       Action:
         - dynamodb:GetItem
         - dynamodb:PutItem
+        - dynamodb:DeleteItem
       Resource:
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.TEAMS_TABLE}
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.INTENTS_TABLE}
@@ -37,7 +38,7 @@ provider:
         - SNS:Publish
       Resource:
         - arn:aws:sns:*:*:${self:custom.namespace}-dispatch-actions
-#        - arn:aws:sns:*:*:${self:custom.namespace}-room
+        - arn:aws:sns:*:*:${self:custom.namespace}-post-message
     - Effect: Allow
       Action:
         - lex:PostText
@@ -89,16 +90,20 @@ functions:
     handler: src/slack/lambda/dispatch-actions.handler
     events:
       - sns: ${self:custom.namespace}-dispatch-actions
-#  slack-room:
-#    handler: src/slack/room.handler
-#    events:
-#      - sns: ${self:custom.namespace}-room
+    environment:
+      SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
+  slack-post-message:
+    handler: src/slack/lambda/post-message.handler
+    events:
+      - sns: ${self:custom.namespace}-post-message
   lex-invite-mate:
     handler: src/lex/lambda/invite-mate.handler
   lex-reserve-lounge:
     handler: src/lex/lambda/reserve-lounge.handler
-#    environment:
-#      SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-room" ] ]  }
+    environment:
+      SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
+  lex-ask-city:
+    handler: src/lex/lambda/ask-city.handler
 
 
 #    The following are a few example events you can configure
@@ -143,13 +148,9 @@ resources:
         AttributeDefinitions:
           - AttributeName: team_id
             AttributeType: S
-          - AttributeName: user_id
-            AttributeType: S
         KeySchema:
           - AttributeName: team_id
             KeyType: HASH
-          - AttributeName: user_id
-            KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
@@ -160,12 +161,12 @@ resources:
         AttributeDefinitions:
           - AttributeName: team_id
             AttributeType: S
-          - AttributeName: whisper_id
+          - AttributeName: channel_id
             AttributeType: S
         KeySchema:
           - AttributeName: team_id
             KeyType: HASH
-          - AttributeName: whisper_id
+          - AttributeName: channel_id
             KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 5

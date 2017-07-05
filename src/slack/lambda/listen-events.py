@@ -5,17 +5,11 @@ import logging
 import boto3
 import json
 import re
-# from urllib.parse import urlencode
-# import requests
 from src.dynamodb.teams import DbTeams
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
-
 db_teams = DbTeams(os.environ['TEAMS_TABLE'])
-
-
-dynamodb = boto3.resource('dynamodb')
 sns = boto3.client('sns')
 
 # Put event coming from Slack into `slack` dictionary. We keep this format since we also want to include other data

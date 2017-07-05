@@ -10,13 +10,8 @@ class DbTeams(DbTable):
     def store_team(self, item):
         self.put_item(item=item)
 
-    def retrieve_team(self, team_id, user_id=None):
-        if user_id is None:
-            return self.get_item(key={
-                'team_id': team_id,
-            })
+    def retrieve_team(self, team_id):
         return self.get_item(key={
             'team_id': team_id,
-            'user_id': user_id,
         })
 

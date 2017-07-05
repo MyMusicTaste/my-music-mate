@@ -5,115 +5,75 @@ import os
 import logging
 import boto3
 import json
-import re
 from urllib.parse import urlencode
 import requests
+from src.dynamodb.intents import DbIntents
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
-dynamodb = boto3.resource('dynamodb')
+db_intents = DbIntents(os.environ['INTENTS_TABLE'])
 sns = boto3.client('sns')
 
 
-def get_team(event):
-    key = {
-        'team_id': event['sessionAttributes']['team_id']
+def publish_to_sns(event, message):
+    sns_event = {
+        'token': event['sessionAttributes']['bot_token'],
+        'channel': event['sessionAttributes']['channel_id'],
+        'text': message
     }
-    table = dynamodb.Table(os.environ['TEAMS_TABLE'])
-    response = table.get_item(Key=key)
-    if 'Item' not in response:
-        raise Exception('Cannot find team info bind to the Slack bot!')
-    event['team'] = response['Item']
-    return event
+    return sns.publish(
+        TopicArn=os.environ['SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(sns_event)}),
+        MessageStructure='json'
+    )
 
 
-def create_room(event):
+def reserve_lounge(event):
     params = {
-        "token": event['team']['access_token'],
-        "name": event['sessionAttributes']['room']
+        "token": event['sessionAttributes']['api_token'],
+        "name": event['intents']['lounge']['name']
     }
     url = 'https://slack.com/api/channels.create?' + urlencode(params)
-    response = requests.get(url)
-    response_json = response.json()
-    event['slack'] = response_json
-    event['sessionAttributes']['room_id'] = event['slack']['channel']['id']
-    # log.info(response_json)
-    # return response_json
-    # if 'ok' in response_json and response_json['ok'] is True:
-    #     return response_json
-    # raise Exception('Failed to create a room on Slack!')
+    response = requests.get(url).json()
+    if 'ok' in response and response['ok'] is True:
+        event['intents']['lounge']['id'] = response['channel']['id']
+        event['intents']['lounge']['name'] = response['channel']['name']
+    else:
+        event['intents']['lounge']['id'] = None
+        event['intents']['lounge']['name'] = None
 
-def invite_members(event):
-    for member in event['sessionAttributes']['invitees']:
+
+def invite_mates(event):
+    for mate in event['intents']['mates']:
         params = {
-            'token': event['team']['access_token'],
-            'channel': event['slack']['channel']['id'],
-            "user": member
+            'token': event['sessionAttributes']['api_token'],
+            'channel': event['intents']['lounge']['id'],
+            "user": mate
         }
         url = 'https://slack.com/api/channels.invite?' + urlencode(params)
-        response = requests.get(url)
-
-
-def create_session_placeholder(event):
-    if not event['sessionAttributes']:
-        event['sessionAttributes'] = {
-            'team_id': 'T5K9TKQ3F',
-            'channel': 'D5SH2NMML'
-        }
-    event['sessionAttributes']['room'] = None
-    event['sessionAttributes']['invitees'] = []
-    event['sessionAttributes']['room_id'] = None
-
-
-def retrieve_session_attributes(event):
-    table = dynamodb.Table(os.environ['INTENTS_TABLE'])
-    if 'sessionAttributes' not in event:
-        raise Exception('`team_id` and `channel` are not provided.')
-    response = table.get_item(Key={
-        'team_id': event['sessionAttributes']['team_id'],
-        'channel': event['sessionAttributes']['channel']
-    })
-    if 'Item' in response and 'room' in response['Item']:
-        event['sessionAttributes']['room'] = response['Item']['room']
-    else:
-        event['sessionAttributes']['room'] = None
-    if 'Item' in response and 'invitees' in response['Item']:
-        event['sessionAttributes']['invitees'] = response['Item']['invitees']
-    else:
-        event['sessionAttributes']['invitees'] = []
-    return event
-
-
-def store_session_attributes(event):
-    table = dynamodb.Table(os.environ['INTENTS_TABLE'])
-    return table.put_item(Item={
-        'team_id': event['sessionAttributes']['team_id'],
-        'channel': event['sessionAttributes']['channel'],
-        'room': event['sessionAttributes']['room'],
-        'room_id': event['sessionAttributes']['room_id'],
-        'invitees': event['sessionAttributes']['invitees']
-    })
+        requests.get(url)
 
 
 def compose_validate_response(event):
-    slot_room = None
-    if event['currentIntent']['slots']['Room']:
-        slot_room = event['currentIntent']['slots']['Room']
-        event['sessionAttributes']['room'] = slot_room
-    if slot_room:   # Waiting for the user's confirmation.
+    event['intents']['current_intent'] = 'ReserveLounge'
+    slot_lounge = None
+    if event['currentIntent']['slots']['Lounge']:
+        event['intents']['lounge']['name'] = event['currentIntent']['slots']['Lounge']
+    if event['intents']['lounge']['name']:
+        # Waiting for the user's confirmation.
         response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
             'type': 'ConfirmIntent',
-            "intentName": "CreateRoom",
+            "intentName": "ReserveLounge",
             'slots': {
-                'Room': slot_room
+                'Lounge': event['intents']['lounge']['name']
             }
         }}
         return response
-    else:   # First time getting a Room name.
+    else:   # First time getting a lounge name.
         response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
             'type': 'Delegate',
             'slots': {
-                'Room': slot_room
+                'Lounge': None
             }
         }}
         return response
@@ -121,35 +81,64 @@ def compose_validate_response(event):
 
 # End of the AddInvitee intention moves to the CreateChannel intention.
 def compose_fulfill_response(event):
-    result = ''
-    if len(event['sessionAttributes']['invitees']) > 0:
-        for i, invitee in enumerate(event['sessionAttributes']['invitees']):
-            if result != '':
-                if i < len(event['sessionAttributes']['invitees']) - 1:
-                    result += ', '
+    reserve_lounge(event)
+    # Lounge is successfully created.
+    if event['intents']['lounge']['id']:
+        invite_mates(event)
+        # Composer response string.
+        mates_string = ''
+        mates = event['intents']['mates']
+        if len(mates) > 0:
+            for i, mate in enumerate(mates):
+                if len(mates) == 1:
+                    mates_string += ' and '
+                elif i == (len(mates) - 1):
+                    mates_string += ', and '
                 else:
-                    result += ', and '
-            result += '<@' + invitee + '>'
+                    mates_string += ', '
+                mates_string += '<@' + mate + '>'
 
-    get_team(event)
-    create_room(event)
+        # Post an invitation message to the host's Bot direct message channel.
+        message = 'You' + mates_string + ' are ' +\
+                  'invited to a channel `' + event['intents']['lounge']['name'] + '`.'
+        publish_to_sns(event, message)
 
-    log.info(event)
+        db_intents.switch_channel(
+            channel_id=event['intents']['lounge']['id'],
+            keys={
+                'team_id': event['sessionAttributes']['team_id'],
+                'channel_id': event['sessionAttributes']['channel_id']
+            },
+            attributes=event['intents']
+        )
 
-    if 'ok' in event['slack'] and event['slack']['ok'] is True:
-        store_session_attributes(event)
-        invite_members(event)
+        event['sessionAttributes']['channel_id'] = event['intents']['lounge']['id']
 
-        response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
-            'type': 'Close',
-            'fulfillmentState': 'Fulfilled',
-            'message': {
-                'contentType': 'PlainText',
-                'content': 'You, and ' + result + ' are invited to a channel ' + event['sessionAttributes']['room'] + '.'
+        publish_to_sns(event, 'Hi, I am your music mate!')
+
+        response = {
+            'sessionAttributes': event['sessionAttributes'],
+            'dialogAction': {
+                'type': 'ElicitSlot',
+                'intentName': 'AskLocation',
+                'slotToElicit': 'Location',
+                'slots': {
+                    'Location': None
+                },
             }
-        }}
+        }
+
+        # response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
+        #     'type': 'Close',
+        #     'fulfillmentState': 'Fulfilled',
+        #     'message': {
+        #         'contentType': 'PlainText',
+        #         'content': 'Hi, I am your music mate!'
+        #     }
+        # }}
         return response
     else:
+        event['intents']['lounge']['name'] = None
         response = {
             'sessionAttributes': event['sessionAttributes'],
             'dialogAction': {
@@ -158,10 +147,10 @@ def compose_fulfill_response(event):
                     'contentType': 'PlainText',
                     'content': "It seems like the channel already exists. Please choose a different name."
                 },
-                'intentName': 'CreateRoom',
-                'slotToElicit': 'Room',
+                'intentName': 'ReserveLounge',
+                'slotToElicit': 'Lounge',
                 'slots': {
-                    'Room': None
+                    'Lounge': None
                 },
             }
         }
@@ -174,11 +163,30 @@ def compose_fulfill_response(event):
     # }}
 
 
-def publish_to_sns(event):
-    return sns.publish(
-        TopicArn=os.environ['SNS_ARN'],
-        Message=json.dumps({'default': json.dumps(event)}),
-        MessageStructure='json'
+# def publish_to_sns(event):
+#     return sns.publish(
+#         TopicArn=os.environ['SNS_ARN'],
+#         Message=json.dumps({'default': json.dumps(event)}),
+#         MessageStructure='json'
+#     )
+
+
+def retrieve_intents(event):
+    if 'sessionAttributes' not in event:
+        raise Exception('Required keys: `team_id` and `channel_id` are not provided.')
+    event['intents'] = db_intents.retrieve_intents(
+        event['sessionAttributes']['team_id'],
+        event['sessionAttributes']['channel_id']
+    )
+
+
+def store_intents(event):
+    return db_intents.store_intents(
+        keys={
+            'team_id': event['sessionAttributes']['team_id'],
+            'channel_id': event['sessionAttributes']['channel_id']
+        },
+        attributes=event['intents']
     )
 
 
@@ -188,23 +196,19 @@ def handler(event, context):
         "statusCode": 200
     }
     try:
-        create_session_placeholder(event)
-        retrieve_session_attributes(event)
-        # Terminating condition.
+        retrieve_intents(event)
         if event['currentIntent'] is not None and event['currentIntent']['confirmationStatus'] == 'Confirmed':
+            # Terminating condition.
             response = compose_fulfill_response(event)
-        # Processing the user input.
         else:
+            # Processing the user input.
             response = compose_validate_response(event)
-        store_session_attributes(event)
+        store_intents(event)
     except Exception as e:
         response = {
             "statusCode": 400,
             "body": json.dumps({"message": str(e)})
         }
-        log.error(response)
     finally:
-        response['sessionAttributes'].pop('invitees')
-        response['sessionAttributes'].pop('room')
-        log.info(response)
+        log.info(json.dumps(response))
         return response

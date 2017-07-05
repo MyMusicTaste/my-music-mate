@@ -1,10 +1,12 @@
 {
     "messageVersion": "1.0",
     "invocationSource": "DialogCodeHook",
-    "userId": "120387605022",
+    "userId": "D6272CSAD",
     "sessionAttributes": {
-        "channel": "D5SH2NMML",
-        "team_id": "T5K9TKQ3F"
+        "api_token": "xoxp-189333670117-189333670213-207632151447-f8f45af6260030ec32cad6143e10b0b0",
+        "bot_token": "xoxb-206846735412-uhJMDZN9fVnzdu7bjTxU9eNS",
+        "team_id": "T5K9TKQ3F",
+        "channel_id": "D6272CSAD"
     },
     "bot": {
         "name": "MyMusicMate",
@@ -13,11 +15,11 @@
     },
     "outputDialogMode": "Text",
     "currentIntent": {
-        "name": "AddInvitee",
+        "name": "InviteMate",
         "slots": {
-            "Invitee": "@KAY"
+            "Mate": null
         },
-        "confirmationStatus": "Confirmed"
+        "confirmationStatus": "None"
     },
     "inputTranscript": "I want to go to a concert"
 }
