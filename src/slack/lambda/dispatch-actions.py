@@ -18,6 +18,7 @@ def talk_with_lex(event):
         channel_id=event['slack']['event']['channel'],
         api_token=event['team']['access_token'],
         bot_token=event['team']['bot']['bot_access_token'],
+        caller_id=event['slack']['event']['user'],
         message=event['slack']['event']['text']
     )
 

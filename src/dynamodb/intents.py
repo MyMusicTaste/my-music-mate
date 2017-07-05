@@ -22,6 +22,7 @@ class DbIntents(DbTable):
                 'channel_id': channel_id
             },
             attributes_to_get=[
+                'host_id',
                 'current_intent',
                 'mates',
                 'lounge'
@@ -30,6 +31,7 @@ class DbIntents(DbTable):
 
         if 'Item' not in response:
             return {
+                'host_id': None,
                 'current_intent': None,
                 'mates': [],
                 'lounge': {
@@ -38,6 +40,8 @@ class DbIntents(DbTable):
                 }
             }
         item = response['Item']
+        if 'host_id' not in item:
+            item['host_id'] = None
         if 'current_intent' not in item:
             item['current_intent'] = None
         if 'mates' not in item:

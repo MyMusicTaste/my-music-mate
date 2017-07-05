@@ -181,6 +181,7 @@ def retrieve_intents(event):
 
 
 def store_intents(event):
+    event['intents']['host_id'] = event['sessionAttributes']['caller_id']
     return db_intents.store_intents(
         keys={
             'team_id': event['sessionAttributes']['team_id'],
