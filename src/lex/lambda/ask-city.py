@@ -16,6 +16,7 @@ def compose_validate_response(event):
     if event['currentIntent']['slots']['City']:
         event['intents']['city'] = event['currentIntent']['slots']['City'].strip().split(',')[0]
     if len(event['intents']['city']) > 0:
+        event['intents']['current_intent'] = 'VotingConcert'
         message = 'I am selecting the best options for you guys, and then we will start the voting process real soon.'
         response = {
             'dialogAction': {

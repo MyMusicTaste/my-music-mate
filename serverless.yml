@@ -14,6 +14,7 @@ custom:
 provider:
   name: aws
   runtime: python3.6
+  timeout: 300
 
   stage: dev
   region: us-east-1
@@ -104,10 +105,8 @@ functions:
       SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
   lex-ask-city:
     handler: src/lex/lambda/ask-city.handler
-  lex-ask-artist:
-    handler: src/lex/lambda/ask-artist.handler
-  lex-ask-genre:
-    handler: src/lex/lambda/ask-genre.handler
+  lex-ask-taste:
+    handler: src/lex/lambda/ask-taste.handler
 
 
 #    The following are a few example events you can configure

@@ -121,7 +121,8 @@ def compose_fulfill_response(event):
         event['sessionAttributes']['channel_id'] = event['intents']['lounge']['id']
         message = 'Hi, I am your music mate! ' +\
                   '<@' + event['intents']['host_id'] + '> ' +\
-                  'asked me to invite you all for going to a concert together.'
+                  'asked me to invite you all for going to a concert together. ' +\
+                  'For suggesting the best options for you, I want to know what kind of music you guys like.'
         publish_to_sns(event, message)
 
         time.sleep(2.5)
@@ -129,10 +130,11 @@ def compose_fulfill_response(event):
             'sessionAttributes': event['sessionAttributes'],
             'dialogAction': {
                 'type': 'ElicitSlot',
-                'intentName': 'AskGenre',
+                'intentName': 'AskTaste',
                 'slotToElicit': 'Genre',
                 'slots': {
-                    'Genre': None
+                    'Genre': None,
+                    'Artist': None
                 },
             }
         }
