@@ -113,7 +113,7 @@
 
       ],
       "sampleUtterances": [
-        "THIS RESERVE LOUNGE INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES"
+        "THIS LOUNGE INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES"
       ],
       "confirmationPrompt": {
         "messages": [
@@ -152,22 +152,20 @@
             "messages": [
               {
                 "contentType": "PlainText",
-                "content": "Tell me your favorite music genre."
+                "content": "Now, I am gonna ask a few questions to find a concert that you guys can go all together. First, tell me your favorite music genre."
               }
             ],
             "maxAttempts": 5
           },
           "priority": 1,
           "sampleUtterances": [
-            "I like the genre {Genre}​",
-            "Genre {Genre}​",
-            "My favorite genre is {Genre}​"
+
           ]
         }
 
       ],
       "sampleUtterances": [
-        "THIS ASK GENRE INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES"
+        "THIS  RESERVE LOUNGE INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES"
       ],
       "confirmationPrompt": {
         "messages": [
@@ -207,17 +205,14 @@
             "messages": [
               {
                 "contentType": "PlainText",
-                "content": "Tell me your favorite artist."
+                "content": "Second, tell me your favorite artist."
               }
             ],
             "maxAttempts": 5
           },
           "priority": 1,
           "sampleUtterances": [
-            "I like the band {Artist}​",
-            "Band {Artist}​​",
-            "I like the musician {Artist}​",
-            "Musician {Artist}"
+
           ]
         }
 
@@ -263,15 +258,14 @@
             "messages": [
               {
                 "contentType": "PlainText",
-                "content": "Could you tell me where you guys live in?"
+                "content": "Lastly, could you tell me where you guys live in? So that I can search concerts based on your location?"
               }
             ],
             "maxAttempts": 5
           },
           "priority": 1,
           "sampleUtterances": [
-            "I live in {City}",
-            "I am staying in {City}"
+            "I live in {City}"
           ]
         }
 

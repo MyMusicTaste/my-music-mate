@@ -32,9 +32,9 @@ def verify_slack_token(event):
 # Check whether the team id is stored in the dynamodb.
 def get_slack_team(event):
     db_response = db_teams.retrieve_team(event['slack']['team_id'])
-    if 'Item' not in db_response:
+    if db_response['ok'] is False:
         raise Exception('Cannot find team info bind to the Slack bot!')
-    event['team'] = db_response['Item']
+    event['team'] = db_response
 
 
 # def store_last_called_user(event, last_called):

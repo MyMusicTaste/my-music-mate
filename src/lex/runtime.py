@@ -26,7 +26,7 @@ class LexRunTime(object):
         return self.lex.post_text(
             botName=self.name,
             botAlias=self.alias,
-            userId=channel_id,
+            userId=api_token,
             sessionAttributes={
                 'team_id': team_id,
                 'channel_id': channel_id,

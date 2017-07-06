@@ -7,11 +7,14 @@ import boto3
 import json
 from urllib.parse import urlencode
 import requests
+import time
 from src.dynamodb.intents import DbIntents
+from src.dynamodb.teams import DbTeams
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 db_intents = DbIntents(os.environ['INTENTS_TABLE'])
+db_teams = DbTeams(os.environ['TEAMS_TABLE'])
 sns = boto3.client('sns')
 
 
@@ -84,6 +87,9 @@ def compose_fulfill_response(event):
     reserve_lounge(event)
     # Lounge is successfully created.
     if event['intents']['lounge']['id']:
+        db_response = db_teams.retrieve_team(event['sessionAttributes']['team_id'])
+        if db_response['ok']:
+            event['intents']['mates'].append(db_response['bot']['bot_user_id'])
         invite_mates(event)
         # Composer response string.
         mates_string = ''
@@ -113,9 +119,12 @@ def compose_fulfill_response(event):
         )
 
         event['sessionAttributes']['channel_id'] = event['intents']['lounge']['id']
+        message = 'Hi, I am your music mate! ' +\
+                  '<@' + event['intents']['host_id'] + '> ' +\
+                  'asked me to invite you all for going to a concert together.'
+        publish_to_sns(event, message)
 
-        publish_to_sns(event, 'Hi, I am your music mate! <@' + event['intents']['host_id'] + '> asked me to invite you all for going to a concert together.')
-
+        time.sleep(2.5)
         response = {
             'sessionAttributes': event['sessionAttributes'],
             'dialogAction': {

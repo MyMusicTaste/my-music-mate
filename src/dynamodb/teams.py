@@ -11,7 +11,23 @@ class DbTeams(DbTable):
         self.put_item(item=item)
 
     def retrieve_team(self, team_id):
-        return self.get_item(key={
+        response = self.get_item(key={
             'team_id': team_id,
         })
+
+        if 'Item' not in response:
+            return {
+                'team_id': None,
+                'access_token': None,
+                'bot': {
+                    'bot_access_token': None,
+                    'bot_user_id': None
+                },
+                'ok': False,
+                'scope': None,
+                'team_name': None,
+                'user_id': None
+            }
+        item = response['Item']
+        return item
 
