@@ -7,7 +7,7 @@
       "maxAttempts": 5,
       "messages": [
         {
-          "content": "Sorry, I don't understand what you said.",
+          "content": "Sorry, could you specify a little bit?",
           "contentType": "PlainText"
         }
       ]
@@ -15,7 +15,7 @@
     "abortStatement": {
       "messages": [
         {
-          "content": "I'm sorry, but you are talking gibberish.",
+          "content": "THIS ABORT STATEMENT SHOULD NOT BE PRINTED IN ANY SITUATION",
           "contentType": "PlainText"
         }
       ]
@@ -35,11 +35,9 @@
   "intents": [
     {
       "name": "InviteMate",
-      "description": "Intent for adding Slack users on DB to invite to a Slack channel.",
       "slots": [
         {
           "name": "Mate",
-          "description": "Slot for holding the first Slack users to be invited to a channel.",
           "slotConstraint": "Required",
           "slotType": "AMAZON.Person",
           "valueElicitationPrompt": {
@@ -66,10 +64,6 @@
         "messages": [
           {
             "contentType": "PlainText",
-            "content": "Whom else do you want to go with?"
-          },
-          {
-            "contentType": "PlainText",
             "content": "Are there any other people you want to bring with you?"
           }
         ],
@@ -79,7 +73,7 @@
         "messages": [
           {
             "contentType": "PlainText",
-            "content": "Let me know again if you want to start over."
+            "content": "THIS REJECT STATEMENT SHOULD NOT BE PRINTED IN ANY SITUATION"
           }
         ]
       },
@@ -95,11 +89,9 @@
 
     {
       "name": "ReserveLounge",
-      "description": "Intent for deciding a Slack channel name the bot will create and invite slack users into.",
       "slots": [
         {
           "name": "Lounge",
-          "description": "Slot for holding the desired name of Slack channel.",
           "slotConstraint": "Required",
           "slotType": "AMAZON.Person",
           "valueElicitationPrompt": {
@@ -121,7 +113,7 @@
 
       ],
       "sampleUtterances": [
-        "THIS RESERVE LOUNGE INTENT SOULDN'T INVOKED BY ANY UTTERANCES"
+        "THIS RESERVE LOUNGE INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES"
       ],
       "confirmationPrompt": {
         "messages": [
@@ -136,7 +128,7 @@
         "messages": [
           {
             "contentType": "PlainText",
-            "content": "Let me know again if you want to start over."
+            "content": "THIS REJECT STATEMENT SHOULD NOT BE PRINTED IN ANY SITUATION"
           }
         ]
       },
@@ -149,28 +141,137 @@
       }
     },
 
-
     {
-      "name": "AskCity",
-      "description": "Intent for asking mates' desired city for concert recommendation.",
+      "name": "AskGenre",
       "slots": [
         {
-          "name": "City",
-          "description": "Slot for holding the city name.",
+          "name": "Genre",
           "slotConstraint": "Required",
-          "slotType": "AMAZON.US_CITY",
+          "slotType": "AMAZON.Genre",
           "valueElicitationPrompt": {
             "messages": [
               {
                 "contentType": "PlainText",
-                "content": "Could you tell the city that you want to go for a concert?"
+                "content": "Tell me your favorite music genre."
               }
             ],
             "maxAttempts": 5
           },
           "priority": 1,
           "sampleUtterances": [
-            "I live in {City}"
+            "I like the genre {Genre}​",
+            "Genre {Genre}​",
+            "My favorite genre is {Genre}​"
+          ]
+        }
+
+      ],
+      "sampleUtterances": [
+        "THIS ASK GENRE INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES"
+      ],
+      "confirmationPrompt": {
+        "messages": [
+          {
+            "contentType": "PlainText",
+            "content": "Are there any music genre that you want to mention?"
+          }
+        ],
+        "maxAttempts": 5
+      },
+      "rejectionStatement": {
+        "messages": [
+          {
+            "contentType": "PlainText",
+            "content": "THIS REJECT STATEMENT SHOULD NOT BE PRINTED IN ANY SITUATION"
+          }
+        ]
+      },
+      "dialogCodeHook": {
+        "uri": "arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:custom.namespace}-lex-ask-genre",
+        "messageVersion": "1.0"
+      },
+      "fulfillmentActivity": {
+        "type": "ReturnIntent"
+      }
+    },
+
+
+    {
+      "name": "AskArtist",
+      "slots": [
+        {
+          "name": "Artist",
+          "slotConstraint": "Required",
+          "slotType": "AMAZON.Artist",
+          "valueElicitationPrompt": {
+            "messages": [
+              {
+                "contentType": "PlainText",
+                "content": "Tell me your favorite artist."
+              }
+            ],
+            "maxAttempts": 5
+          },
+          "priority": 1,
+          "sampleUtterances": [
+            "I like the band {Artist}​",
+            "Band {Artist}​​",
+            "I like the musician {Artist}​",
+            "Musician {Artist}"
+          ]
+        }
+
+      ],
+      "sampleUtterances": [
+        "THIS ASK ARTIST INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES"
+      ],
+      "confirmationPrompt": {
+        "messages": [
+          {
+            "contentType": "PlainText",
+            "content": "Are there any artist that you want to mention?"
+          }
+        ],
+        "maxAttempts": 5
+      },
+      "rejectionStatement": {
+        "messages": [
+          {
+            "contentType": "PlainText",
+            "content": "THIS REJECT STATEMENT SHOULD NOT BE PRINTED IN ANY SITUATION"
+          }
+        ]
+      },
+      "dialogCodeHook": {
+        "uri": "arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:custom.namespace}-lex-ask-artist",
+        "messageVersion": "1.0"
+      },
+      "fulfillmentActivity": {
+        "type": "ReturnIntent"
+      }
+    },
+
+
+    {
+      "name": "AskCity",
+      "slots": [
+        {
+          "name": "City",
+          "slotConstraint": "Required",
+          "slotType": "AMAZON.US_CITY",
+          "valueElicitationPrompt": {
+            "messages": [
+              {
+                "contentType": "PlainText",
+                "content": "Could you tell me where you guys live in?"
+              }
+            ],
+            "maxAttempts": 5
+          },
+          "priority": 1,
+          "sampleUtterances": [
+            "I live in {City}",
+            "I am staying in {City}"
           ]
         }
 
@@ -182,7 +283,7 @@
         "messages": [
           {
             "contentType": "PlainText",
-            "content": "Are you sure your desired city for going for a concert?"
+            "content": "THIS CONFIRMATION STATEMENT SHOULD NOT BE PRINTED IN ANY SITUATION"
           }
         ],
         "maxAttempts": 5
@@ -191,7 +292,7 @@
         "messages": [
           {
             "contentType": "PlainText",
-            "content": "Let me know again if you want to start over."
+            "content": "THIS REJECT STATEMENT SHOULD NOT BE PRINTED IN ANY SITUATION"
           }
         ]
       },

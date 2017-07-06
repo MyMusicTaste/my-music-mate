@@ -120,10 +120,10 @@ def compose_fulfill_response(event):
             'sessionAttributes': event['sessionAttributes'],
             'dialogAction': {
                 'type': 'ElicitSlot',
-                'intentName': 'AskLocation',
-                'slotToElicit': 'Location',
+                'intentName': 'AskGenre',
+                'slotToElicit': 'Genre',
                 'slots': {
-                    'Location': None
+                    'Genre': None
                 },
             }
         }

@@ -104,6 +104,10 @@ functions:
       SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
   lex-ask-city:
     handler: src/lex/lambda/ask-city.handler
+  lex-ask-artist:
+    handler: src/lex/lambda/ask-artist.handler
+  lex-ask-genre:
+    handler: src/lex/lambda/ask-genre.handler
 
 
 #    The following are a few example events you can configure
