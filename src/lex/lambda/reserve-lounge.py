@@ -88,10 +88,7 @@ def compose_fulfill_response(event):
     # Lounge is successfully created.
     if event['intents']['lounge']['id']:
         db_response = db_teams.retrieve_team(event['sessionAttributes']['team_id'])
-        if db_response['ok']:
-            event['intents']['mates'].append(db_response['bot']['bot_user_id'])
-        invite_mates(event)
-        # Composer response string.
+
         mates_string = ''
         mates = event['intents']['mates']
         if len(mates) > 0:
@@ -107,6 +104,12 @@ def compose_fulfill_response(event):
         # Post an invitation message to the host's Bot direct message channel.
         message = 'You' + mates_string + ' are ' +\
                   'invited to a channel `' + event['intents']['lounge']['name'] + '`.'
+                  
+        if db_response['ok']:
+            event['intents']['mates'].append(db_response['bot']['bot_user_id'])
+        invite_mates(event)
+        # Composer response string.
+
         publish_to_sns(event, message)
 
         db_intents.switch_channel(

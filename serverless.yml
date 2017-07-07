@@ -40,6 +40,7 @@ provider:
       Resource:
         - arn:aws:sns:*:*:${self:custom.namespace}-dispatch-actions
         - arn:aws:sns:*:*:${self:custom.namespace}-post-message
+        - arn:aws:sns:*:*:${self:custom.namespace}-search-concert
     - Effect: Allow
       Action:
         - lex:PostText
@@ -105,8 +106,23 @@ functions:
       SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
   lex-ask-city:
     handler: src/lex/lambda/ask-city.handler
+    environment:
+      SEARCH_CONCERT_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-search-concert" ] ]  }
   lex-ask-taste:
     handler: src/lex/lambda/ask-taste.handler
+  app-serach-concert:
+    handler: src/app/lambda/search-concert.handler
+    events:
+      - sns: ${self:custom.namespace}-search-concert
+    environment:
+      DEVELOPER_KEY: AIzaSyDIIdKhq8-xmtlYFrIE1xvdlqrfgaurrDI
+      YOUTUBE_API_SERVICE_NAME: youtube
+      YOUTUBE_API_VERSION: v3
+      BIT_URL: "http://api.bandsintown.com/artists/{}/events/recommended?location={}&radius=100&app_id=chatbot&api_version=2.0&format=json"
+      LASTFM_TOP_URL: "http://ws.audioscrobbler.com/2.0/?method=tag.gettopalbums&tag={}&limit=100&api_key=5de66db197047d9796295f4824615bd6&format=json"
+      BIT_ARTIST_URL: "https://api.bandsintown.com/artists/{}.json?api_version=2.0&app_id=MyMusicMate"
+      LASTFM_TAG_URL: "http://ws.audioscrobbler.com/2.0/?method=tag.getinfo&tag={}&api_key=5de66db197047d9796295f4824615bd6&format=json"
+      TOP_ALBUMS_MAX: 3
 
 
 #    The following are a few example events you can configure

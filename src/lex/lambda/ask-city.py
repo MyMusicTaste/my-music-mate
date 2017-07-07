@@ -1,6 +1,6 @@
 # Created by jongwonkim on 05/07/2017.
 
-
+import boto3
 import os
 import logging
 import json
@@ -9,6 +9,19 @@ from src.dynamodb.intents import DbIntents
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 db_intents = DbIntents(os.environ['INTENTS_TABLE'])
+sns = boto3.client('sns')
+
+
+def publish_search_concert(event):
+    sns_event = {
+        'sessionAttributes': event['sessionAttributes'],
+        'intents': event['intents']
+    }
+    return sns.publish(
+        TopicArn=os.environ['SEARCH_CONCERT_SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(sns_event)}),
+        MessageStructure='json'
+    )
 
 
 def compose_validate_response(event):
@@ -17,6 +30,10 @@ def compose_validate_response(event):
         event['intents']['city'] = event['currentIntent']['slots']['City'].strip().split(',')[0]
     if len(event['intents']['city']) > 0:
         event['intents']['current_intent'] = 'VotingConcert'
+
+        # All required inputs are filled, now we starts searching process.
+        publish_search_concert(event)
+
         message = 'I am selecting the best options for you guys, and then we will start the voting process real soon.'
         response = {
             'dialogAction': {

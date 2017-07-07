@@ -28,7 +28,8 @@ class DbIntents(DbTable):
                 'lounge',
                 'genres',
                 'artists',
-                'city'
+                'city',
+                'tastes'
             ]
         )
 
@@ -43,7 +44,8 @@ class DbIntents(DbTable):
                 },
                 'genres': [],
                 'artists': [],
-                'city': None
+                'city': None,
+                'tastes': {}
             }
         item = response['Item']
         if 'host_id' not in item:
@@ -63,6 +65,8 @@ class DbIntents(DbTable):
             item['artists'] = []
         if 'city' not in item:
             item['city'] = None
+        if 'tastes' not in item:
+            item['tastes'] = {}
         return item
 
     def switch_channel(self, channel_id, keys, attributes):

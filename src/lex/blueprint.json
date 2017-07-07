@@ -165,7 +165,7 @@
 
         {
           "name": "Artist",
-          "slotConstraint": "Required",
+          "slotConstraint": "Optional",
           "slotType": "AMAZON.MusicGroup",
           "valueElicitationPrompt": {
             "messages": [
@@ -176,7 +176,7 @@
             ],
             "maxAttempts": 5
           },
-          "priority": 1,
+          "priority": 2,
           "sampleUtterances": [
             "My favorite artist is {Artist}"
           ]
