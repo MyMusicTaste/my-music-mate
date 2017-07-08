@@ -112,6 +112,7 @@ def search_concerts(event):
                         db_response = db_concerts.add_concert({
                             'team_id': event['sessionAttributes']['channel_id'],
                             'channel_id': event['sessionAttributes']['channel_id'],
+                            'artist': concert['artists'][0]['name'],
                             'event_id': str(concert['id']),
                             'event_name': concert['title'],
                             'event_date': concert['formatted_datetime'],
