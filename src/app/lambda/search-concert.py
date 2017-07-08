@@ -129,8 +129,16 @@ def show_results(event):
     concerts = db_concerts.fetch_concerts(event['sessionAttributes']['channel_id'])
     log.info('!!! SHOW CONCERT RESULTS !!!')
     log.info(concerts)
-    # TODO Need to show the list to Slack channel
-    # publish_to_sns(event, message)
+    visited = []
+
+    for concert in concerts:
+        if len(visited) < int(os.environ['VOTE_OPTIONS_MAX']):
+            if concert['artist'] not in visited:
+                visited.append(concert['artist'])
+                message = concert['event_name'] + " - " + concert['event_date'] + " - " + concert['ticket_url']
+                publish_to_sns(event, message)
+        else:
+            break
 
 
 def handler(event, context):

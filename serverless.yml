@@ -127,6 +127,7 @@ functions:
       LASTFM_TAG_URL: "http://ws.audioscrobbler.com/2.0/?method=tag.getinfo&tag={}&api_key=5de66db197047d9796295f4824615bd6&format=json"
       BIT_CONCERT_SEARCH_BY_ARTISTS_API: "http://api.bandsintown.com/artists/{}/events/recommended?location={}&radius={}&app_id=chatbot&api_version=2.0&format=json"
       TOP_ALBUMS_MAX: 3
+      VOTE_OPTIONS_MAX: 3
       CONCERT_SEARCH_RADIUS: 100
       POST_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
 
