@@ -3,20 +3,49 @@
 
 import os
 import logging
-import boto3
 import json
-from urllib.parse import urlencode
+import boto3
+from botocore.exceptions import ClientError
+from src.dynamodb.intents import DbIntents
+from src.dynamodb.concerts import DbConcerts
 import requests
 import random
-import time
+sns = boto3.client('sns')
+
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
+db_intents = DbIntents(os.environ['INTENTS_TABLE'])
+db_concerts = DbConcerts(os.environ['CONCERTS_TABLE'])
+
+
+def publish_to_sns(event, message):
+    sns_event = {
+        'token': event['sessionAttributes']['bot_token'],
+        'channel': event['sessionAttributes']['channel_id'],
+        'text': message
+    }
+    return sns.publish(
+        TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(sns_event)}),
+        MessageStructure='json'
+    )
+
+
+def store_intents(event):
+    return db_intents.store_intents(
+        keys={
+            'team_id': event['sessionAttributes']['team_id'],
+            'channel_id': event['sessionAttributes']['channel_id']
+        },
+        attributes=event['intents']
+    )
 
 
 def add_taste(event, taste_name, taste_type, interest):
     if taste_name.lower() not in event['intents']['tastes']:
         event['intents']['tastes'][taste_name.lower()] = {
+            'taste_name': taste_name.lower(),
             'display_name': taste_name,
             'taste_type': taste_type,
             'interest': interest
@@ -42,9 +71,9 @@ def add_genre_tastes(event):
         log.info(top_albums)
         for i, album in enumerate(top_albums):
             if i < int(os.environ['TOP_ALBUMS_MAX']):
-                add_taste(event, album['artist']['name'], 'atist', genre)
+                add_taste(event, album['artist']['name'], 'artist', genre)
             else:
-                break;
+                break
 
 
 def add_artist_tastes(event):
@@ -52,7 +81,55 @@ def add_artist_tastes(event):
     log.info(event)
     artists = event['intents']['artists']
     for artist in artists:
-        add_taste(event, artist, 'atist', artist)
+        add_taste(event, artist, 'artist', artist)
+
+
+def search_concerts(event):
+    log.info('!!! SEARCH CONCERTS !!!')
+    for key in event['intents']['tastes']:
+        taste = event['intents']['tastes'][key]
+        log.info('!!! CONCERT ITEM !!!')
+        log.info(taste)
+        if taste['taste_type'] == 'artist':
+            log.info('!!! API ADDRESS !!!')
+            log.info(os.environ['BIT_CONCERT_SEARCH_BY_ARTISTS_API'].format(
+                    taste['taste_name'],
+                    event['intents']['city'],
+                    os.environ['CONCERT_SEARCH_RADIUS']))
+            api_response = requests.get(
+                os.environ['BIT_CONCERT_SEARCH_BY_ARTISTS_API'].format(
+                    taste['taste_name'],
+                    event['intents']['city'],
+                    os.environ['CONCERT_SEARCH_RADIUS'])
+            )
+            concerts = json.loads(api_response.text)
+            log.info('!!! CONCERT SEARCH API RESPONSE !!!')
+            log.info(concerts)
+            for concert in concerts:
+                if concert['ticket_url'] is not None:
+                    try:
+                        # Store concert data into a db table for tracking voting results.
+                        db_response = db_concerts.add_concert({
+                            'team_id': event['sessionAttributes']['channel_id'],
+                            'channel_id': event['sessionAttributes']['channel_id'],
+                            'event_id': str(concert['id']),
+                            'event_name': concert['title'],
+                            'event_date': concert['formatted_datetime'],
+                            'ticket_url': concert['ticket_url'],
+                            'interest': taste['interest']
+                        })
+                        log.info('!!! CONCERT DB ADD RESPONSE !!!')
+                        log.info(db_response)
+                    except ClientError:
+                        log.error('Conditional Check Failed Exception during concert search')
+
+
+def show_results(event):
+    concerts = db_concerts.fetch_concerts(event['sessionAttributes']['channel_id'])
+    log.info('!!! SHOW CONCERT RESULTS !!!')
+    log.info(concerts)
+    # TODO Need to show the list to Slack channel
+    # publish_to_sns(event, message)
 
 
 def handler(event, context):
@@ -66,6 +143,9 @@ def handler(event, context):
         log.info(response)
         add_artist_tastes(event)
         add_genre_tastes(event)
+        store_intents(event)
+        search_concerts(event)
+        show_results(event)
     except Exception as e:
         response = {
             "statusCode": 400,

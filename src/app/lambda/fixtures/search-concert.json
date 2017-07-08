@@ -1,0 +1,22 @@
+{
+    "Records": [
+        {
+            "EventSource": "aws:sns",
+            "EventVersion": "1.0",
+            "EventSubscriptionArn": "arn:aws:sns:us-east-1:120387605022:mmm-dev-search-concert:2a016165-e7ab-4cf7-973f-0c4be1fc4fec",
+            "Sns": {
+                "Type": "Notification",
+                "MessageId": "9ba3b39e-7e35-5e70-9eb0-e24417ad8cc1",
+                "TopicArn": "arn:aws:sns:us-east-1:120387605022:mmm-dev-search-concert",
+                "Subject": null,
+                "Message": "{\"sessionAttributes\": {\"caller_id\": \"U5K9TKQ69\", \"api_token\": \"xoxp-189333670117-189333670213-207632151447-f8f45af6260030ec32cad6143e10b0b0\", \"bot_token\": \"xoxb-206846735412-uhJMDZN9fVnzdu7bjTxU9eNS\", \"team_id\": \"T5K9TKQ3F\", \"channel_id\": \"C65SARV8D\"}, \"intents\": {\"city\": \"chicago\", \"artists\": [\"rozes\"], \"current_intent\": \"VotingConcert\", \"tastes\": {}, \"host_id\": \"U5K9TKQ69\", \"genres\": [\"rock\"], \"mates\": [\"U5YJ6TT3K\", \"U62QWMMC4\"], \"lounge\": {\"name\": \"mmt-yay\", \"id\": \"C65SARV8D\"}}}",
+                "Timestamp": "2017-07-08T05:02:16.351Z",
+                "SignatureVersion": "1",
+                "Signature": "QPatB5kKewzEjWZ09mD4IXEhwAkSpWO/BCFqol0ilBu8BiOt/yhtKfnGRIzB/jyXYLYGqx6CMcRlPu3VaFo9ZHCOjiIHodqrUg7OgmH1vEOIP1cOKWi7Sp11VLGq0OXsDwQ9SwvBk4V2cHW1j6Gxx7Lj+VxeeyClx6pQqZRKCigZOwQvO0yuLRuoF6yULmS53XrgwWM7ZZ4kgPzXuw91UCRS3rFxd2PkQVcvIF4rJ7J6AP8AMkvG1Ap7LsnGmCzqzo3D+LX7wr5zdVvtK1dLCMelKjyPXglyN1CqD4QHJcWASDqesR3apIaPyaqvmU8Ab93nR1aKYozjln++kKJnEw==",
+                "SigningCertUrl": "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-b95095beb82e8f6a046b3aafc7f4149a.pem",
+                "UnsubscribeUrl": "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:120387605022:mmm-dev-search-concert:2a016165-e7ab-4cf7-973f-0c4be1fc4fec",
+                "MessageAttributes": {}
+            }
+        }
+    ]
+}

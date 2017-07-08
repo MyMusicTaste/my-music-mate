@@ -12,8 +12,11 @@ class DbTable(object):
         self.dynamodb = boto3.resource('dynamodb')
         self.table = self.dynamodb.Table(name)
 
-    def put_item(self, item):
-        return self.table.put_item(Item=item)
+    def put_item(self, item, condition_expression=None):
+        if condition_expression is None:
+            return self.table.put_item(Item=item)
+        else:
+            return self.table.put_item(Item=item, ConditionExpression=condition_expression)
 
     def get_item(self, key, attributes_to_get=None):
         if attributes_to_get is None:
@@ -23,3 +26,4 @@ class DbTable(object):
 
     def delete_item(self, key):
         return self.table.delete_item(Key=key)
+

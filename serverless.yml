@@ -25,10 +25,12 @@ provider:
         - dynamodb:GetItem
         - dynamodb:PutItem
         - dynamodb:DeleteItem
+        - dynamodb:Query
       Resource:
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.TEAMS_TABLE}
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.INTENTS_TABLE}
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.TALKS_TABLE}
+        - arn:aws:dynamodb:*:*:table/${self:provider.environment.CONCERTS_TABLE}
 #    - Effect: Allow  # This need to be uncommented if you want to make a lambda function to call another one.
 #      Action:
 #        - lex:invokeFunction
@@ -57,6 +59,7 @@ provider:
     TEAMS_TABLE: ${self:custom.namespace}-teams
     INTENTS_TABLE: ${self:custom.namespace}-intents
     TALKS_TABLE: ${self:custom.namespace}-talks
+    CONCERTS_TABLE: ${self:custom.namespace}-concerts
     LEX_NAME: ${self:custom.lex.name}
     LEX_ALIAS: ${self:custom.lex.alias}
 
@@ -110,7 +113,7 @@ functions:
       SEARCH_CONCERT_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-search-concert" ] ]  }
   lex-ask-taste:
     handler: src/lex/lambda/ask-taste.handler
-  app-serach-concert:
+  app-search-concert:
     handler: src/app/lambda/search-concert.handler
     events:
       - sns: ${self:custom.namespace}-search-concert
@@ -122,7 +125,10 @@ functions:
       LASTFM_TOP_URL: "http://ws.audioscrobbler.com/2.0/?method=tag.gettopalbums&tag={}&limit=100&api_key=5de66db197047d9796295f4824615bd6&format=json"
       BIT_ARTIST_URL: "https://api.bandsintown.com/artists/{}.json?api_version=2.0&app_id=MyMusicMate"
       LASTFM_TAG_URL: "http://ws.audioscrobbler.com/2.0/?method=tag.getinfo&tag={}&api_key=5de66db197047d9796295f4824615bd6&format=json"
+      BIT_CONCERT_SEARCH_BY_ARTISTS_API: "http://api.bandsintown.com/artists/{}/events/recommended?location={}&radius={}&app_id=chatbot&api_version=2.0&format=json"
       TOP_ALBUMS_MAX: 3
+      CONCERT_SEARCH_RADIUS: 100
+      POST_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
 
 
 #    The following are a few example events you can configure
@@ -203,6 +209,23 @@ resources:
           - AttributeName: team_id
             KeyType: HASH
           - AttributeName: caller_id
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+    ConcertsDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.CONCERTS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: channel_id
+            AttributeType: S
+          - AttributeName: event_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: channel_id
+            KeyType: HASH
+          - AttributeName: event_id
             KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 5
