@@ -8,9 +8,11 @@ class DbConcerts(DbTable):
         super().__init__(name)
 
     def add_concert(self, item):
+        print('!!! ADD CONCERT DB REQUEST!!!')
+        print(item)
         return self.put_item(
             item=item,
-            condition_expression='attribute_not_exists(channel_id) AND attribute_not_exists(event_id)'
+            condition_expression='attribute_not_exists(channel_id) OR attribute_not_exists(event_id)'
         )
 
     def fetch_concerts(self, channel_id):
@@ -21,8 +23,6 @@ class DbConcerts(DbTable):
                 ':event_id': '0'
             }
         )
-
-        print(response)
 
         if response['ScannedCount'] == 0:
             return []

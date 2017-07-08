@@ -12,11 +12,19 @@ log.setLevel(logging.DEBUG)
 
 
 def post_message_to_slack(event):
-    params = {
-        "token": event['token'],
-        "channel": event['channel'],
-        "text": event['text']
-    }
+    if 'attachments' in event:
+        params = {
+            'token': event['token'],
+            'channel': event['channel'],
+            'text': event['text'],
+            'attachments': event['attachments']
+        }
+    else:
+        params = {
+            'token': event['token'],
+            'channel': event['channel'],
+            'text': event['text']
+        }
     url = 'https://slack.com/api/chat.postMessage?' + urlencode(params)
     response = requests.get(url).json()
     if 'ok' in response and response['ok'] is True:
