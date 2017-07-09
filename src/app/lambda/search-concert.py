@@ -47,7 +47,7 @@ def publish_voting_ui(event, queued):
     attachments = [
         {
             'fallback': 'You are unable to vote',
-            'callback_id': event['sessionAttributes']['channel_id'],
+            'callback_id': '1',
             'color': '#3AA3E3',
             'attachment_type': 'default',
             'actions': []

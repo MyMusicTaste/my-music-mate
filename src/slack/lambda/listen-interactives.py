@@ -84,9 +84,12 @@ def update_message(event):
             'team_id': event['slack']['team']['id'],
             'channel_id': event['slack']['channel']['id'],
             'token': bot_token,
-            'votes': event['votes']
+            'votes': event['votes'],
+            'members': event['channel']['members'],
+            'round': event['slack']['callback_id']
         }
-        return sns.publish( # TODO This need to be removed!  IMPORTANT!!!
+        # Please comment this out if you want to keep the voting buttons up.
+        sns.publish(
             TopicArn=os.environ['EVALUATE_VOTES_SNS_ARN'],
             Message=json.dumps({'default': json.dumps(sns_event)}),
             MessageStructure='json'
@@ -134,6 +137,7 @@ def handler(event, context):
         event = get_slack_event(event)
         get_team(event)
         get_channel(event)
+        log.info(event)
         store_vote(event)
         retrieve_votes(event)
         update_message(event)

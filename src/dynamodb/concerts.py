@@ -46,3 +46,4 @@ class DbConcerts(DbTable):
             return None
         else:
             return response['Items'][0] # We assume there is only one result!
+

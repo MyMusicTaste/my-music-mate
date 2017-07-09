@@ -23,3 +23,12 @@ class DbVotes(DbTable):
             return []
         else:
             return response['Items']
+
+    def remove_previous(self, channel_id, user_id):
+        response = self.table.delete_item(
+            Key={
+                'channel_id': channel_id,
+                'user_id': user_id
+            }
+        )
+        return response
