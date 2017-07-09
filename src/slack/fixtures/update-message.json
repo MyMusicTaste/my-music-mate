@@ -1,0 +1,22 @@
+{
+    "Records": [
+        {
+            "EventSource": "aws:sns",
+            "EventVersion": "1.0",
+            "EventSubscriptionArn": "arn:aws:sns:us-east-1:120387605022:mmm-dev-update-message:24c7c0e8-b708-4ff5-88b7-7b5b2d789be7",
+            "Sns": {
+                "Type": "Notification",
+                "MessageId": "a8aade26-6851-551d-ba86-8ffdde0e720e",
+                "TopicArn": "arn:aws:sns:us-east-1:120387605022:mmm-dev-update-message",
+                "Subject": null,
+                "Message": "{\"token\": \"xoxb-206846735412-uhJMDZN9fVnzdu7bjTxU9eNS|C65RGKDRR\", \"channel\": \"C65RGKDRR\", \"text\": \"Please+select+one+that+you+are+most+interested+in.\", \"attachments\": [{\"callback_id\": \"xoxb-206846735412-uhJMDZN9fVnzdu7bjTxU9eNS|C65RGKDRR\", \"fallback\": \"You+are+unable+to+vote\", \"id\": 1, \"color\": \"3AA3E3\", \"actions\": [{\"id\": \"1\", \"name\": \"Buddy+Guy+@+Saban+Theatre+in+Beverly+Hills,+CA\", \"text\": \"Buddy+Guy+@+Beverly+Hills\", \"type\": \"button\", \"value\": \"13771555\", \"style\": \"\"}, {\"id\": \"2\", \"name\": \"Eric+Clapton+@+The+Forum+in+Inglewood,+CA\", \"text\": \"Eric+Clapton+@+Inglewood\", \"type\": \"button\", \"value\": \"13798038\", \"style\": \"\"}, {\"id\": \"3\", \"name\": \"The+Isley+Brothers+@+The+Pacific+Amphitheatre+in+Costa+Mesa,+CA\", \"text\": \"The+Isley+Brothers+@+Costa+Mesa\", \"type\": \"button\", \"value\": \"14163736\", \"style\": \"\"}, {\"id\": \"4\", \"name\": \"none\", \"text\": \"Give+me+another+pool!\", \"type\": \"button\", \"value\": \"0\", \"style\": \"danger\"}]}, {\"text\": \"1 vote has been placed.\"}], \"ts\": \"1499569316.735723\"}",
+                "Timestamp": "2017-07-09T04:42:07.189Z",
+                "SignatureVersion": "1",
+                "Signature": "U9tkxQXa4fOSiQkSKDqSLDoSyzxCRB9Z1lEK2Hcmld5iCb1BIQkfyDJB3t9UcprtBjxSrHMjxVEBFSftvVfezL0z+57m+SbFcw3O4ZGvsujUu9cZE/CXK4FR6L/USLCEIk9s83oBoBydkL5p8FJ8yMwKhQ5/FQhuOHceQzTfCswYuGSOIleCto9KPDHeZdQgbcEIBwl78Nr8wwSD/0Ihc3LpZ9jq2Kknwdy5MPFEXzL2DQtCdwuLJeS8OFx2eGhuStF0A4PWtPgSIXeCnEjp9F9DNMK6zdJ8d6RDAMJCqPEW6gV2+Ge7q4jCYDRjMjW3+gQJR1BHmqptKsZWeiDkkQ==",
+                "SigningCertUrl": "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-b95095beb82e8f6a046b3aafc7f4149a.pem",
+                "UnsubscribeUrl": "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:120387605022:mmm-dev-update-message:24c7c0e8-b708-4ff5-88b7-7b5b2d789be7",
+                "MessageAttributes": {}
+            }
+        }
+    ]
+}

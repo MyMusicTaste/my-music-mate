@@ -31,6 +31,7 @@ provider:
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.INTENTS_TABLE}
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.TALKS_TABLE}
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.CONCERTS_TABLE}
+        - arn:aws:dynamodb:*:*:table/${self:provider.environment.VOTES_TABLE}
 #    - Effect: Allow  # This need to be uncommented if you want to make a lambda function to call another one.
 #      Action:
 #        - lex:invokeFunction
@@ -42,6 +43,7 @@ provider:
       Resource:
         - arn:aws:sns:*:*:${self:custom.namespace}-dispatch-actions
         - arn:aws:sns:*:*:${self:custom.namespace}-post-message
+        - arn:aws:sns:*:*:${self:custom.namespace}-update-message
         - arn:aws:sns:*:*:${self:custom.namespace}-search-concert
     - Effect: Allow
       Action:
@@ -60,6 +62,7 @@ provider:
     INTENTS_TABLE: ${self:custom.namespace}-intents
     TALKS_TABLE: ${self:custom.namespace}-talks
     CONCERTS_TABLE: ${self:custom.namespace}-concerts
+    VOTES_TABLE: ${self:custom.namespace}-votes
     LEX_NAME: ${self:custom.lex.name}
     LEX_ALIAS: ${self:custom.lex.alias}
 
@@ -101,6 +104,18 @@ functions:
     handler: src/slack/lambda/post-message.handler
     events:
       - sns: ${self:custom.namespace}-post-message
+  slack-update-message:
+    handler: src/slack/lambda/update-message.handler
+    events:
+      - sns: ${self:custom.namespace}-update-message
+  slack-listen-interactives:
+    handler: src/slack/lambda/listen-interactives.handler
+    events:
+      - http:
+          path: interactives
+          method: post
+    environment:
+      UPDATE_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-update-message" ] ]  }
   lex-invite-mate:
     handler: src/lex/lambda/invite-mate.handler
   lex-reserve-lounge:
@@ -226,6 +241,23 @@ resources:
           - AttributeName: channel_id
             KeyType: HASH
           - AttributeName: event_id
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+    VotesDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.VOTES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: channel_id
+            AttributeType: S
+          - AttributeName: user_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: channel_id
+            KeyType: HASH
+          - AttributeName: user_id
             KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 5

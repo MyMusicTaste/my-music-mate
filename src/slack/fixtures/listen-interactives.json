@@ -1,0 +1,53 @@
+{
+    "resource": "/interactives",
+    "path": "/interactives",
+    "httpMethod": "POST",
+    "headers": {
+        "Accept": "application/json,*/*",
+        "Accept-Encoding": "gzip,deflate",
+        "CloudFront-Forwarded-Proto": "https",
+        "CloudFront-Is-Desktop-Viewer": "true",
+        "CloudFront-Is-Mobile-Viewer": "false",
+        "CloudFront-Is-SmartTV-Viewer": "false",
+        "CloudFront-Is-Tablet-Viewer": "false",
+        "CloudFront-Viewer-Country": "US",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Host": "3j6szmhkuh.execute-api.us-east-1.amazonaws.com",
+        "User-Agent": "Slackbot 1.0 (+https://api.slack.com/robots)",
+        "Via": "1.1 0579f4eba24bbe8abed6a0529591ab2d.cloudfront.net (CloudFront)",
+        "X-Amz-Cf-Id": "3wnff_iV9PeuZUCG3LwJ74ZCXEyo4gSJmZ6fKCt2hUMgPB3rRhGlHQ==",
+        "X-Amzn-Trace-Id": "Root=1-5961a114-4c2bb50b6a1b1d0011846b4c",
+        "X-Forwarded-For": "54.209.231.248, 54.182.230.55",
+        "X-Forwarded-Port": "443",
+        "X-Forwarded-Proto": "https"
+    },
+    "queryStringParameters": null,
+    "pathParameters": null,
+    "stageVariables": null,
+    "requestContext": {
+        "path": "/dev/interactives",
+        "accountId": "120387605022",
+        "resourceId": "jr7z9j",
+        "stage": "dev",
+        "requestId": "9d0111d2-6455-11e7-bfbb-ad595d2fe22e",
+        "identity": {
+            "cognitoIdentityPoolId": null,
+            "accountId": null,
+            "cognitoIdentityId": null,
+            "caller": null,
+            "apiKey": "",
+            "sourceIp": "54.209.231.248",
+            "accessKey": null,
+            "cognitoAuthenticationType": null,
+            "cognitoAuthenticationProvider": null,
+            "userArn": null,
+            "userAgent": "Slackbot 1.0 (+https://api.slack.com/robots)",
+            "user": null
+        },
+        "resourcePath": "/interactives",
+        "httpMethod": "POST",
+        "apiId": "3j6szmhkuh"
+    },
+    "body": "payload=%7B%22actions%22%3A%5B%7B%22name%22%3A%22Eric+Clapton+%40+The+Forum+in+Inglewood%2C+CA%22%2C%22type%22%3A%22button%22%2C%22value%22%3A%2213798038%22%7D%5D%2C%22callback_id%22%3A%22xoxb-206846735412-uhJMDZN9fVnzdu7bjTxU9eNS%7CC65RGKDRR%22%2C%22team%22%3A%7B%22id%22%3A%22T5K9TKQ3F%22%2C%22domain%22%3A%22mmt-contest%22%7D%2C%22channel%22%3A%7B%22id%22%3A%22C65RGKDRR%22%2C%22name%22%3A%22mmt-yay%22%7D%2C%22user%22%3A%7B%22id%22%3A%22U5K9TKQ69%22%2C%22name%22%3A%22user1%22%7D%2C%22action_ts%22%3A%221499570452.671801%22%2C%22message_ts%22%3A%221499569316.735723%22%2C%22attachment_id%22%3A%221%22%2C%22token%22%3A%22z0eX6y1zLzOjjJmdlNBXcsL5%22%2C%22is_app_unfurl%22%3Afalse%2C%22original_message%22%3A%7B%22text%22%3A%22Please+select+one+that+you+are+most+interested+in.%22%2C%22username%22%3A%22MyMusicMate%22%2C%22bot_id%22%3A%22B62SD4MBP%22%2C%22attachments%22%3A%5B%7B%22callback_id%22%3A%22xoxb-206846735412-uhJMDZN9fVnzdu7bjTxU9eNS%7CC65RGKDRR%22%2C%22fallback%22%3A%22You+are+unable+to+vote%22%2C%22id%22%3A1%2C%22color%22%3A%223AA3E3%22%2C%22actions%22%3A%5B%7B%22id%22%3A%221%22%2C%22name%22%3A%22Buddy+Guy+%40+Saban+Theatre+in+Beverly+Hills%2C+CA%22%2C%22text%22%3A%22Buddy+Guy+%40+Beverly+Hills%22%2C%22type%22%3A%22button%22%2C%22value%22%3A%2213771555%22%2C%22style%22%3A%22%22%7D%2C%7B%22id%22%3A%222%22%2C%22name%22%3A%22Eric+Clapton+%40+The+Forum+in+Inglewood%2C+CA%22%2C%22text%22%3A%22Eric+Clapton+%40+Inglewood%22%2C%22type%22%3A%22button%22%2C%22value%22%3A%2213798038%22%2C%22style%22%3A%22%22%7D%2C%7B%22id%22%3A%223%22%2C%22name%22%3A%22The+Isley+Brothers+%40+The+Pacific+Amphitheatre+in+Costa+Mesa%2C+CA%22%2C%22text%22%3A%22The+Isley+Brothers+%40+Costa+Mesa%22%2C%22type%22%3A%22button%22%2C%22value%22%3A%2214163736%22%2C%22style%22%3A%22%22%7D%2C%7B%22id%22%3A%224%22%2C%22name%22%3A%22none%22%2C%22text%22%3A%22Give+me+another+pool%21%22%2C%22type%22%3A%22button%22%2C%22value%22%3A%220%22%2C%22style%22%3A%22danger%22%7D%5D%7D%5D%2C%22type%22%3A%22message%22%2C%22subtype%22%3A%22bot_message%22%2C%22ts%22%3A%221499569316.735723%22%7D%2C%22response_url%22%3A%22https%3A%5C%2F%5C%2Fhooks.slack.com%5C%2Factions%5C%2FT5K9TKQ3F%5C%2F209942773858%5C%2FUGU1eKbLGa45IQj2OpBSzEet%22%7D",
+    "isBase64Encoded": false
+}
