@@ -47,12 +47,13 @@ def publish_voting_ui(event, queued):
             'value': concert['event_id']
         })
 
-        attachments[0]['actions'].append({
-            'name': 'Give me another pool',
-            'text': 'Give me another pool',
-            'type': 'button',
-            'value': '0'
-        })
+    attachments[0]['actions'].append({
+        'name': 'none',
+        'text': 'Other options?',
+        'type': 'button',
+        'style': 'danger',
+        'value': '0'
+    })
 
     log.info('!!! ATTACHMENTS !!!')
     log.info(attachments)
@@ -75,7 +76,6 @@ def publish_voting_ui(event, queued):
         Message=json.dumps({'default': json.dumps(sns_event)}),
         MessageStructure='json'
     )
-
 
 
 def publish_concert_list(event, queued):
