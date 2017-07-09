@@ -22,6 +22,26 @@ db_concerts = DbConcerts(os.environ['CONCERTS_TABLE'])
 sns = boto3.client('sns')
 
 
+def mark_queued_concerts(queued):
+    for concert in queued:
+        db_response = db_concerts.add_concert({
+            'team_id': concert['team_id'],
+            'channel_id': concert['channel_id'],
+            'artists': concert['artists'],
+            'event_id': concert['event_id'],
+            'event_name': concert['event_name'],
+            'event_date': concert['event_date'],
+            'event_venue': concert['event_venue'],
+            'ticket_url': concert['ticket_url'],
+            'interest': concert['interest'],
+            'queued': True
+        })
+        log.info('!!! CONCERT DB UPDATE RESPONSE !!!')
+        log.info(db_response)
+        print('!!! CONCERT DB UPDATE RESPONSE !!!')
+        print(db_response)
+
+
 def publish_voting_ui(event, queued):
     text = 'Please select one that you are most interested in.'
     attachments = [
@@ -124,17 +144,19 @@ def publish_concert_list(event, queued):
             'fields': [
                 {
                     'title': 'Concert Date:',
-                    'value': concert['event_date']
+                    'value': concert['event_date'],
+                    'short': True
                 },
                 {
                     'title': 'Concert Location:',
-                    'value': concert['event_venue']['name'] + ' ' + concert['event_venue']['city'] + ' ' +
-                             concert['event_venue']['region']
+                    'value': concert['event_venue']['name'] + ', ' + concert['event_venue']['city'] + ', ' +
+                             concert['event_venue']['region'],
+                    'short': True
                 },
-                {
-                    'title': 'Lineup:',
-                    'value': ', '.join(artists)
-                }
+                # {
+                #     'title': 'Lineup:',
+                #     'value': ', '.join(artists)
+                # }
             ]
         })
 
@@ -263,7 +285,8 @@ def search_concerts(event):
                                 'event_date': concert['formatted_datetime'],
                                 'event_venue': concert['venue'],
                                 'ticket_url': concert['ticket_url'],
-                                'interest': taste['interest']
+                                'interest': taste['interest'],
+                                'queued': False
                             })
                             log.info('!!! CONCERT DB ADD RESPONSE !!!')
                             log.info(db_response)
@@ -304,6 +327,7 @@ def show_results(event):
                 concerts_queued.append(concert)
         else:
             break
+    mark_queued_concerts(concerts_queued)
     publish_concert_list(event, concerts_queued)
     time.sleep(2.5)
     publish_voting_ui(event, concerts_queued)

@@ -11,16 +11,18 @@ class DbConcerts(DbTable):
         print('!!! ADD CONCERT DB REQUEST!!!')
         print(item)
         return self.put_item(
-            item=item,
-            condition_expression='attribute_not_exists(channel_id) OR attribute_not_exists(event_id)'
+            item=item
+            # condition_expression='attribute_not_exists(channel_id) OR attribute_not_exists(event_id)'
         )
 
     def fetch_concerts(self, channel_id):
         response = self.table.query(
             KeyConditionExpression='channel_id = :channel_id AND event_id > :event_id',
+            FilterExpression='queued = :queued',
             ExpressionAttributeValues={
                 ':channel_id': channel_id,
-                ':event_id': '0'
+                ':event_id': '0',
+                ':queued': False
             }
         )
 
@@ -28,3 +30,19 @@ class DbConcerts(DbTable):
             return []
         else:
             return response['Items']
+
+    def get_concert(self, channel_id, event_id):
+        response = self.table.query(
+            KeyConditionExpression='channel_id = :channel_id AND event_id = :event_id',
+            ExpressionAttributeValues={
+                ':channel_id': channel_id,
+                ':event_id': event_id,
+            }
+        )
+
+        print(response)
+
+        if response['ScannedCount'] == 0:
+            return None
+        else:
+            return response['Items'][0] # We assume there is only one result!

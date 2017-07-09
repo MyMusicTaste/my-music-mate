@@ -45,6 +45,7 @@ provider:
         - arn:aws:sns:*:*:${self:custom.namespace}-post-message
         - arn:aws:sns:*:*:${self:custom.namespace}-update-message
         - arn:aws:sns:*:*:${self:custom.namespace}-search-concert
+        - arn:aws:sns:*:*:${self:custom.namespace}-evaluate-votes
     - Effect: Allow
       Action:
         - lex:PostText
@@ -65,6 +66,7 @@ provider:
     VOTES_TABLE: ${self:custom.namespace}-votes
     LEX_NAME: ${self:custom.lex.name}
     LEX_ALIAS: ${self:custom.lex.alias}
+    CONCERT_VOTE_OPTIONS_MAX: 3
 
 
 package:
@@ -116,6 +118,7 @@ functions:
           method: post
     environment:
       UPDATE_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-update-message" ] ]  }
+      EVALUATE_VOTES_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-evaluate-votes" ] ]  }
   lex-invite-mate:
     handler: src/lex/lambda/invite-mate.handler
   lex-reserve-lounge:
@@ -140,11 +143,15 @@ functions:
       BIT_ARTIST_URL: "https://api.bandsintown.com/artists/{}.json?api_version=2.0&app_id=MyMusicMate"
       LASTFM_TAG_URL: "http://ws.audioscrobbler.com/2.0/?method=tag.getinfo&tag={}&api_key=5de66db197047d9796295f4824615bd6&format=json"
       BIT_CONCERT_SEARCH_BY_ARTISTS_API: "http://api.bandsintown.com/artists/{}/events/recommended?location={}&radius={}&app_id=chatbot&api_version=2.0&format=json"
-      GENRE_TO_ARTIST_MAX: 10
-      CONCERT_VOTE_OPTIONS_MAX: 3
+      GENRE_TO_ARTIST_MAX: 5
       CONCERT_SEARCH_RADIUS: 150
       POST_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
-
+  app-evaluate-votes:
+    handler: src/app/lambda/evaluate-votes.handler
+    events:
+      - sns: ${self:custom.namespace}-evaluate-votes
+    environment:
+      POST_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

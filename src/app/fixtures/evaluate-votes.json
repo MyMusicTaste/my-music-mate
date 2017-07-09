@@ -1,0 +1,22 @@
+{
+    "Records": [
+        {
+            "EventSource": "aws:sns",
+            "EventVersion": "1.0",
+            "EventSubscriptionArn": "arn:aws:sns:us-east-1:120387605022:mmm-dev-evaluate-votes:80184e5d-4979-4376-9a79-a20aee12f673",
+            "Sns": {
+                "Type": "Notification",
+                "MessageId": "a2757cfd-b070-593f-8ca7-2d266694a66f",
+                "TopicArn": "arn:aws:sns:us-east-1:120387605022:mmm-dev-evaluate-votes",
+                "Subject": null,
+                "Message": "{\"team_id\": \"T5K9TKQ3F\", \"channel_id\": \"C66NQBD2A\", \"token\": \"xoxb-206846735412-uhJMDZN9fVnzdu7bjTxU9eNS\", \"votes\": [{\"event_id\": \"13089098\", \"user_id\": \"_U5K9TKQ69\", \"team_id\": \"T5K9TKQ3F\", \"channel_id\": \"C66NQBD2A\"}, {\"event_id\": \"13089098\", \"user_id\": \"_U5YJ6TT3K\", \"team_id\": \"T5K9TKQ3F\", \"channel_id\": \"C66NQBD2A\"}, {\"event_id\": \"13089098\", \"user_id\": \"_U66NNDBAS\", \"team_id\": \"T5K9TKQ3F\", \"channel_id\": \"C66NQBD2A\"}]}",
+                "Timestamp": "2017-07-09T07:00:52.826Z",
+                "SignatureVersion": "1",
+                "Signature": "FSbvirxIu1idluvo94VRG03nSJuyk4PNJdQxZX0QgxHy1wkF6KCZEjTGhhuRKpxgdDE7eXG7uwvXze2x4gQ/PzQzoB86NiefcYChgeF8Ka5dbFXwyIZXZUPFnFd1ALjsW1Ye0sHF/ufte/h28sbK9lAs3mtWeXMjF8t4mt6TmMVb3hnjPcjPx7XwrscRvuDCHHRfoYqXzhsMKZvh0Z4TmXjm27kK+xgTPga+clDZyG9BuExUbommxWO/1IYm5q1K5Np3YXJnzz3hMbTX/pq9JSleMWjovZqJpoQh41DbkS1pvnJYNlxzjBhL8MIcKVI+aum6Kr6IYqHsobckGDOZ+A==",
+                "SigningCertUrl": "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-b95095beb82e8f6a046b3aafc7f4149a.pem",
+                "UnsubscribeUrl": "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:120387605022:mmm-dev-evaluate-votes:80184e5d-4979-4376-9a79-a20aee12f673",
+                "MessageAttributes": {}
+            }
+        }
+    ]
+}
