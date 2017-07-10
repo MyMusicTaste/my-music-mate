@@ -46,7 +46,7 @@ def count_votes(event):
     if event['round'] == '1':   # First vote.
         vote_result = STATUS_REVOTE
         for key in visited_concerts:
-            percentage = visited_concerts[key] / int(os.environ['CONCERT_VOTE_OPTIONS_MAX'])
+            percentage = visited_concerts[key] / (len(event['members']) - 1)
             if key == '0' and percentage > 0.4:  # I don't like any of these options
                 vote_result = STATUS_NOPE
                 break
@@ -57,13 +57,13 @@ def count_votes(event):
 
         if vote_result == STATUS_REVOTE:
             for key in visited_concerts:
-                percentage = visited_concerts[key] / int(os.environ['CONCERT_VOTE_OPTIONS_MAX'])
+                percentage = visited_concerts[key] / (len(event['members']) - 1)
                 if percentage > 0.3 and key != '0':
                     new_queue.append(key)
     else:   # Second vote.
         vote_result = STATUS_NOPE
         for key in visited_concerts:
-            percentage = visited_concerts[key] / int(os.environ['CONCERT_VOTE_OPTIONS_MAX'])
+            percentage = visited_concerts[key] / (len(event['members']) - 1)
             if percentage >= 0.5:
                 vote_result = STATUS_WINNER
                 vote_winners.append(key)
