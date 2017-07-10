@@ -8,6 +8,7 @@ import boto3
 from botocore.exceptions import ClientError
 from src.dynamodb.votes import DbVotes
 from src.dynamodb.concerts import DbConcerts
+from src.dynamodb.intents import DbIntents
 import requests
 from requests.exceptions import HTTPError
 import random
@@ -21,12 +22,174 @@ log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 db_votes = DbVotes(os.environ['VOTES_TABLE'])
 db_concerts = DbConcerts(os.environ['CONCERTS_TABLE'])
+db_intents = DbIntents(os.environ['INTENTS_TABLE'])
 sns = boto3.client('sns')
 
 
 STATUS_REVOTE = 'R'
 STATUS_WINNER = 'W'
 STATUS_NOPE = 'N'
+
+
+def publish_voting_ui(event, queued):
+    text = 'Please select one that you are most interested in.'
+    attachments = [
+        {
+            'fallback': 'You are unable to vote',
+            'callback_id': '2',
+            'color': '#3AA3E3',
+            'attachment_type': 'default',
+            'actions': []
+        }
+    ]
+    for i, concert in enumerate(queued):
+        artists = []
+        print('!!! CONCERT INDIVIDUAL !!!')
+        print(concert)
+        for artist in concert['artists']:
+            artists.append(artist['name'])
+
+        attachments[0]['actions'].append({
+            'name': concert['event_name'],
+            'text': concert['event_name'],
+            'type': 'button',
+            'value': concert['event_id']
+        })
+
+    attachments[0]['actions'].append({
+        'name': 'none',
+        'text': 'Other options?',
+        'type': 'button',
+        'style': 'danger',
+        'value': '0'
+    })
+
+    log.info('!!! ATTACHMENTS !!!')
+    log.info(attachments)
+    print('!!! ATTACHMENTS !!!')
+    print(attachments)
+    sns_event = {
+        'token': event['token'],
+        'channel': event['channel_id'],
+        'text': text,
+        'attachments': attachments
+    }
+    log.info('!!! SNS EVENT !!!')
+    log.info(sns_event)
+    print('!!! SNS EVENT !!!')
+    print(sns_event)
+    print('!!! ARN ADDRRESS !!!')
+    print(os.environ['POST_MESSAGE_SNS_ARN'])
+    return sns.publish(
+        TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(sns_event)}),
+        MessageStructure='json'
+    )
+
+
+def mark_queued_concerts(queued):
+    for concert in queued:
+        db_response = db_concerts.add_concert({
+            'team_id': concert['team_id'],
+            'channel_id': concert['channel_id'],
+            'artists': concert['artists'],
+            'event_id': concert['event_id'],
+            'event_name': concert['event_name'],
+            'event_date': concert['event_date'],
+            'event_venue': concert['event_venue'],
+            'ticket_url': concert['ticket_url'],
+            'interest': concert['interest'],
+            'queued': True
+        })
+        log.info('!!! CONCERT DB UPDATE RESPONSE !!!')
+        log.info(db_response)
+        print('!!! CONCERT DB UPDATE RESPONSE !!!')
+        print(db_response)
+
+
+def publish_concert_list(event, queued):
+    # if len(queued) == 0:
+    #     text = 'Sorry, I couldn\'t find any concert you might interested in.'
+    # elif len(queued) > 1:
+    #     text = 'Here are {} concerts that you guys might interested in.'.format(len(queued))
+    # else:
+    #     text = 'Hmm, I only found one option. Are you interested in?'
+    print('!!! QUEUED !!!')
+    print(queued)
+    attachments = []
+    for i, concert in enumerate(queued):
+        artists = []
+        print('!!! CONCERT INDIVIDUAL !!!')
+        print(concert)
+        for artist in concert['artists']:
+            artists.append(artist['name'])
+
+        pretext = ''
+        order = ''
+        if i == 0:
+            if len(queued) == i + 1:
+                order = ''
+            else:
+                order = 'first'
+        if i == 1:
+            if len(queued) == i + 1:
+                order = 'last'
+            else:
+                order = 'second'
+        elif i == 2:
+            if len(queued) == i + 1:
+                order = 'last'
+            else:
+                order = 'last'
+
+        pretext += 'Here is the {} option. I chose this because you are interested in {}.'.format(
+            order, concert['interest'])
+
+        attachments.append({
+            'pretext': pretext,
+            'title': concert['event_name'],
+            'author_name': ', '.join(artists),
+            'author_icon': concert['artists'][0]['thumb_url'],
+            'fields': [
+                {
+                    'title': 'Concert Date:',
+                    'value': concert['event_date'],
+                    'short': True
+                },
+                {
+                    'title': 'Concert Location:',
+                    'value': concert['event_venue']['name'] + ', ' + concert['event_venue']['city'] + ', ' +
+                             concert['event_venue']['region'],
+                    'short': True
+                },
+                # {
+                #     'title': 'Lineup:',
+                #     'value': ', '.join(artists)
+                # }
+            ]
+        })
+
+    log.info('!!! ATTACHMENTS !!!')
+    log.info(attachments)
+    print('!!! ATTACHMENTS !!!')
+    print(attachments)
+    sns_event = {
+        'token': event['token'],
+        'channel': event['channel_id'],
+        'text': '',
+        'attachments': attachments
+    }
+    log.info('!!! SNS EVENT !!!')
+    log.info(sns_event)
+    print('!!! SNS EVENT !!!')
+    print(sns_event)
+    print('!!! ARN ADDRRESS !!!')
+    print (os.environ['POST_MESSAGE_SNS_ARN'])
+    return sns.publish(
+        TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(sns_event)}),
+        MessageStructure='json'
+    )
 
 
 def count_votes(event):
@@ -64,7 +227,7 @@ def count_votes(event):
         vote_result = STATUS_NOPE
         for key in visited_concerts:
             percentage = visited_concerts[key] / (len(event['members']) - 1)
-            if percentage >= 0.5:
+            if percentage >= 0.5 and key != '0':
                 vote_result = STATUS_WINNER
                 vote_winners.append(key)
                 break
@@ -131,7 +294,7 @@ def execute_second_vote(event):
 
     # try:
 
-    print('!!! DELETE !!!')
+    print('!!! DELETE PREVIOUS VOTES !!!')
     for member in event['members']:
         print(event['channel_id'])
         print(member)
@@ -197,11 +360,123 @@ def execute_second_vote(event):
     )
 
 
-
-
-
 def bring_new_concert_queue(event):
+    print('!!! DELETE PREVIOUS VOTES !!!')
+    for member in event['members']:
+        print(event['channel_id'])
+        print(member)
+        db_response = db_votes.remove_previous(event['channel_id'], '_' + member)
+
+
     print('!!! BRING NEW CONCERT QUEUE !!!')
+    concerts = db_concerts.fetch_concerts(event['channel_id'])
+    print('!!! SHOW CONCERT RESULTS !!!')
+    print(concerts)
+    log.info('!!! SHOW CONCERT RESULTS !!!')
+    log.info(concerts)
+    artist_visited = []
+    concerts_queued = []
+
+    for concert in concerts:
+        if len(concerts_queued) < int(os.environ['CONCERT_VOTE_OPTIONS_MAX']):
+            print('!!! artist_visited !!!')
+            print(artist_visited)
+            print('!!! concerts_queued !!!')
+            print(concerts_queued)
+            artists = concert['artists']
+            need_to_be_queued = True
+            for artist in artists:
+                if artist['name'] not in artist_visited:
+                    artist_visited.append(artist['name'])
+                else:
+                    need_to_be_queued = False
+            if need_to_be_queued:
+                concerts_queued.append(concert)
+        else:
+            break
+
+
+    print('!!! NEWLY QUEUED CONCERTS !!!')
+    print(concerts_queued)
+
+    if len(concerts_queued) == int(os.environ['CONCERT_VOTE_OPTIONS_MAX']):
+        mark_queued_concerts(concerts_queued)
+        publish_concert_list(event, concerts_queued)
+        time.sleep(2.5)
+        publish_voting_ui(event, concerts_queued)
+    else:
+        out_of_options(event)
+        start_over(event)
+
+
+def out_of_options(event):
+    # print(response.history)
+    text = 'Sorry, we couldn\'t find any other concerts meeting your music taste. Let\'s try again.'
+    sns_event = {
+        'token': event['token'],
+        'channel': event['channel_id'],
+        'text': text,
+    }
+    log.info('!!! OUT OF OPTIONS !!!')
+    log.info(sns_event)
+    return sns.publish(
+        TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(sns_event)}),
+        MessageStructure='json'
+    )
+
+
+def start_over(event):
+    retrieve_intents(event)
+    event['intents']['genres'] = []
+    event['intents']['artists'] = []
+    event['intents']['city'] = None
+    event['intents']['tastes'] = {}
+    store_intents(event)
+
+    sns_event = {
+        'team': {
+            'team_id': event['team_id'],
+            'access_token': event['api_token'],
+            'bot': {
+                'bot_access_token': event['token']
+            }
+        },
+        'slack': {
+            'event': {
+                'channel': event['channel_id'],
+                'user': event['intents']['host_id'],
+                'text': 'THIS ASK TASTE INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES'
+            }
+        }
+    }
+
+    log.info('!!! START OVER !!!')
+    log.info(sns_event)
+
+    return sns.publish(
+        TopicArn=os.environ['DISPATCH_ACTIONS_SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(sns_event)}),
+        MessageStructure='json'
+    )
+
+
+def retrieve_intents(event):
+    event['intents'] = db_intents.retrieve_intents(
+        event['team_id'],
+        event['channel_id']
+    )
+
+
+def store_intents(event):
+    return db_intents.store_intents(
+        keys={
+            'team_id': event['team_id'],
+            'channel_id': event['channel_id']
+        },
+        attributes=event['intents']
+    )
+
 
 def handler(event, context):
     log.info(json.dumps(event))

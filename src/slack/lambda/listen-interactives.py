@@ -53,7 +53,7 @@ def update_message(event):
     attachments = original_message['attachments']
     time_stamp = original_message['ts']
     bot_token = event['teams']['bot']['bot_access_token']
-    # access_token = event['teams']['access_token']
+    access_token = event['teams']['access_token']
 
     member_count = len(event['channel']['members'])
 
@@ -84,6 +84,7 @@ def update_message(event):
             'team_id': event['slack']['team']['id'],
             'channel_id': event['slack']['channel']['id'],
             'token': bot_token,
+            'api_token': access_token,
             'votes': event['votes'],
             'members': event['channel']['members'],
             'round': event['slack']['callback_id']

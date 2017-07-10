@@ -67,6 +67,8 @@ provider:
     LEX_NAME: ${self:custom.lex.name}
     LEX_ALIAS: ${self:custom.lex.alias}
     CONCERT_VOTE_OPTIONS_MAX: 3
+    POST_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
+
 
 
 package:
@@ -145,13 +147,12 @@ functions:
       BIT_CONCERT_SEARCH_BY_ARTISTS_API: "http://api.bandsintown.com/artists/{}/events/recommended?location={}&radius={}&app_id=chatbot&api_version=2.0&format=json"
       GENRE_TO_ARTIST_MAX: 5
       CONCERT_SEARCH_RADIUS: 150
-      POST_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
   app-evaluate-votes:
     handler: src/app/lambda/evaluate-votes.handler
     events:
       - sns: ${self:custom.namespace}-evaluate-votes
     environment:
-      POST_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
+      DISPATCH_ACTIONS_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-dispatch-actions" ] ]  }
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

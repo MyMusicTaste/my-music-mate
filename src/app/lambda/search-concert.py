@@ -107,6 +107,8 @@ def publish_concert_list(event, queued):
     #     text = 'Hmm, I only found one option. Are you interested in?'
     print('!!! QUEUED !!!')
     print(queued)
+
+
     attachments = []
     for i, concert in enumerate(queued):
         artists = []
