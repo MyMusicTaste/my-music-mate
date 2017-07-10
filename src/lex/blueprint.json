@@ -146,7 +146,7 @@
       "slots": [
         {
           "name": "Genre",
-          "slotConstraint": "Required",
+          "slotConstraint": "Optional",
           "slotType": "AMAZON.Genre",
           "valueElicitationPrompt": {
             "messages": [
