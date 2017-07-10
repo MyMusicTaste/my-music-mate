@@ -194,6 +194,9 @@ def publish_concert_list(event, queued):
 
 def count_votes(event):
     visited_concerts = {}
+    total_votes = len(event['votes'])
+    if total_votes == 0:
+        total_votes = 1 # Force to not dividing with 0
     for vote in event['votes']:
         if vote['event_id'] not in visited_concerts:
             visited_concerts[vote['event_id']] = 1
@@ -209,7 +212,7 @@ def count_votes(event):
     if event['round'] == '1':   # First vote.
         vote_result = STATUS_REVOTE
         for key in visited_concerts:
-            percentage = visited_concerts[key] / len(event['votes'])
+            percentage = visited_concerts[key] / total_votes
             if key == '0' and percentage > 0.4:  # I don't like any of these options
                 vote_result = STATUS_NOPE
                 break
@@ -220,13 +223,20 @@ def count_votes(event):
 
         if vote_result == STATUS_REVOTE:
             for key in visited_concerts:
-                percentage = visited_concerts[key] / len(event['votes'])
+                percentage = visited_concerts[key] / total_votes
                 if percentage > 0.3 and key != '0':
                     new_queue.append(key)
+
+        if vote_result == STATUS_NOPE:
+            for key in visited_concerts:
+                percentage = visited_concerts[key] / total_votes
+                if percentage > 0.4 and key != '0':
+                    new_queue.append(key)
+
     else:   # Second vote.
         vote_result = STATUS_NOPE
         for key in visited_concerts:
-            percentage = visited_concerts[key] / len(event['votes'])
+            percentage = visited_concerts[key] / total_votes
             if percentage >= 0.5 and key != '0':
                 vote_result = STATUS_WINNER
                 vote_winners.append(key)
@@ -376,6 +386,10 @@ def bring_new_concert_queue(event):
     log.info(concerts)
     artist_visited = []
     concerts_queued = []
+    for survived_concert_id in event['result']['queue']:
+        db_response = db_concerts.get_concert(event['channel_id'], survived_concert_id)
+        if db_response is not None:
+            concerts_queued.append(db_response)
 
     for concert in concerts:
         if len(concerts_queued) < int(os.environ['CONCERT_VOTE_OPTIONS_MAX']):
