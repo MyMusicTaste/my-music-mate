@@ -46,6 +46,7 @@ provider:
         - arn:aws:sns:*:*:${self:custom.namespace}-update-message
         - arn:aws:sns:*:*:${self:custom.namespace}-search-concert
         - arn:aws:sns:*:*:${self:custom.namespace}-evaluate-votes
+        - arn:aws:sns:*:*:${self:custom.namespace}-voting-timer
     - Effect: Allow
       Action:
         - lex:PostText
@@ -67,8 +68,9 @@ provider:
     LEX_NAME: ${self:custom.lex.name}
     LEX_ALIAS: ${self:custom.lex.alias}
     CONCERT_VOTE_OPTIONS_MAX: 3
+    DEFAULT_VOTING_TIMEOUT: 30
     POST_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
-
+    DISPATCH_ACTIONS_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-dispatch-actions" ] ]  }
 
 
 package:
@@ -134,6 +136,8 @@ functions:
       BIT_CITY_SEARCH: "http://api.bandsintown.com/artists/{}/events/recommended?location={}&radius={}&app_id=chatbot&api_version=2.0&format=json"
   lex-ask-taste:
     handler: src/lex/lambda/ask-taste.handler
+  lex-ask-extend:
+    handler: src/lex/lambda/ask-extend.handler
   app-search-concert:
     handler: src/app/lambda/search-concert.handler
     events:
@@ -146,15 +150,19 @@ functions:
       BIT_ARTIST_URL: "https://api.bandsintown.com/artists/{}.json?api_version=2.0&app_id=MyMusicMate"
       LASTFM_TAG_URL: "http://ws.audioscrobbler.com/2.0/?method=tag.getinfo&tag={}&api_key=5de66db197047d9796295f4824615bd6&format=json"
       BIT_CONCERT_SEARCH_BY_ARTISTS_API: "http://api.bandsintown.com/artists/{}/events/recommended?location={}&radius={}&app_id=chatbot&api_version=2.0&format=json"
-      DISPATCH_ACTIONS_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-dispatch-actions" ] ]  }
+
+      VOTING_TIMER_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-voting-timer" ] ]  }
       GENRE_TO_ARTIST_MAX: 5
       CONCERT_SEARCH_RADIUS: 150
   app-evaluate-votes:
     handler: src/app/lambda/evaluate-votes.handler
     events:
       - sns: ${self:custom.namespace}-evaluate-votes
-    environment:
-      DISPATCH_ACTIONS_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-dispatch-actions" ] ]  }
+  app-voting-timer:
+    handler: src/app/lambda/voting-timer.handler
+    events:
+      - sns: ${self:custom.namespace}-voting-timer
+
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

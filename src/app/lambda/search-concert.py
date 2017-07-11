@@ -335,10 +335,32 @@ def show_results(event):
         publish_concert_list(event, concerts_queued)
         time.sleep(2.5)
         publish_voting_ui(event, concerts_queued, artist_visited)
+        activate_voting_timer(event, concerts_queued, artist_visited)
     else:
         out_of_options(event)
         start_over(event)
 
+
+def activate_voting_timer(event, concerts_queued, artist_visited):
+    event['intents']['round'] = '1'
+    event['intents']['timeout'] = os.environ['DEFAULT_VOTING_TIMEOUT']
+    sns_event = {
+        'slack': {
+            'team_id': event['sessionAttributes']['team_id'],
+            'channel_id': event['sessionAttributes']['channel_id'],
+            'api_token': event['sessionAttributes']['api_token'],
+            'bot_token': event['sessionAttributes']['bot_token']
+        },
+        'intents': event['intents'],
+        'concerts': concerts_queued,
+        'artists': artist_visited
+    }
+
+    return sns.publish(
+        TopicArn=os.environ['VOTING_TIMER_SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(sns_event)}),
+        MessageStructure='json'
+    )
 
 
 def out_of_options(event):
@@ -365,7 +387,7 @@ def start_over(event):
     event['intents']['artists'] = []
     event['intents']['city'] = None
     event['intents']['tastes'] = {}
-    store_intents(event)
+    # store_intents(event)
 
     sns_event = {
         'team': {
@@ -405,9 +427,10 @@ def handler(event, context):
         log.info(response)
         add_artist_tastes(event)
         add_genre_tastes(event)
-        store_intents(event)
+
         search_concerts(event)
         show_results(event)
+        store_intents(event)
     except Exception as e:
         response = {
             "statusCode": 400,

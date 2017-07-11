@@ -263,6 +263,59 @@
       "fulfillmentActivity": {
         "type": "ReturnIntent"
       }
+    },
+
+
+    {
+      "name": "AskExtend",
+      "slots": [
+        {
+          "name": "Extend",
+          "slotConstraint": "Required",
+          "slotType": "AMAZON.DURATION",
+          "valueElicitationPrompt": {
+            "messages": [
+              {
+                "contentType": "PlainText",
+                "content": "Do you need extra time for voting?"
+              }
+            ],
+            "maxAttempts": 5
+          },
+          "priority": 1,
+          "sampleUtterances": [
+            "I want to extend {Extend}"
+          ]
+        }
+
+      ],
+      "sampleUtterances": [
+        "THIS ASK EXTEND INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES"
+      ],
+      "confirmationPrompt": {
+        "messages": [
+          {
+            "contentType": "PlainText",
+            "content": "Do you need extra time for voting?"
+          }
+        ],
+        "maxAttempts": 5
+      },
+      "rejectionStatement": {
+        "messages": [
+          {
+            "contentType": "PlainText",
+            "content": "THIS REJECT STATEMENT SHOULD NOT BE PRINTED IN ANY SITUATION"
+          }
+        ]
+      },
+      "dialogCodeHook": {
+        "uri": "arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:custom.namespace}-lex-ask-extend",
+        "messageVersion": "1.0"
+      },
+      "fulfillmentActivity": {
+        "type": "ReturnIntent"
+      }
     }
 
 
