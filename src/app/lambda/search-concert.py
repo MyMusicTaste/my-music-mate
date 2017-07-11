@@ -62,14 +62,14 @@ def publish_voting_ui(event, queued, artist_visited):
 
         attachments[0]['actions'].append({
             'name': concert['event_name'],
-            'text': concert['event_name'],
+            'text': '[0] ' + concert['event_name'],
             'type': 'button',
             'value': concert['event_id']
         })
 
     attachments[0]['actions'].append({
-        'name': 'none',
-        'text': 'Other options?',
+        'name': 'Other options?',
+        'text': '[0] Other options?',
         'type': 'button',
         'style': 'danger',
         'value': '0'

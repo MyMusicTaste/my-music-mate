@@ -10,6 +10,7 @@ from src.dynamodb.teams import DbTeams
 from urllib.parse import unquote
 from urllib.parse import urlencode
 import requests
+import time
 
 
 
@@ -21,6 +22,7 @@ sns = boto3.client('sns')
 
 
 def get_slack_event(event):
+    event['body'] = event['body'].replace('+', '%20')   # Hotfix for converting `+` into ` ` space.
     return {
         'slack': json.loads(unquote(event['body'][8:]))
     }
@@ -57,26 +59,44 @@ def update_message(event):
 
     member_count = len(event['channel']['members'])
 
-
-
     print('attachments')
     print(attachments)
-    if len(attachments) == 1:
-        attachments.append({})
-    if vote_count == 0:
-        attachments[1] = {
-            'text': 'No vote has been placed.'
-        }
-    elif vote_count == 1:
-        attachments[1] = {
-            'color': '#3AA3E3',
-            'text': '1 vote has been placed.'
-        }
-    else:
-        attachments[1] = {
-            'color': '#3AA3E3',
-            'text': '{} votes have been placed.'.format(vote_count)
-        }
+
+    # attachments[0]['actions'] voting actions
+
+    visited_concerts = {}
+    for vote in event['votes']:
+        if vote['event_id'] not in visited_concerts:
+            visited_concerts[vote['event_id']] = 1
+        else:
+            visited_concerts[vote['event_id']] += 1
+
+    for action in attachments[0]['actions']:
+        found = False
+        for key in visited_concerts:
+            if action['value'] == key:
+                found = True
+                action['text'] = '[' + str(visited_concerts[key]) + '] ' + action['name']
+        if found is False:
+            action['text'] = '[0] ' + action['name']
+
+    # We don't need to show the extra message since we showed how many votes each concert gets.
+    # if len(attachments) == 1:
+    #     attachments.append({})
+    # if vote_count == 0:
+    #     attachments[1] = {
+    #         'text': 'No vote has been placed.'
+    #     }
+    # elif vote_count == 1:
+    #     attachments[1] = {
+    #         'color': '#3AA3E3',
+    #         'text': '1 vote has been placed.'
+    #     }
+    # else:
+    #     attachments[1] = {
+    #         'color': '#3AA3E3',
+    #         'text': '{} votes have been placed.'.format(vote_count)
+    #     }
 
     # For testing purpose, I won't override the voting message.
     if vote_count == member_count - 1:  # Excluding the bot from voters.
