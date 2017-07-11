@@ -384,7 +384,7 @@ def bring_new_concert_queue(event):
     print(concerts)
     log.info('!!! SHOW CONCERT RESULTS !!!')
     log.info(concerts)
-    artist_visited = event['prev_artists'].split(',')
+    artist_visited = event['prev_artists'].replace('+', ' ').split(',')
     log.info('!!! PREV ARTISTS')
     log.info(artist_visited)
     print('!!! PREV ARTISTS')
