@@ -330,10 +330,68 @@ def show_results(event):
         else:
             break
 
-    mark_queued_concerts(concerts_queued)
-    publish_concert_list(event, concerts_queued)
-    time.sleep(2.5)
-    publish_voting_ui(event, concerts_queued, artist_visited)
+    if len(concerts_queued) > 0:
+        mark_queued_concerts(concerts_queued)
+        publish_concert_list(event, concerts_queued)
+        time.sleep(2.5)
+        publish_voting_ui(event, concerts_queued, artist_visited)
+    else:
+        out_of_options(event)
+        start_over(event)
+
+
+
+def out_of_options(event):
+    # print(response.history)
+    text = 'Sorry, we couldn\'t find any concerts meeting your music taste. Let\'s try again.'
+    sns_event = {
+        'token': event['sessionAttributes']['bot_token'],
+        'channel': event['sessionAttributes']['channel_id'],
+        'text': text,
+    }
+    log.info('!!! OUT OF OPTIONS !!!')
+    log.info(sns_event)
+    return sns.publish(
+        TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(sns_event)}),
+        MessageStructure='json'
+    )
+
+
+def start_over(event):
+    print('!!! START OVER !!!')
+    print(event)
+    event['intents']['genres'] = []
+    event['intents']['artists'] = []
+    event['intents']['city'] = None
+    event['intents']['tastes'] = {}
+    store_intents(event)
+
+    sns_event = {
+        'team': {
+            'team_id': event['sessionAttributes']['channel_id'],
+            'access_token': event['sessionAttributes']['api_token'],
+            'bot': {
+                'bot_access_token': event['sessionAttributes']['bot_token']
+            }
+        },
+        'slack': {
+            'event': {
+                'channel': event['sessionAttributes']['channel_id'],
+                'user': event['intents']['host_id'],
+                'text': 'THIS ASK TASTE INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES'
+            }
+        }
+    }
+
+    log.info('!!! START OVER !!!')
+    log.info(sns_event)
+
+    return sns.publish(
+        TopicArn=os.environ['DISPATCH_ACTIONS_SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(sns_event)}),
+        MessageStructure='json'
+    )
 
 
 def handler(event, context):
