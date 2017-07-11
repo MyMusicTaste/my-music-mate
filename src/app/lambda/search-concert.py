@@ -167,6 +167,7 @@ def publish_concert_list(event, queued):
                 # }
             ]
         })
+        time.sleep(1.5)
         sns_event = {
             'token': event['sessionAttributes']['bot_token'],
             'channel': event['sessionAttributes']['channel_id'],
