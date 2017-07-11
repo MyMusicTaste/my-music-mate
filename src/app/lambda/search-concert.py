@@ -9,6 +9,7 @@ from botocore.exceptions import ClientError
 from src.dynamodb.intents import DbIntents
 from src.dynamodb.concerts import DbConcerts
 import requests
+from googleapiclient.discovery import build
 from requests.exceptions import HTTPError
 import random
 import time
@@ -107,17 +108,23 @@ def publish_concert_list(event, queued):
     #     text = 'Hmm, I only found one option. Are you interested in?'
     print('!!! QUEUED !!!')
     print(queued)
+    youtube = build(os.environ['YOUTUBE_API_SERVICE_NAME'], os.environ['YOUTUBE_API_VERSION'], developerKey=os.environ['DEVELOPER_KEY'])
 
-
-    attachments = []
     for i, concert in enumerate(queued):
+        attachments = []
         artists = []
         print('!!! CONCERT INDIVIDUAL !!!')
         print(concert)
         for artist in concert['artists']:
             artists.append(artist['name'])
-
-        pretext = ''
+        search_response = youtube.search().list(
+            q=concert['artists'][0]['name'] + " live concert",
+            part="id,snippet",
+            type="video",
+            maxResults=1
+        ).execute()
+        result = search_response.get("items", [])
+        youtubeurl = "http://youtube.com/watch?v=%s" % result[0]["id"]["videoId"]
         order = ''
         if i == 0:
             if len(queued) == i + 1:
@@ -135,11 +142,10 @@ def publish_concert_list(event, queued):
             else:
                 order = 'last'
 
-        pretext += 'Here is the {} option. I chose this because you are interested in {}.'.format(
-            order, concert['interest'])
+        # pretext += 'Here is the {} option. I chose this because you are interested in {}.'.format(
+        #    order, concert['interest'])
 
         attachments.append({
-            'pretext': pretext,
             'title': concert['event_name'],
             'author_name': ', '.join(artists),
             'author_icon': concert['artists'][0]['thumb_url'],
@@ -161,28 +167,41 @@ def publish_concert_list(event, queued):
                 # }
             ]
         })
+        sns_event = {
+            'token': event['sessionAttributes']['bot_token'],
+            'channel': event['sessionAttributes']['channel_id'],
+            'text': "Here is the {} option. I chose this because you are interested in {}. <{}| >".format(
+                order, concert['interest'], youtubeurl),
+            'attachments': attachments
+        }
+        sns.publish(
+            TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
+            Message=json.dumps({'default': json.dumps(sns_event)}),
+            MessageStructure='json'
+        )
 
     log.info('!!! ATTACHMENTS !!!')
     log.info(attachments)
     print('!!! ATTACHMENTS !!!')
     print(attachments)
-    sns_event = {
-        'token': event['sessionAttributes']['bot_token'],
-        'channel': event['sessionAttributes']['channel_id'],
-        'text': '',
-        'attachments': attachments
-    }
-    log.info('!!! SNS EVENT !!!')
-    log.info(sns_event)
-    print('!!! SNS EVENT !!!')
-    print(sns_event)
-    print('!!! ARN ADDRRESS !!!')
-    print (os.environ['POST_MESSAGE_SNS_ARN'])
-    return sns.publish(
-        TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
-        Message=json.dumps({'default': json.dumps(sns_event)}),
-        MessageStructure='json'
-    )
+    # sns_event = {
+    #     'token': event['sessionAttributes']['bot_token'],
+    #     'channel': event['sessionAttributes']['channel_id'],
+    #     'text': '',
+    #     'attachments': attachments
+    # }
+    # log.info('!!! SNS EVENT !!!')
+    # log.info(sns_event)
+    # print('!!! SNS EVENT !!!')
+    # print(sns_event)
+    # print('!!! ARN ADDRRESS !!!')
+    # print (os.environ['POST_MESSAGE_SNS_ARN'])
+    # return sns.publish(
+    #     TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
+    #     Message=json.dumps({'default': json.dumps(sns_event)}),
+    #     MessageStructure='json'
+    # )
+    return
 
 
 def retrieve_intents(event):
