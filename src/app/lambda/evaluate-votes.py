@@ -31,12 +31,12 @@ STATUS_WINNER = 'W'
 STATUS_NOPE = 'N'
 
 
-def publish_voting_ui(event, queued, artist_visited):
+def publish_voting_ui(event, queued, round, artist_visited):
     text = 'Please select one that you are most interested in.'
     attachments = [
         {
             'fallback': 'You are unable to vote',
-            'callback_id': '2|' + ','.join(artist_visited), # Second round + artist names
+            'callback_id': round + '|' + ','.join(artist_visited), # Second round + artist names
             'color': '#3AA3E3',
             'attachment_type': 'default',
             'actions': []
@@ -421,7 +421,7 @@ def bring_new_concert_queue(event):
         mark_queued_concerts(concerts_queued)
         publish_concert_list(event, concerts_queued)
         time.sleep(2.5)
-        publish_voting_ui(event, concerts_queued, artist_visited)
+        publish_voting_ui(event, concerts_queued, 1, artist_visited)
     else:
         out_of_options(event)
         start_over(event)
