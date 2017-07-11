@@ -6,6 +6,8 @@ import boto3
 import json
 import re
 from src.dynamodb.teams import DbTeams
+from urllib.parse import urlencode
+import requests
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
@@ -63,6 +65,29 @@ def check_bot_is_receiver(event):
     if bot_id == caller_id:
         raise Exception('%s is Bot\'s own message.' % message)
     is_bot_mentioned = re.match(r'^<@%s>.*$' % bot_id, message)
+
+    print('!!! is_bot_mentioned !!!')
+    print(is_bot_mentioned)
+    if is_bot_mentioned is not True:
+        params = {
+            'token': event['team']['access_token'],
+            'channel': event['slack']['event']['channel']
+        }
+        url = 'https://slack.com/api/channels.info?' + urlencode(params)
+        response = requests.get(url).json()
+        print(response)
+        if 'channel' in response:
+            members = response['channel']['members']
+            print('!!! CHECK CHANNEL !!!')
+            print(members)
+            print(bot_id)
+            print(caller_id)
+            print('!!! CHECK CHANNEL !!!')
+            if len(members) == 2 and bot_id in members and caller_id in members:
+                is_bot_mentioned = True
+        elif 'error' in response and response['error'] == 'channel_not_found':
+            is_bot_mentioned = True
+
     if is_bot_mentioned:
         log.info('Bot %s is mentioned in %s' % (bot_id, message))
         # Remove bot_user_id in case the message comes with a @{bot_name}.
