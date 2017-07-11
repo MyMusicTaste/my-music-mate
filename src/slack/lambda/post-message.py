@@ -18,7 +18,7 @@ def post_message_to_slack(event):
             'channel': event['channel'],
             'text': event['text'],
             'attachments': event['attachments'],
-            #'parse': 'full',
+            # 'parse': 'full',
             # 'unfurl_links': False
         }
     else:
