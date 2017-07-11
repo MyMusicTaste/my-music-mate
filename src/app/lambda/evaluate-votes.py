@@ -36,7 +36,7 @@ def publish_voting_ui(event, queued, round, artist_visited):
     attachments = [
         {
             'fallback': 'You are unable to vote',
-            'callback_id': round + '|' + ','.join(artist_visited), # Second round + artist names
+            'callback_id': str(round) + '|' + ','.join(artist_visited), # Second round + artist names
             'color': '#3AA3E3',
             'attachment_type': 'default',
             'actions': []
