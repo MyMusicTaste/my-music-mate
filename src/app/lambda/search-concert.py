@@ -9,6 +9,7 @@ from botocore.exceptions import ClientError
 from src.dynamodb.intents import DbIntents
 from src.dynamodb.concerts import DbConcerts
 import requests
+from apiclient.discovery import build
 from requests.exceptions import HTTPError
 import random
 import time
@@ -311,7 +312,6 @@ def show_results(event):
     log.info(concerts)
     artist_visited = []
     concerts_queued = []
-
     for concert in concerts:
         if len(concerts_queued) < int(os.environ['CONCERT_VOTE_OPTIONS_MAX']):
             print('!!! artist_visited !!!')
@@ -319,16 +319,50 @@ def show_results(event):
             print('!!! concerts_queued !!!')
             print(concerts_queued)
             artists = concert['artists']
+            random.shuffle(artists)
+            # First loop through concerts - get concerts whose artist = interest
+            # False unless interest = artist AND not visited
+            temp_artist_visited = []
             need_to_be_queued = True
             for artist in artists:
-                if artist['name'] not in artist_visited:
-                    artist_visited.append(artist['name'])
+                if artist['name'].lower() not in artist_visited:
+                    temp_artist_visited.append(artist['name'].lower())
+                else:
+                    need_to_be_queued = False
+            # change concert['interest'] in temp_artist_visited
+            # to any in temp_artist_visited in requested artists?
+            if need_to_be_queued and concert['interest'] in temp_artist_visited:
+                for temp_artist in temp_artist_visited:
+                    artist_visited.append(temp_artist)
+                concerts_queued.append(concert)
+        else:
+            log.info("breaking out of loop 1, 3 concerts found")
+            break
+    for concert in concerts:
+        if len(concerts_queued) < int(os.environ['CONCERT_VOTE_OPTIONS_MAX']):
+            print('!!! artist_visited2 !!!')
+            print(artist_visited)
+            print('!!! concerts_queued2 !!!')
+            print(concerts_queued)
+            artists = concert['artists']
+            random.shuffle(artists)
+            # Second loop through concerts - get any concerts
+            temp_artist_visited = []
+            need_to_be_queued = True
+            for artist in artists:
+                if artist['name'].lower() not in artist_visited:
+                    temp_artist_visited.append(artist['name'].lower())
                 else:
                     need_to_be_queued = False
             if need_to_be_queued:
+                for temp_artist in temp_artist_visited:
+                    artist_visited.append(temp_artist)
+                print("loop 2 adding {}".format(concert['event_name']))
+                log.info(print("loop 2 adding {}".format(concert['event_name'])))
                 concerts_queued.append(concert)
         else:
             break
+
     mark_queued_concerts(concerts_queued)
     publish_concert_list(event, concerts_queued)
     time.sleep(2.5)
