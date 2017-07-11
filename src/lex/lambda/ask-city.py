@@ -72,9 +72,7 @@ def compose_retry_response(event):
 
 def check_city(event):
     check = requests.get(os.environ['BIT_CITY_SEARCH'].format(
-            "MyMusicMate",
             event['currentIntent']['slots']['City'].strip(),
-            0
         )).json()
     if 'errors' in check and 'Unknown Location' in check['errors']:
         return False

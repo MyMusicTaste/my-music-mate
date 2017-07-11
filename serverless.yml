@@ -1,4 +1,4 @@
-service: mmm
+service: mmmjay
 frameworkVersion: "~1.16.1"
 
 custom:
@@ -7,7 +7,7 @@ custom:
   aws:
     id: 120387605022
   lex:
-    name: MyMusicMate
+    name: MyMusicMatejay
     alias: dev
     blueprint: src/lex/blueprint.json
 
@@ -55,15 +55,15 @@ provider:
 
   environment:
     BOT_NAME: ${self:service}
-    SLACK_APP_ID: '189333670117.206796368962'
-    SLACK_APP_SECRET: 65fd12e59aa8517ddda3d9aaeaff13d0
-    SLACK_APP_TOKEN: z0eX6y1zLzOjjJmdlNBXcsL5
+    SLACK_APP_ID: '193189962982.199632932086'
+    SLACK_APP_SECRET: d8fb3f83cef289b9f783c6e19ceba2c1
+    SLACK_APP_TOKEN: FiReQe1zY8DvLtlBn6J5GL9G
     NAMESPACE: ${self:custom.namespace}
-    TEAMS_TABLE: ${self:custom.namespace}-teams
-    INTENTS_TABLE: ${self:custom.namespace}-intents
-    TALKS_TABLE: ${self:custom.namespace}-talks
-    CONCERTS_TABLE: ${self:custom.namespace}-concerts
-    VOTES_TABLE: ${self:custom.namespace}-votes
+    TEAMS_TABLE: ${self:custom.namespace}-teamsjay
+    INTENTS_TABLE: ${self:custom.namespace}-intentsjay
+    TALKS_TABLE: ${self:custom.namespace}-talksjay
+    CONCERTS_TABLE: ${self:custom.namespace}-concertsjay
+    VOTES_TABLE: ${self:custom.namespace}-votesjay
     LEX_NAME: ${self:custom.lex.name}
     LEX_ALIAS: ${self:custom.lex.alias}
     CONCERT_VOTE_OPTIONS_MAX: 3
@@ -131,7 +131,7 @@ functions:
     handler: src/lex/lambda/ask-city.handler
     environment:
       SEARCH_CONCERT_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-search-concert" ] ]  }
-      BIT_CITY_SEARCH: "http://api.bandsintown.com/artists/{}/events/recommended?location={}&radius={}&app_id=chatbot&api_version=2.0&format=json"
+      BIT_CITY_SEARCH: "http://api.bandsintown.com/artists/MyMusicMate/events/recommended?location={}&radius=1&app_id=chatbot&api_version=2.0&format=json"
   lex-ask-taste:
     handler: src/lex/lambda/ask-taste.handler
   app-search-concert:
