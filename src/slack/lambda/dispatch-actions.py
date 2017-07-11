@@ -13,12 +13,15 @@ sns = boto3.client('sns')
 
 
 def talk_with_lex(event):
+    if 'callback_id' not in event['slack']['event']:
+        event['slack']['event']['callback_id'] = ''
     event['lex'] = lex.post_message(
         team_id=event['team']['team_id'],
         channel_id=event['slack']['event']['channel'],
         api_token=event['team']['access_token'],
         bot_token=event['team']['bot']['bot_access_token'],
         caller_id=event['slack']['event']['user'],
+        callback_id=event['slack']['event']['callback_id'],
         message=event['slack']['event']['text']
     )
 

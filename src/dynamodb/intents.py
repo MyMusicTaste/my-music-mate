@@ -29,7 +29,8 @@ class DbIntents(DbTable):
                 'genres',
                 'artists',
                 'city',
-                'tastes'
+                'tastes',
+                'timeout'
             ]
         )
 
@@ -46,7 +47,6 @@ class DbIntents(DbTable):
                 'artists': [],
                 'city': None,
                 'tastes': {},
-                'round': 0,
                 'timeout': 0,
             }
         item = response['Item']
@@ -69,11 +69,12 @@ class DbIntents(DbTable):
             item['city'] = None
         if 'tastes' not in item:
             item['tastes'] = {}
-        if 'round' not in item:
-            item['round'] = 0
         if 'timeout' not in item:
             item['timeout'] = 0
+        item['timeout'] = str(item['timeout'])
         return item
+
+
 
     def switch_channel(self, channel_id, keys, attributes):
         self.delete_item(keys)

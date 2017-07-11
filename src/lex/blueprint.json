@@ -296,7 +296,7 @@
         "messages": [
           {
             "contentType": "PlainText",
-            "content": "Do you need extra time for voting?"
+            "content": "Do you need extra time for voting? You can extend up to 30 minutes."
           }
         ],
         "maxAttempts": 5

@@ -185,6 +185,15 @@ def publish_concert_list(event, queued):
     )
 
 
+def retrieve_intents(event):
+    if 'sessionAttributes' not in event:
+        raise Exception('Required keys: `team_id` and `channel_id` are not provided.')
+    event['intents'] = db_intents.retrieve_intents(
+        event['sessionAttributes']['team_id'],
+        event['sessionAttributes']['channel_id']
+    )
+
+
 def store_intents(event):
     return db_intents.store_intents(
         keys={
@@ -279,7 +288,7 @@ def search_concerts(event):
                         try:
                             # Store concert data into a db table for tracking voting results.
                             db_response = db_concerts.add_concert({
-                                'team_id': event['sessionAttributes']['channel_id'],
+                                'team_id': event['sessionAttributes']['team_id'],
                                 'channel_id': event['sessionAttributes']['channel_id'],
                                 'artists': artists,
                                 'event_id': str(concert['id']),
@@ -376,7 +385,6 @@ def show_results(event):
 
 
 def activate_voting_timer(event, concerts_queued, artist_visited):
-    event['intents']['round'] = '1'
     event['intents']['timeout'] = os.environ['DEFAULT_VOTING_TIMEOUT']
     sns_event = {
         'slack': {
@@ -385,9 +393,8 @@ def activate_voting_timer(event, concerts_queued, artist_visited):
             'api_token': event['sessionAttributes']['api_token'],
             'bot_token': event['sessionAttributes']['bot_token']
         },
-        'intents': event['intents'],
-        'concerts': concerts_queued,
-        'artists': artist_visited
+        'callback_id': '1|' + ','.join(artist_visited),
+        'timeout': os.environ['DEFAULT_VOTING_TIMEOUT']
     }
 
     return sns.publish(
@@ -425,7 +432,7 @@ def start_over(event):
 
     sns_event = {
         'team': {
-            'team_id': event['sessionAttributes']['channel_id'],
+            'team_id': event['sessionAttributes']['team_id'],
             'access_token': event['sessionAttributes']['api_token'],
             'bot': {
                 'bot_access_token': event['sessionAttributes']['bot_token']
@@ -458,6 +465,7 @@ def handler(event, context):
         "body": json.dumps({"message": 'message has been sent successfully.'})
     }
     try:
+        retrieve_intents(event)
         log.info(response)
         add_artist_tastes(event)
         add_genre_tastes(event)

@@ -1,4 +1,4 @@
-# Created by jongwonkim on 11/07/2017.
+# Created by jongwonkim on 12/07/2017.
 
 
 import os
@@ -52,14 +52,14 @@ db_intents = DbIntents(os.environ['INTENTS_TABLE'])
 #     raise Exception('Failed to post a message to a Slack channel!')
 
 
-def store_intents(event):
-    return db_intents.store_intents(
-        keys={
-            'team_id': event['slack']['team_id'],
-            'channel_id': event['slack']['channel_id']
-        },
-        attributes=event['intents']
-    )
+# def store_intents(event):
+#     return db_intents.store_intents(
+#         keys={
+#             'team_id': event['slack']['team_id'],
+#             'channel_id': event['slack']['channel_id']
+#         },
+#         attributes=event['intents']
+#     )
 
 
 def retrieve_intents(event):
@@ -79,40 +79,34 @@ def handler(event, context):
         "body": json.dumps({"message": 'message has been sent successfully.'})
     }
     try:
+        time.sleep(int(os.environ['VOTING_EXTENSION_TIMEOUT']))
         retrieve_intents(event)
-        time.sleep(int(event['timeout']))
-        sns_event = {
-            'team': {
-                'team_id': event['slack']['team_id'],
-                'access_token': event['slack']['api_token'],
-                'bot': {
-                    'bot_access_token': event['slack']['bot_token']
-                }
-            },
-            'slack': {
-                'event': {
-                    'channel': event['slack']['channel_id'],
-                    'user': event['intents']['host_id'],
-                    'text': 'THIS ASK EXTEND INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES',
-                    'callback_id': event['callback_id']
+        log.info(event)
+        print('!!! WAITING IS DONE !!!')
+        if event['intents']['timeout'] == '0':
+            sns_event = {
+                'team': {
+                    'team_id': event['slack']['team_id'],
+                    'access_token': event['slack']['api_token'],
+                    'bot': {
+                        'bot_access_token': event['slack']['bot_token']
+                    }
+                },
+                'slack': {
+                    'event': {
+                        'channel': event['slack']['channel_id'],
+                        'user': event['intents']['host_id'],
+                        'text': 'no',
+                        'callback_id': event['callback_id']
+                    }
                 }
             }
-        }
-        log.info(sns_event)
-        sns.publish(
-            TopicArn=os.environ['DISPATCH_ACTIONS_SNS_ARN'],
-            Message=json.dumps({'default': json.dumps(sns_event)}),
-            MessageStructure='json'
-        )
-
-        sns.publish(
-            TopicArn=os.environ['FINISH_VOTING_SNS_ARN'],
-            Message=json.dumps({'default': json.dumps(event)}),
-            MessageStructure='json'
-        )
-
-        event['intents']['timeout'] = '0'
-        store_intents(event)
+            log.info(sns_event)
+            sns.publish(
+                TopicArn=os.environ['DISPATCH_ACTIONS_SNS_ARN'],
+                Message=json.dumps({'default': json.dumps(sns_event)}),
+                MessageStructure='json'
+            )
 
     except Exception as e:
         response = {
