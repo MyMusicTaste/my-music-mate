@@ -42,12 +42,12 @@ def mark_queued_concerts(queued):
         print(db_response)
 
 
-def publish_voting_ui(event, queued):
+def publish_voting_ui(event, queued, artist_visited):
     text = 'Please select one that you are most interested in.'
     attachments = [
         {
             'fallback': 'You are unable to vote',
-            'callback_id': '1',
+            'callback_id': '1|' + ','.join(artist_visited),
             'color': '#3AA3E3',
             'attachment_type': 'default',
             'actions': []
@@ -329,10 +329,11 @@ def show_results(event):
                 concerts_queued.append(concert)
         else:
             break
+
     mark_queued_concerts(concerts_queued)
     publish_concert_list(event, concerts_queued)
     time.sleep(2.5)
-    publish_voting_ui(event, concerts_queued)
+    publish_voting_ui(event, concerts_queued, artist_visited)
 
 
 def handler(event, context):

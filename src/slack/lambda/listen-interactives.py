@@ -57,6 +57,8 @@ def update_message(event):
 
     member_count = len(event['channel']['members'])
 
+
+
     print('attachments')
     print(attachments)
     if len(attachments) == 1:
@@ -77,9 +79,14 @@ def update_message(event):
         }
 
     # For testing purpose, I won't override the voting message.
-    if vote_count == member_count - 1:  # Including the bot.
+    if vote_count == member_count - 1:  # Excluding the bot from voters.
         text = 'Voting is completed. I will show you the result shortly.'
         attachments = None
+        callback_id = event['slack']['callback_id'].split('|')
+        prev_artists = ''
+        if len(callback_id) > 1:
+            prev_artists = callback_id[1]
+
         sns_event = {
             'team_id': event['slack']['team']['id'],
             'channel_id': event['slack']['channel']['id'],
@@ -87,7 +94,8 @@ def update_message(event):
             'api_token': access_token,
             'votes': event['votes'],
             'members': event['channel']['members'],
-            'round': event['slack']['callback_id']
+            'round': callback_id[0],
+            'prev_artists': prev_artists,
         }
         # Please comment this out if you want to keep the voting buttons up.
         sns.publish(
