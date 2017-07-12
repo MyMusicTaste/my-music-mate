@@ -45,6 +45,10 @@
               {
                 "contentType": "PlainText",
                 "content": "Whom do you want to invite?"
+              },
+              {
+                "contentType": "PlainText",
+                "content": "Which user would you like to invite?"
               }
             ],
             "maxAttempts": 5
@@ -65,6 +69,10 @@
           {
             "contentType": "PlainText",
             "content": "Are there any other people you want to bring with you?"
+          },
+          {
+            "contentType": "PlainText",
+            "content": "Great. And is there anyone else you'd like to invite?"
           }
         ],
         "maxAttempts": 5
@@ -98,7 +106,15 @@
             "messages": [
               {
                 "contentType": "PlainText",
-                "content": "Now, tell me any name that you want to create a channel with?"
+                "content": "Now, what would you like your new channel name to be?"
+              },
+              {
+                "contentType": "PlainText",
+                "content": "And please tell me your desired channel name :)"
+              },
+              {
+                "contentType": "PlainText",
+                "content": "What channel name would you like to use?"
               }
             ],
             "maxAttempts": 5
@@ -153,6 +169,10 @@
               {
                 "contentType": "PlainText",
                 "content": "Tell me your favorite music genre or artist."
+              },
+              {
+                "contentType": "PlainText",
+                "content": "Please give me the name of your favorite genre or artist."
               }
             ],
             "maxAttempts": 5
@@ -172,6 +192,10 @@
               {
                 "contentType": "PlainText",
                 "content": "Tell me your favorite music genre or artist."
+              },
+              {
+                "contentType": "PlainText",
+                "content": "Please tell me your absolute favorite genre or artist."
               }
             ],
             "maxAttempts": 5
@@ -190,7 +214,15 @@
         "messages": [
           {
             "contentType": "PlainText",
-            "content": "Are there any music genre or artist that you want me to keep in mind?"
+            "content": "Is there another music genre or artist that you want me to keep in mind?"
+          },
+          {
+            "contentType": "PlainText",
+            "content": "How about another music artist or genre?"
+          },
+          {
+            "contentType": "PlainText",
+            "content": "Do you have another artist or genre for me to search for?"
           }
         ],
         "maxAttempts": 5
@@ -224,7 +256,15 @@
             "messages": [
               {
                 "contentType": "PlainText",
-                "content": "Now, could you tell me where you guys live in? So that I can search concerts based on your location?"
+                "content": "What US city do you located in? Please use the format: New York, NY"
+              },
+              {
+                "contentType": "PlainText",
+                "content": "In which US city should I search for concerts? Please try the format: Las Vegas, NV"
+              },
+              {
+                "contentType": "PlainText",
+                "content": "If you tell me your US city I can start my search. Please try the format: Los Angeles, CA"
               }
             ],
             "maxAttempts": 5
