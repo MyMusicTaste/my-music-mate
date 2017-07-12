@@ -7,17 +7,18 @@ import json
 import re
 from src.dynamodb.votes import DbVotes
 from src.dynamodb.teams import DbTeams
+from src.dynamodb.intents import DbIntents
 from urllib.parse import unquote
 from urllib.parse import urlencode
 import requests
 import time
 
 
-
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 db_votes = DbVotes(os.environ['VOTES_TABLE'])
 db_teams = DbTeams(os.environ['TEAMS_TABLE'])
+db_intents = DbIntents(os.environ['INTENTS_TABLE'])
 sns = boto3.client('sns')
 
 
@@ -157,6 +158,25 @@ def retrieve_votes(event):
     event['votes'] = db_response
 
 
+# def store_intents(event):
+#     return db_intents.store_intents(
+#         keys={
+#             'team_id': event['slack']['team']['id'],
+#             'channel_id': event['slack']['channel']['id']
+#         },
+#         attributes=event['intents']
+#     )
+
+
+def retrieve_intents(event):
+    # if 'sessionAttributes' not in event:
+    #     raise Exception('Required keys: `team_id` and `channel_id` are not provided.')
+    event['intents'] = db_intents.retrieve_intents(
+        event['slack']['team']['id'],
+        event['slack']['channel']['id']
+    )
+
+
 def handler(event, context):
     log.info(json.dumps(event))
     response = {
@@ -166,7 +186,10 @@ def handler(event, context):
         event = get_slack_event(event)
         get_team(event)
         get_channel(event)
+        retrieve_intents(event)
         log.info(event)
+        # TODO!!!
+        # if event['intents']['vote_ts'] == event['slack']['original_message']['ts']:
         store_vote(event)
         retrieve_votes(event)
         update_message(event)

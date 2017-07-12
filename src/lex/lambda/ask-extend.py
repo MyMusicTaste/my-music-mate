@@ -219,6 +219,24 @@ def compose_fulfill_response(event):
         MessageStructure='json'
     )
 
+    # Update voting buttons as voting result!
+    sns_event = {
+        'token': event['sessionAttributes']['bot_token'],
+        'channel': event['sessionAttributes']['channel_id'],
+        'text': '',
+        'attachments': [],
+        'ts': event['intents']['vote_ts'],
+        'as_user': True
+    }
+    print(sns_event)
+    sns.publish(
+        TopicArn=os.environ['UPDATE_MESSAGE_SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(sns_event)}),
+        MessageStructure='json'
+    )
+
+
+    # New voting status (done) as a new message.
     message = 'Voting has completed. Please wait for a moment while I am collecting the result.'
 
     response = {

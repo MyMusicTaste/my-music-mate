@@ -76,6 +76,7 @@ provider:
     VOTING_TIMER_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-voting-timer" ] ]  }
     FINISH_VOTING_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-finish-voting" ] ]  }
     EVALUATE_VOTES_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-evaluate-votes" ] ]  }
+    UPDATE_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-update-message" ] ]  }
 
 package:
   exclude:
@@ -124,8 +125,6 @@ functions:
       - http:
           path: interactives
           method: post
-    environment:
-      UPDATE_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-update-message" ] ]  }
   lex-invite-mate:
     handler: src/lex/lambda/invite-mate.handler
   lex-reserve-lounge:

@@ -6,9 +6,13 @@ import boto3
 import json
 from urllib.parse import urlencode
 import requests
+from src.dynamodb.intents import DbIntents
+
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
+db_intents = DbIntents(os.environ['INTENTS_TABLE'])
+
 
 
 def post_message_to_slack(event):
@@ -30,8 +34,34 @@ def post_message_to_slack(event):
     url = 'https://slack.com/api/chat.postMessage?' + urlencode(params)
     response = requests.get(url).json()
     if 'ok' in response and response['ok'] is True:
+        print('!!! PRE STORE TIME STAMP!!!')
+        print(event)
+        if 'attachments' in event and len(event['attachments']) > 0 and 'callback_id' in event['attachments'][0] and 'intents' in event:
+            print('!!! STORE TIME STAMP!!!')
+            print(response['ts'])
+            print(event['intents'])
+            event['intents']['vote_ts'] = response['ts']
         return
     raise Exception('Failed to post a message to a Slack channel!')
+
+
+def store_intents(event):
+    return db_intents.store_intents(
+        keys={
+            'team_id': event['team'],
+            'channel_id': event['channel']
+        },
+        attributes=event['intents']
+    )
+
+
+def retrieve_intents(event):
+    # if 'sessionAttributes' not in event:
+    #     raise Exception('Required keys: `team_id` and `channel_id` are not provided.')
+    event['intents'] = db_intents.retrieve_intents(
+        event['team'],
+        event['channel']
+    )
 
 
 def handler(event, context):
@@ -42,7 +72,11 @@ def handler(event, context):
         "body": json.dumps({"message": 'message has been sent successfully.'})
     }
     try:
+        if 'team' in event:
+            retrieve_intents(event)
         post_message_to_slack(event)
+        if 'team' in event:
+            store_intents(event)
         log.info(response)
     except Exception as e:
         response = {

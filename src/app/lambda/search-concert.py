@@ -81,6 +81,7 @@ def publish_voting_ui(event, queued, artist_visited):
     print('!!! ATTACHMENTS !!!')
     print(attachments)
     sns_event = {
+        'team': event['sessionAttributes']['team_id'],
         'token': event['sessionAttributes']['bot_token'],
         'channel': event['sessionAttributes']['channel_id'],
         'text': text,
@@ -429,6 +430,7 @@ def out_of_options(event):
     # print(response.history)
     text = 'Sorry, we couldn\'t find any concerts meeting your music taste. Let\'s try again.'
     sns_event = {
+        'team': event['sessionAttributes']['team_id'],
         'token': event['sessionAttributes']['bot_token'],
         'channel': event['sessionAttributes']['channel_id'],
         'text': text,
