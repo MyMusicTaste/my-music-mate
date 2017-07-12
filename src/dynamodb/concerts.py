@@ -47,3 +47,21 @@ class DbConcerts(DbTable):
         else:
             return response['Items'][0] # We assume there is only one result!
 
+    def remove_unqueued(self, channel_id):
+        response = self.table.query(
+            KeyConditionExpression='channel_id = :channel_id AND event_id > :event_id',
+            FilterExpression='queued = :queued',
+            ExpressionAttributeValues={
+                ':channel_id': channel_id,
+                ':event_id': '0',
+                ':queued': False
+            }
+        )
+        for concert in response['Items']:
+            self.table.delete_item(
+                Key={
+                    'channel_id': concert['channel_id'],
+                    'event_id': concert['event_id']
+                }
+            )
+        return

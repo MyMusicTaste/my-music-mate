@@ -212,15 +212,15 @@
         "messages": [
           {
             "contentType": "PlainText",
-            "content": "Is there another music genre or artist that you want me to keep in mind?"
+            "content": "Do you have another artist or genre for me? If so, please tell it to me."
           },
           {
             "contentType": "PlainText",
-            "content": "How about another music artist or genre?"
+            "content": "And is there any other artist or genre I can take note of? If so, I'm all ears!"
           },
           {
             "contentType": "PlainText",
-            "content": "Do you have another artist or genre for me to search for?"
+            "content": "Is there another genre or artist on your mind? If so, who or what is it?"
           }
         ],
         "maxAttempts": 5

@@ -132,8 +132,11 @@ def handler(event, context):
     }
     try:
         retrieve_intents(event)
-        if event['currentIntent'] is not None and event['currentIntent']['confirmationStatus'] == 'Denied':
+        if event['currentIntent'] is not None and event['currentIntent']['confirmationStatus'] == 'Denied' and event[
+            'inputTranscript'].lower() in ['no', 'no thanks', 'nope']: # TODO determine if proper strategy
             # Terminating condition.
+            print("!!!! TERMINATOR !!!!")
+            print(event)
             response = compose_fulfill_response(event)
         else:
             # Processing the user input.

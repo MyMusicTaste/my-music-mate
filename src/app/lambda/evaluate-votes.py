@@ -479,6 +479,7 @@ def bring_new_concert_queue(event):
         publish_voting_ui(event, concerts_queued, artist_visited)
     else:
         out_of_options(event)
+        time.sleep(.5)
         start_over(event)
 
 
@@ -504,6 +505,25 @@ def start_over(event):
     event['intents']['artists'] = []
     event['intents']['city'] = None
     event['intents']['tastes'] = {}
+    db_concerts.remove_unqueued(event['channel_id'])
+    """concerts = db_concerts.fetch_concerts(event['sessionAttributes']['channel_id'])
+    for concert in concerts:
+        db_response = db_concerts.add_concert({
+            'team_id': concert['team_id'],
+            'channel_id': concert['channel_id'],
+            'artists': concert['artists'],
+            'event_id': concert['event_id'],
+            'event_name': concert['event_name'],
+            'event_date': concert['event_date'],
+            'event_venue': concert['event_venue'],
+            'ticket_url': concert['ticket_url'],
+            'interest': concert['interest'],
+            'queued': True
+        })
+        log.info('!!! CONCERT DB UPDATE RESPONSE !!!')
+        log.info(db_response)
+        print('!!! CONCERT DB UPDATE RESPONSE !!!')
+        print(db_response)"""
 
     sns_event = {
         'team': {
