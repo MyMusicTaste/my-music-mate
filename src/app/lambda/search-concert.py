@@ -398,13 +398,14 @@ def show_results(event):
         publish_concert_list(event, concerts_queued)
         time.sleep(2.5)
         publish_voting_ui(event, concerts_queued, artist_visited)
-        activate_voting_timer(event, concerts_queued, artist_visited)
+        activate_voting_timer(event, artist_visited)
+        event['intents']['callback_id'] = '1|' + ','.join(artist_visited)
     else:
         out_of_options(event)
         start_over(event)
 
 
-def activate_voting_timer(event, concerts_queued, artist_visited):
+def activate_voting_timer(event, artist_visited):
     event['intents']['timeout'] = os.environ['DEFAULT_VOTING_TIMEOUT']
     sns_event = {
         'slack': {

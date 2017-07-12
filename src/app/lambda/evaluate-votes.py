@@ -31,12 +31,33 @@ STATUS_WINNER = 'W'
 STATUS_NOPE = 'N'
 
 
+def activate_voting_timer(event, voting_round, artist_visited):
+    event['intents']['timeout'] = os.environ['DEFAULT_VOTING_TIMEOUT']
+    sns_event = {
+        'slack': {
+            'team_id': event['team_id'],
+            'channel_id': event['channel_id'],
+            'api_token': event['api_token'],
+            'bot_token': event['token']
+        },
+        'callback_id': str(voting_round) + '|' + ','.join(artist_visited),
+        'timeout': os.environ['DEFAULT_VOTING_TIMEOUT']
+    }
+
+    return sns.publish(
+        TopicArn=os.environ['VOTING_TIMER_SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(sns_event)}),
+        MessageStructure='json'
+    )
+
+
 def publish_voting_ui(event, queued, artist_visited):
+    event['intents']['callback_id'] = '1|' + ','.join(artist_visited)
     text = 'Please select one that you are most interested in.'
     attachments = [
         {
             'fallback': 'You are unable to vote',
-            'callback_id': '1|' + ','.join(artist_visited), # Second round + artist names
+            'callback_id': '1|' + ','.join(artist_visited),     # Second round + artist names
             'color': '#3AA3E3',
             'attachment_type': 'default',
             'actions': []
@@ -57,7 +78,7 @@ def publish_voting_ui(event, queued, artist_visited):
         })
 
     attachments[0]['actions'].append({
-        'name': 'none',
+        'name': 'Other options?',
         'text': '[0] Other options?',
         'type': 'button',
         'style': 'danger',
@@ -80,11 +101,13 @@ def publish_voting_ui(event, queued, artist_visited):
     print(sns_event)
     print('!!! ARN ADDRRESS !!!')
     print(os.environ['POST_MESSAGE_SNS_ARN'])
-    return sns.publish(
+    sns.publish(
         TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
         Message=json.dumps({'default': json.dumps(sns_event)}),
         MessageStructure='json'
     )
+    # Activate the voting timer.
+    activate_voting_timer(event, 1, artist_visited)
 
 
 def mark_queued_concerts(queued):
@@ -315,6 +338,8 @@ def execute_second_vote(event):
     #     log.error(str(e))
     #     print(str(e))
 
+    event['intents']['callback_id'] = '2'
+
     text = 'It was too close to call. Let\'s try another vote.'
     attachments = [
         {
@@ -363,11 +388,13 @@ def execute_second_vote(event):
     print(sns_event)
     print('!!! ARN ADDRRESS !!!')
     print(os.environ['POST_MESSAGE_SNS_ARN'])
-    return sns.publish(
+    sns.publish(
         TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
         Message=json.dumps({'default': json.dumps(sns_event)}),
         MessageStructure='json'
     )
+    # Activate the voting timer.
+    activate_voting_timer(event, 2, [])
 
 
 def bring_new_concert_queue(event):
@@ -437,7 +464,7 @@ def out_of_options(event):
     }
     log.info('!!! OUT OF OPTIONS !!!')
     log.info(sns_event)
-    return sns.publish(
+    sns.publish(
         TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
         Message=json.dumps({'default': json.dumps(sns_event)}),
         MessageStructure='json'
@@ -445,12 +472,11 @@ def out_of_options(event):
 
 
 def start_over(event):
-    retrieve_intents(event)
     event['intents']['genres'] = []
     event['intents']['artists'] = []
     event['intents']['city'] = None
     event['intents']['tastes'] = {}
-    store_intents(event)
+
 
     sns_event = {
         'team': {
@@ -472,7 +498,7 @@ def start_over(event):
     log.info('!!! START OVER !!!')
     log.info(sns_event)
 
-    return sns.publish(
+    sns.publish(
         TopicArn=os.environ['DISPATCH_ACTIONS_SNS_ARN'],
         Message=json.dumps({'default': json.dumps(sns_event)}),
         MessageStructure='json'
@@ -505,13 +531,24 @@ def handler(event, context):
     # try:
     log.info(event)
     count_votes(event)
+    retrieve_intents(event)
+
+    callback_id = event['intents']['callback_id'].split('|')
+    event['round'] = callback_id[0]
+    if len(callback_id) > 1:
+        event['prev_artists'] = callback_id[1]
+
+    print('!!! EVENT RESULT !!!')
+    print(callback_id)
+    print(event)
+
     if event['result']['status'] == STATUS_WINNER:
         show_ticket_link(event)
     elif event['result']['status'] == STATUS_REVOTE:
         execute_second_vote(event)
     elif event['result']['status'] == STATUS_NOPE:
         bring_new_concert_queue(event)
-
+    store_intents(event)
 
 
     log.info(response)
