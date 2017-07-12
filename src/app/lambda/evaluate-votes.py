@@ -233,7 +233,7 @@ def count_votes(event):
     vote_winners = []
     new_queue = []
 
-    if event['round'] == '1':   # First vote.
+    if event['round'] != '2':   # First vote.
         vote_result = STATUS_REVOTE
         for key in visited_concerts:
             percentage = visited_concerts[key] / total_votes
