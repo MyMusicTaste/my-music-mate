@@ -1,4 +1,4 @@
-service: mmm
+service: mmmjay
 frameworkVersion: "~1.16.1"
 
 custom:
@@ -7,7 +7,7 @@ custom:
   aws:
     id: 120387605022
   lex:
-    name: MyMusicMate
+    name: MyMusicMatejay
     alias: dev
     blueprint: src/lex/blueprint.json
 
@@ -57,15 +57,18 @@ provider:
 
   environment:
     BOT_NAME: ${self:service}
-    SLACK_APP_ID: '189333670117.206796368962'
-    SLACK_APP_SECRET: 65fd12e59aa8517ddda3d9aaeaff13d0
-    SLACK_APP_TOKEN: z0eX6y1zLzOjjJmdlNBXcsL5
+    SLACK_APP_ID: '193189962982.199632932086'
+    SLACK_APP_SECRET: d8fb3f83cef289b9f783c6e19ceba2c1
+    SLACK_APP_TOKEN: FiReQe1zY8DvLtlBn6J5GL9G
+    DEVELOPER_KEY: AIzaSyDIIdKhq8-xmtlYFrIE1xvdlqrfgaurrDI
+    YOUTUBE_API_SERVICE_NAME: youtube
+    YOUTUBE_API_VERSION: v3
     NAMESPACE: ${self:custom.namespace}
-    TEAMS_TABLE: ${self:custom.namespace}-teams
-    INTENTS_TABLE: ${self:custom.namespace}-intents
-    TALKS_TABLE: ${self:custom.namespace}-talks
-    CONCERTS_TABLE: ${self:custom.namespace}-concerts
-    VOTES_TABLE: ${self:custom.namespace}-votes
+    TEAMS_TABLE: ${self:custom.namespace}-teamsjay
+    INTENTS_TABLE: ${self:custom.namespace}-intentsjay
+    TALKS_TABLE: ${self:custom.namespace}-talksjay
+    CONCERTS_TABLE: ${self:custom.namespace}-concertsjay
+    VOTES_TABLE: ${self:custom.namespace}-votesjay
     LEX_NAME: ${self:custom.lex.name}
     LEX_ALIAS: ${self:custom.lex.alias}
     CONCERT_VOTE_OPTIONS_MAX: 3
@@ -145,9 +148,6 @@ functions:
     events:
       - sns: ${self:custom.namespace}-search-concert
     environment:
-      DEVELOPER_KEY: AIzaSyDIIdKhq8-xmtlYFrIE1xvdlqrfgaurrDI
-      YOUTUBE_API_SERVICE_NAME: youtube
-      YOUTUBE_API_VERSION: v3
       LASTFM_TOP_URL: "http://ws.audioscrobbler.com/2.0/?method=tag.gettopalbums&tag={}&limit=100&api_key=5de66db197047d9796295f4824615bd6&format=json"
       BIT_ARTIST_URL: "https://api.bandsintown.com/artists/{}.json?api_version=2.0&app_id=MyMusicMate"
       LASTFM_TAG_URL: "http://ws.audioscrobbler.com/2.0/?method=tag.getinfo&tag={}&api_key=5de66db197047d9796295f4824615bd6&format=json"

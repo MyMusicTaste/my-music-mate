@@ -341,6 +341,7 @@ def show_results(event):
     log.info(concerts)
     artist_visited = []
     concerts_queued = []
+    random.shuffle(concerts)
 
     for concert in concerts:
         if len(concerts_queued) < int(os.environ['CONCERT_VOTE_OPTIONS_MAX']):
@@ -349,7 +350,6 @@ def show_results(event):
             print('!!! concerts_queued !!!')
             print(concerts_queued)
             artists = concert['artists']
-            random.shuffle(artists)
             # First loop through concerts - get concerts whose artist = interest
             # False unless interest = artist AND not visited
             temp_artist_visited = []

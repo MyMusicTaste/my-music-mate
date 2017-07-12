@@ -10,6 +10,7 @@ from src.dynamodb.votes import DbVotes
 from src.dynamodb.concerts import DbConcerts
 from src.dynamodb.intents import DbIntents
 import requests
+from googleapiclient.discovery import build
 from requests.exceptions import HTTPError
 import random
 import time
@@ -140,15 +141,24 @@ def publish_concert_list(event, queued):
     #     text = 'Hmm, I only found one option. Are you interested in?'
     print('!!! QUEUED !!!')
     print(queued)
-    attachments = []
+    youtube = build(os.environ['YOUTUBE_API_SERVICE_NAME'], os.environ['YOUTUBE_API_VERSION'],
+                    developerKey=os.environ['DEVELOPER_KEY'])
+
     for i, concert in enumerate(queued):
+        attachments = []
         artists = []
         print('!!! CONCERT INDIVIDUAL !!!')
         print(concert)
         for artist in concert['artists']:
             artists.append(artist['name'])
-
-        pretext = ''
+        search_response = youtube.search().list(
+            q=concert['artists'][0]['name'] + " live concert",
+            part="id,snippet",
+            type="video",
+            maxResults=1
+        ).execute()
+        result = search_response.get("items", [])
+        youtubeurl = "http://youtube.com/watch?v=%s" % result[0]["id"]["videoId"]
         order = ''
         if i == 0:
             if len(queued) == i + 1:
@@ -166,11 +176,11 @@ def publish_concert_list(event, queued):
             else:
                 order = 'last'
 
-        pretext += 'Here is the {} option. I chose this because you are interested in {}.'.format(
-            order, concert['interest'])
+        #pretext += 'Here is the {} option. I chose this because you are interested in {}.'.format(
+        #    order, concert['interest'])
 
         attachments.append({
-            'pretext': pretext,
+            #'pretext': pretext,
             'title': concert['event_name'],
             'author_name': ', '.join(artists),
             'author_icon': concert['artists'][0]['thumb_url'],
@@ -192,28 +202,41 @@ def publish_concert_list(event, queued):
                 # }
             ]
         })
-
+        time.sleep(.5)
+        sns_event = {
+            'token': event['token'],
+            'channel': event['channel_id'],
+            'text': "Here is the {} option. I chose this because you are interested in {}. <{}| >".format(
+                order, concert['interest'], youtubeurl),
+            'attachments': attachments
+        }
+        sns.publish(
+            TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
+            Message=json.dumps({'default': json.dumps(sns_event)}),
+            MessageStructure='json'
+        )
     log.info('!!! ATTACHMENTS !!!')
     log.info(attachments)
     print('!!! ATTACHMENTS !!!')
     print(attachments)
-    sns_event = {
-        'token': event['token'],
-        'channel': event['channel_id'],
-        'text': '',
-        'attachments': attachments
-    }
-    log.info('!!! SNS EVENT !!!')
-    log.info(sns_event)
-    print('!!! SNS EVENT !!!')
-    print(sns_event)
-    print('!!! ARN ADDRRESS !!!')
-    print (os.environ['POST_MESSAGE_SNS_ARN'])
-    return sns.publish(
-        TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
-        Message=json.dumps({'default': json.dumps(sns_event)}),
-        MessageStructure='json'
-    )
+    #sns_event = {
+    #    'token': event['token'],
+    #    'channel': event['channel_id'],
+    #    'text': '',
+    #    'attachments': attachments
+    #}
+    #log.info('!!! SNS EVENT !!!')
+    #log.info(sns_event)
+    #print('!!! SNS EVENT !!!')
+    #print(sns_event)
+    #print('!!! ARN ADDRRESS !!!')
+    #print (os.environ['POST_MESSAGE_SNS_ARN'])
+    #return sns.publish(
+    #    TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
+    #    Message=json.dumps({'default': json.dumps(sns_event)}),
+    #    MessageStructure='json'
+    #)
+    return
 
 
 def count_votes(event):
@@ -423,7 +446,7 @@ def bring_new_concert_queue(event):
         db_response = db_concerts.get_concert(event['channel_id'], survived_concert_id)
         if db_response is not None:
             concerts_queued.append(db_response)
-
+    random.shuffle(concerts)
     for concert in concerts:
         if len(concerts_queued) < int(os.environ['CONCERT_VOTE_OPTIONS_MAX']):
             print('!!! artist_visited !!!')
@@ -431,13 +454,16 @@ def bring_new_concert_queue(event):
             print('!!! concerts_queued !!!')
             print(concerts_queued)
             artists = concert['artists']
+            temp_artist_visited = []
             need_to_be_queued = True
             for artist in artists:
-                if artist['name'] not in artist_visited:
-                    artist_visited.append(artist['name'])
+                if artist['name'].lower() not in artist_visited:
+                    temp_artist_visited.append(artist['name'].lower())
                 else:
                     need_to_be_queued = False
             if need_to_be_queued:
+                for temp_artist in temp_artist_visited:
+                    artist_visited.append(temp_artist)
                 concerts_queued.append(concert)
         else:
             break
