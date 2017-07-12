@@ -132,9 +132,8 @@ def compose_fulfill_response(event):
         response = {
             'sessionAttributes': event['sessionAttributes'],
             'dialogAction': {
-                'type': 'ElicitSlot',
+                'type': 'ConfirmIntent',
                 'intentName': 'AskTaste',
-                'slotToElicit': 'Genre',
                 'slots': {
                     'Genre': None,
                     'Artist': None

@@ -31,7 +31,8 @@ class DbIntents(DbTable):
                 'city',
                 'tastes',
                 'timeout',
-                'callback_id'
+                'callback_id',
+                'vote_ts'
             ]
         )
 
@@ -49,7 +50,8 @@ class DbIntents(DbTable):
                 'city': None,
                 'tastes': {},
                 'timeout': 0,
-                'callback_id': None
+                'callback_id': None,
+                'vote_ts': None
             }
         item = response['Item']
         if 'host_id' not in item:
@@ -75,6 +77,8 @@ class DbIntents(DbTable):
             item['timeout'] = 0
         if 'callback_id' not in item:
             item['callback_id'] = None
+        if 'vote_ts' not in item:
+            item['vote_ts'] = None
         item['timeout'] = str(item['timeout'])
         return item
 

@@ -90,6 +90,7 @@ def publish_voting_ui(event, queued, artist_visited):
     print('!!! ATTACHMENTS !!!')
     print(attachments)
     sns_event = {
+        'team': event['team_id'],
         'token': event['token'],
         'channel': event['channel_id'],
         'text': text,
@@ -232,7 +233,7 @@ def count_votes(event):
     vote_winners = []
     new_queue = []
 
-    if event['round'] == '1':   # First vote.
+    if event['round'] != '2':   # First vote.
         vote_result = STATUS_REVOTE
         for key in visited_concerts:
             percentage = visited_concerts[key] / total_votes
@@ -377,6 +378,7 @@ def execute_second_vote(event):
     print('!!! ATTACHMENTS !!!')
     print(attachments)
     sns_event = {
+        'team': event['team_id'],
         'token': event['token'],
         'channel': event['channel_id'],
         'text': text,
@@ -476,7 +478,6 @@ def start_over(event):
     event['intents']['artists'] = []
     event['intents']['city'] = None
     event['intents']['tastes'] = {}
-
 
     sns_event = {
         'team': {

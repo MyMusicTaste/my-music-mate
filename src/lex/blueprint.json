@@ -57,8 +57,10 @@
 
       ],
       "sampleUtterances": [
-        "I would like to go to a concert with {Mate}",
-        "I want to have a great time with {Mate}"
+        "Hi",
+        "Hello",
+        "Who are you",
+        "What is up"
       ],
       "confirmationPrompt": {
         "messages": [
