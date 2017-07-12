@@ -20,7 +20,7 @@ class LexRunTime(object):
         message = re.sub('>', '', message)
         return message
 
-    def post_message(self, team_id, channel_id, api_token, bot_token, caller_id, message):
+    def post_message(self, team_id, channel_id, api_token, bot_token, caller_id, callback_id, message):
         message = self.filter_message(channel_id, message)
 
         return self.lex.post_text(
@@ -32,7 +32,8 @@ class LexRunTime(object):
                 'channel_id': channel_id,
                 'api_token': api_token,
                 'bot_token': bot_token,
-                'caller_id': caller_id
+                'caller_id': caller_id,
+                'callback_id': callback_id
             },
             inputText=message
         )

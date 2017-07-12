@@ -6,13 +6,13 @@
             "EventSubscriptionArn": "arn:aws:sns:us-east-1:120387605022:mmm-dev-evaluate-votes:80184e5d-4979-4376-9a79-a20aee12f673",
             "Sns": {
                 "Type": "Notification",
-                "MessageId": "1c1330f8-375c-542c-891a-6123ca3b1c7f",
+                "MessageId": "a09d5f60-a37e-54a5-9396-0ebe8acfe873",
                 "TopicArn": "arn:aws:sns:us-east-1:120387605022:mmm-dev-evaluate-votes",
                 "Subject": null,
-                "Message": "{\"team_id\": \"T5K9TKQ3F\", \"channel_id\": \"C661W7YLV\", \"token\": \"xoxb-206846735412-uhJMDZN9fVnzdu7bjTxU9eNS\", \"votes\": [{\"event_id\": \"13630635\", \"user_id\": \"_U5K9TKQ69\", \"team_id\": \"T5K9TKQ3F\", \"channel_id\": \"C661W7YLV\"}, {\"event_id\": \"13088979\", \"user_id\": \"_U5YJ6TT3K\", \"team_id\": \"T5K9TKQ3F\", \"channel_id\": \"C661W7YLV\"}, {\"event_id\": \"0\", \"user_id\": \"_U66NNDBAS\", \"team_id\": \"T5K9TKQ3F\", \"channel_id\": \"C661W7YLV\"}]}",
-                "Timestamp": "2017-07-09T09:45:11.959Z",
+                "Message": "{\"team_id\": \"T5K9TKQ3F\", \"channel_id\": \"C67H6G93R\", \"token\": \"xoxb-206846735412-uhJMDZN9fVnzdu7bjTxU9eNS\", \"api_token\": \"xoxp-189333670117-189333670213-207632151447-f8f45af6260030ec32cad6143e10b0b0\", \"votes\": [{\"event_id\": \"13839867\", \"user_id\": \"_U5K9TKQ69\", \"team_id\": \"T5K9TKQ3F\", \"channel_id\": \"C67H6G93R\"}, {\"event_id\": \"0\", \"user_id\": \"_U5YJ6TT3K\", \"team_id\": \"T5K9TKQ3F\", \"channel_id\": \"C67H6G93R\"}], \"members\": [\"U5K9TKQ69\", \"U5YJ6TT3K\", \"U62QWMMC4\"], \"round\": \"1\", \"prev_artists\": [\"Deep+Purple\", \"Jethro+Tull\", \"Ted+Nugent\"]}",
+                "Timestamp": "2017-07-11T01:18:41.890Z",
                 "SignatureVersion": "1",
-                "Signature": "LBzXox5UvWRhB1QQMSzj1Pww3hgtAIOjH0tfTylHrS2RjOrlilms6Fgr9Dywe+gG1MVgbY5g60dJ6vYQTPv0VCgksdqf/yu2ufk9sluKUJWeu+tHqQV7VxjamLd1+a1kQtHuTgH8MVkVxQ7ZDMPQhUp1rH7MXisAd23v6kyY+npmk1MY43R+kp5iCUlVnQCbObqoaJi/lDjbHq8yWy+O9QFvprR1oVw1+ZcZYiWnSp14KouB1h1cBAa4HrnrGACLPhjRv3p7QBfqTdtaCRw+zOXRUgbq2Hx4cMJV9dGLtpL2C2hbsESjM5O8MKVPauTEDgdY/uvByzMeyA1VUWVgzw==",
+                "Signature": "iUbGoXtDGn/d3x6J5PcmQZWQfEfb28+48fNT4p4Vs7eZcov8fuIGjZWj/VbO+t4EIaCWqXCFZxMkHuIQVEaVqmzmEEQf8FJMPO0arcuB9/mh9oqawquqVNi2OGlVT8HbobnicbHq4eMii6wUAAo/ZzVo4BuS42/nnjAAbLJI7+HlMqYgD6U0sVWpUiTwJCfHucy0z+8nl1mF5dYrGD4tDCz5isDf084eT1qIvfWYjE/CRXUoOsu7uM5/+ZO7EwL6oWk2kRaDRb1ua1l9O9LOxc8ASWN0WuRyV/ByiiyevF1+6CfMOlR5xHjUvadCFMpKuvyxNjKEiVUEg1Y9sp7h/w==",
                 "SigningCertUrl": "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-b95095beb82e8f6a046b3aafc7f4149a.pem",
                 "UnsubscribeUrl": "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:120387605022:mmm-dev-evaluate-votes:80184e5d-4979-4376-9a79-a20aee12f673",
                 "MessageAttributes": {}

@@ -29,7 +29,9 @@ class DbIntents(DbTable):
                 'genres',
                 'artists',
                 'city',
-                'tastes'
+                'tastes',
+                'timeout',
+                'callback_id'
             ]
         )
 
@@ -45,7 +47,9 @@ class DbIntents(DbTable):
                 'genres': [],
                 'artists': [],
                 'city': None,
-                'tastes': {}
+                'tastes': {},
+                'timeout': 0,
+                'callback_id': None
             }
         item = response['Item']
         if 'host_id' not in item:
@@ -67,7 +71,14 @@ class DbIntents(DbTable):
             item['city'] = None
         if 'tastes' not in item:
             item['tastes'] = {}
+        if 'timeout' not in item:
+            item['timeout'] = 0
+        if 'callback_id' not in item:
+            item['callback_id'] = None
+        item['timeout'] = str(item['timeout'])
         return item
+
+
 
     def switch_channel(self, channel_id, keys, attributes):
         self.delete_item(keys)

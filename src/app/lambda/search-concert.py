@@ -142,7 +142,7 @@ def publish_concert_list(event, queued):
             else:
                 order = 'last'
 
-        #pretext += 'Here is the {} option. I chose this because you are interested in {}.'.format(
+        # pretext += 'Here is the {} option. I chose this because you are interested in {}.'.format(
         #    order, concert['interest'])
 
         attachments.append({
@@ -167,11 +167,12 @@ def publish_concert_list(event, queued):
                 # }
             ]
         })
+        time.sleep(1.5)
         sns_event = {
             'token': event['sessionAttributes']['bot_token'],
             'channel': event['sessionAttributes']['channel_id'],
             'text': "Here is the {} option. I chose this because you are interested in {}. <{}| >".format(
-            order, concert['interest'], youtubeurl),
+                order, concert['interest'], youtubeurl),
             'attachments': attachments
         }
         sns.publish(
@@ -184,24 +185,33 @@ def publish_concert_list(event, queued):
     log.info(attachments)
     print('!!! ATTACHMENTS !!!')
     print(attachments)
-    #sns_event = {
-    #    'token': event['sessionAttributes']['bot_token'],
-    #    'channel': event['sessionAttributes']['channel_id'],
-    #    'text': '',
-    #    'attachments': attachments
-    #}
-    log.info('!!! SNS EVENT !!!')
-    log.info(sns_event)
-    print('!!! SNS EVENT !!!')
-    print(sns_event)
-    print('!!! ARN ADDRRESS !!!')
-    print (os.environ['POST_MESSAGE_SNS_ARN'])
-    #return sns.publish(
-    #    TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
-    #    Message=json.dumps({'default': json.dumps(sns_event)}),
-    #    MessageStructure='json'
-    #)
+    # sns_event = {
+    #     'token': event['sessionAttributes']['bot_token'],
+    #     'channel': event['sessionAttributes']['channel_id'],
+    #     'text': '',
+    #     'attachments': attachments
+    # }
+    # log.info('!!! SNS EVENT !!!')
+    # log.info(sns_event)
+    # print('!!! SNS EVENT !!!')
+    # print(sns_event)
+    # print('!!! ARN ADDRRESS !!!')
+    # print (os.environ['POST_MESSAGE_SNS_ARN'])
+    # return sns.publish(
+    #     TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
+    #     Message=json.dumps({'default': json.dumps(sns_event)}),
+    #     MessageStructure='json'
+    # )
     return
+
+
+def retrieve_intents(event):
+    if 'sessionAttributes' not in event:
+        raise Exception('Required keys: `team_id` and `channel_id` are not provided.')
+    event['intents'] = db_intents.retrieve_intents(
+        event['sessionAttributes']['team_id'],
+        event['sessionAttributes']['channel_id']
+    )
 
 
 def store_intents(event):
@@ -298,7 +308,7 @@ def search_concerts(event):
                         try:
                             # Store concert data into a db table for tracking voting results.
                             db_response = db_concerts.add_concert({
-                                'team_id': event['sessionAttributes']['channel_id'],
+                                'team_id': event['sessionAttributes']['team_id'],
                                 'channel_id': event['sessionAttributes']['channel_id'],
                                 'artists': artists,
                                 'event_id': str(concert['id']),
@@ -388,14 +398,14 @@ def show_results(event):
         publish_concert_list(event, concerts_queued)
         time.sleep(2.5)
         publish_voting_ui(event, concerts_queued, artist_visited)
-        activate_voting_timer(event, concerts_queued, artist_visited)
+        activate_voting_timer(event, artist_visited)
+        event['intents']['callback_id'] = '1|' + ','.join(artist_visited)
     else:
         out_of_options(event)
         start_over(event)
 
 
-def activate_voting_timer(event, concerts_queued, artist_visited):
-    event['intents']['round'] = '1'
+def activate_voting_timer(event, artist_visited):
     event['intents']['timeout'] = os.environ['DEFAULT_VOTING_TIMEOUT']
     sns_event = {
         'slack': {
@@ -404,9 +414,8 @@ def activate_voting_timer(event, concerts_queued, artist_visited):
             'api_token': event['sessionAttributes']['api_token'],
             'bot_token': event['sessionAttributes']['bot_token']
         },
-        'intents': event['intents'],
-        'concerts': concerts_queued,
-        'artists': artist_visited
+        'callback_id': '1|' + ','.join(artist_visited),
+        'timeout': os.environ['DEFAULT_VOTING_TIMEOUT']
     }
 
     return sns.publish(
@@ -444,7 +453,7 @@ def start_over(event):
 
     sns_event = {
         'team': {
-            'team_id': event['sessionAttributes']['channel_id'],
+            'team_id': event['sessionAttributes']['team_id'],
             'access_token': event['sessionAttributes']['api_token'],
             'bot': {
                 'bot_access_token': event['sessionAttributes']['bot_token']
@@ -477,6 +486,7 @@ def handler(event, context):
         "body": json.dumps({"message": 'message has been sent successfully.'})
     }
     try:
+        retrieve_intents(event)
         log.info(response)
         add_artist_tastes(event)
         add_genre_tastes(event)
