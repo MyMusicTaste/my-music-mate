@@ -193,63 +193,79 @@ def get_channel(event):
 def compose_fulfill_response(event):
     retrieve_votes(event)
     get_channel(event)
-    print('!!! VOTES AND CHANNEL !!!')
-    print(event)
-    print('!!! CALLBACK ID !!!')
-    print(event['sessionAttributes']['callback_id'])
-    callback_id = event['sessionAttributes']['callback_id'].split('|')
-    prev_artists = ''
-    if len(callback_id) > 1:
-        prev_artists = callback_id[1]
+    if len(event['votes']) > 0:
+        print('!!! VOTES AND CHANNEL !!!')
+        print(event)
+        print('!!! CALLBACK ID !!!')
+        print(event['sessionAttributes']['callback_id'])
+        callback_id = event['sessionAttributes']['callback_id'].split('|')
+        prev_artists = ''
+        if len(callback_id) > 1:
+            prev_artists = callback_id[1]
 
-    sns_event = {
-        'team_id': event['sessionAttributes']['team_id'],
-        'channel_id': event['sessionAttributes']['channel_id'],
-        'token': event['sessionAttributes']['bot_token'],
-        'api_token': event['sessionAttributes']['api_token'],
-        'votes': event['votes'],
-        'members': event['channel']['members'],
-        'round': callback_id[0],
-        'prev_artists': prev_artists,
-    }
-    # Please comment this out if you want to keep the voting buttons up.
-    sns.publish(
-        TopicArn=os.environ['EVALUATE_VOTES_SNS_ARN'],
-        Message=json.dumps({'default': json.dumps(sns_event)}),
-        MessageStructure='json'
-    )
+        sns_event = {
+            'team_id': event['sessionAttributes']['team_id'],
+            'channel_id': event['sessionAttributes']['channel_id'],
+            'token': event['sessionAttributes']['bot_token'],
+            'api_token': event['sessionAttributes']['api_token'],
+            'votes': event['votes'],
+            'members': event['channel']['members'],
+            'round': callback_id[0],
+            'prev_artists': prev_artists,
+        }
+        # Please comment this out if you want to keep the voting buttons up.
+        sns.publish(
+            TopicArn=os.environ['EVALUATE_VOTES_SNS_ARN'],
+            Message=json.dumps({'default': json.dumps(sns_event)}),
+            MessageStructure='json'
+        )
 
-    # Update voting buttons as voting result!
-    sns_event = {
-        'token': event['sessionAttributes']['bot_token'],
-        'channel': event['sessionAttributes']['channel_id'],
-        'text': '',
-        'attachments': [],
-        'ts': event['intents']['vote_ts'],
-        'as_user': True
-    }
-    print(sns_event)
-    sns.publish(
-        TopicArn=os.environ['UPDATE_MESSAGE_SNS_ARN'],
-        Message=json.dumps({'default': json.dumps(sns_event)}),
-        MessageStructure='json'
-    )
+        # Update voting buttons as voting result!
+        sns_event = {
+            'token': event['sessionAttributes']['bot_token'],
+            'channel': event['sessionAttributes']['channel_id'],
+            'text': '',
+            'attachments': [],
+            'ts': event['intents']['vote_ts'],
+            'as_user': True
+        }
+        print(sns_event)
+        sns.publish(
+            TopicArn=os.environ['UPDATE_MESSAGE_SNS_ARN'],
+            Message=json.dumps({'default': json.dumps(sns_event)}),
+            MessageStructure='json'
+        )
 
 
-    # New voting status (done) as a new message.
-    message = 'Voting has completed. Please wait for a moment while I am collecting the result.'
+        # New voting status (done) as a new message.
+        message = 'Voting has completed. Please wait for a moment while I am collecting the result.'
 
-    response = {
-        'dialogAction': {
-            'type': 'Close',
-            'fulfillmentState': 'Fulfilled',
-            'message': {
-                'contentType': 'PlainText',
-                'content': message
+        response = {
+            'dialogAction': {
+                'type': 'Close',
+                'fulfillmentState': 'Fulfilled',
+                'message': {
+                    'contentType': 'PlainText',
+                    'content': message
+                }
             }
         }
-    }
-    return response
+        return response
+    else:
+        # New voting status (done) as a new message.
+        message = 'It seems like you guys hate me. Bye bye!'
+
+        response = {
+            'dialogAction': {
+                'type': 'Close',
+                'fulfillmentState': 'Fulfilled',
+                'message': {
+                    'contentType': 'PlainText',
+                    'content': message
+                }
+            }
+        }
+        return response
 
 
 def handler(event, context):
