@@ -44,11 +44,7 @@
             "messages": [
               {
                 "contentType": "PlainText",
-                "content": "Whom do you want to invite?"
-              },
-              {
-                "contentType": "PlainText",
-                "content": "Which user would you like to invite?"
+                "content": "Hi, I'm MyMusicMate and I'm here to help you and your friends find a concert to go to! Let's start by bring a friend into the mix.  Who would you like to invite?"
               }
             ],
             "maxAttempts": 5
