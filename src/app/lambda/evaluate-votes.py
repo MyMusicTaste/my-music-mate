@@ -579,6 +579,8 @@ def handler(event, context):
     count_votes(event)
     retrieve_intents(event)
 
+    event['intents']['vote_ts'] = '0'
+
     callback_id = event['intents']['callback_id'].split('|')
     event['round'] = callback_id[0]
     if len(callback_id) > 1:

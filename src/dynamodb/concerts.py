@@ -65,3 +65,20 @@ class DbConcerts(DbTable):
                 }
             )
         return
+
+    def remove_all(self, channel_id):
+        response = self.table.query(
+            KeyConditionExpression='channel_id = :channel_id AND event_id > :event_id',
+            ExpressionAttributeValues={
+                ':channel_id': channel_id,
+                ':event_id': '0'
+            }
+        )
+        for concert in response['Items']:
+            self.table.delete_item(
+                Key={
+                    'channel_id': concert['channel_id'],
+                    'event_id': concert['event_id']
+                }
+            )
+        return

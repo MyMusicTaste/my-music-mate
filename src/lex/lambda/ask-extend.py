@@ -252,6 +252,7 @@ def compose_fulfill_response(event):
         }
         return response
     else:
+        event['intents']['current_intent'] = 'ConversationDone'
         # New voting status (done) as a new message.
         message = 'It seems like you guys hate me. Bye bye!'
 

@@ -6,10 +6,12 @@ import logging
 import json
 import requests
 from src.dynamodb.intents import DbIntents
+from src.dynamodb.concerts import DbConcerts
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 db_intents = DbIntents(os.environ['INTENTS_TABLE'])
+db_concerts = DbConcerts(os.environ['CONCERTS_TABLE'])
 sns = boto3.client('sns')
 
 
@@ -63,7 +65,7 @@ def compose_retry_response(event):
             },
             'message': {
                 'contentType': 'PlainText',
-                    'content': message
+                'content': message
             }
         }
     }
@@ -107,11 +109,16 @@ def handler(event, context):
         "statusCode": 200
     }
     try:
+        log.info(event)
         retrieve_intents(event)
-        VALID_CITY = check_city(event)
-        if VALID_CITY:
+        is_valid_city = check_city(event)
+        print('!!! IS VALID CITY !!!')
+        print(is_valid_city)
+        if is_valid_city:
             response = compose_validate_response(event)
             store_intents(event)
+            print('!!! RESET CONCERTS DB !!!')
+            db_concerts.remove_all(event['sessionAttributes']['channel_id'])
         else:
             response = compose_retry_response(event)
     except Exception as e:

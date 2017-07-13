@@ -75,6 +75,7 @@ provider:
     CONCERT_VOTE_OPTIONS_MAX: 3
     DEFAULT_VOTING_TIMEOUT: 60
     VOTING_EXTENSION_TIMEOUT: 30
+    VOTING_BLINKING_INTERVAL: 1
     POST_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
     DISPATCH_ACTIONS_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-dispatch-actions" ] ]  }
     VOTING_TIMER_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-voting-timer" ] ]  }
