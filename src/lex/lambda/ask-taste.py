@@ -28,23 +28,29 @@ def compose_validate_response(event):
         if genre not in event['intents']['genres']:
             event['intents']['genres'].append(genre)
 
-    if event['currentIntent']['slots']['Artist'] and event['currentIntent']['slots']['Genre']:
-        response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
-            'type': 'ConfirmIntent',
-            "intentName": "AskTaste",
-            'slots': {
-                'Artist': event['currentIntent']['slots']['Artist'],
-                'Genre': event['currentIntent']['slots']['Genre']
-            }
-        }}
-    else:
-        response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
-            'type': 'Delegate',
-            'slots': {
-                'Artist': event['currentIntent']['slots']['Artist'],
-                'Genre': event['currentIntent']['slots']['Genre']
-            }
-        }}
+
+    # Check whether boths slots are empty.
+    # If so, pass the whole string value to the API
+    # If something returns, then manually store into artist.
+    # If not,
+
+    # if event['currentIntent']['slots']['Artist'] and event['currentIntent']['slots']['Genre']:
+    response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
+        'type': 'ConfirmIntent',
+        "intentName": "AskTaste",
+        'slots': {
+            'Artist': event['currentIntent']['slots']['Artist'],
+            'Genre': event['currentIntent']['slots']['Genre']
+        }
+    }}
+    # else:
+    #     response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
+    #         'type': 'Delegate',
+    #         'slots': {
+    #             'Artist': event['currentIntent']['slots']['Artist'],
+    #             'Genre': event['currentIntent']['slots']['Genre']
+    #         }
+    #     }}
     return response
 
     # if event['currentIntent']['slots']['Genre']:
@@ -133,7 +139,7 @@ def handler(event, context):
     try:
         retrieve_intents(event)
         if event['currentIntent'] is not None and event['currentIntent']['confirmationStatus'] == 'Denied' and event[
-            'inputTranscript'].lower() in ['no', 'no thanks', 'nope']: # TODO determine if proper strategy
+            'inputTranscript'].lower() in ['no', 'no thanks', 'nope', 'nah']: # TODO determine if proper strategy
             # Terminating condition.
             print("!!!! TERMINATOR !!!!")
             print(event)
