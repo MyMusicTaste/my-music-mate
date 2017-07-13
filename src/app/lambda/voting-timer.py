@@ -105,14 +105,14 @@ def handler(event, context):
         "body": json.dumps({"message": 'message has been sent successfully.'})
     }
     try:
-        retrieve_intents(event)
         time.sleep(int(event['timeout']))
-
+        retrieve_intents(event)
         get_channel(event)
         retrieve_votes(event)
         if len(event['votes']) == (len(event['channel']['members']) - 1):   # Exclude the bot itself from the voting.
+            event['intents']['current_intent'] = 'EvaluateVotes'
             text = 'Voting is completed. I will show you the result shortly.'
-            callback_id = event['callback_id'].split('|')
+            callback_id = event['intents']['callback_id'].split('|')
             prev_artists = ''
             if len(callback_id) > 1:
                 prev_artists = callback_id[1]
@@ -146,8 +146,7 @@ def handler(event, context):
                     'event': {
                         'channel': event['slack']['channel_id'],
                         'user': event['intents']['host_id'],
-                        'text': 'THIS ASK EXTEND INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES',
-                        'callback_id': event['callback_id']
+                        'text': 'THIS ASK EXTEND INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES'
                     }
                 }
             }
