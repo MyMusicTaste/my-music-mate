@@ -83,6 +83,10 @@ provider:
     EVALUATE_VOTES_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-evaluate-votes" ] ]  }
     UPDATE_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-update-message" ] ]  }
 
+    BLINK_ON_COLOR: '#fff75b'
+    BLINK_OFF_COLOR: '#f5f5f5'
+
+
 package:
   exclude:
     - .idea/**

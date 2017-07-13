@@ -50,7 +50,7 @@ def publish_voting_ui(event, queued, artist_visited):
         {
             'fallback': 'You are unable to vote',
             'callback_id': '1|' + ','.join(artist_visited),
-            'color': '#3AA3E3',
+            'color': os.environ['BLINK_OFF_COLOR'],
             'attachment_type': 'default',
             'actions': []
         }

@@ -31,9 +31,9 @@ def update_message(event, is_light_on):
         text += '.'
 
     if is_light_on is True:
-        message['attachments'][0]['color'] = '#3AA3E3'
+        message['attachments'][0]['color'] = os.environ['BLINK_ON_COLOR']
     else:
-        message['attachments'][0]['color'] = '#E8E8E8'
+        message['attachments'][0]['color'] = os.environ['BLINK_OFF_COLOR']
 
     sns_event = {
         'token': event['slack']['bot_token'],
@@ -45,11 +45,15 @@ def update_message(event, is_light_on):
     }
     print('!!! SNS EVENT !!!')
     print(sns_event)
-    return sns.publish(
+    start = int(time.time())
+    sns.publish(
         TopicArn=os.environ['UPDATE_MESSAGE_SNS_ARN'],
         Message=json.dumps({'default': json.dumps(sns_event)}),
         MessageStructure='json'
     )
+    end = int(time.time())
+
+    return end - start
 
 
 # def talk_with_lex(event):
@@ -146,6 +150,10 @@ def handler(event, context):
 
         # Sleep with blinking animation
         while sleep_duration > 0:
+
+            print('!!! REMAINING TIME !!!')
+            print(sleep_duration)
+
             time.sleep(blinking_interval)
             sleep_duration -= blinking_interval
             if is_light_on is True:
@@ -161,14 +169,20 @@ def handler(event, context):
                 'latest': vote_ts,
                 'oldest': vote_ts
             }
+            start = int(time.time())
             url = 'https://slack.com/api/channels.history?' + urlencode(params)
             response = requests.get(url).json()
+            end = int(time.time())
+
+            sleep_duration -= (end - start)
             if 'ok' in response and response['ok'] is True:
                 if len(response['messages']) == 1:
                     event['message'] = response['messages'][0]
                     print('!!! RETERIVED BUTTON MESSAGE !!!')
                     print(event['message'])
-                    update_message(event, is_light_on)
+                    sleep_duration -= update_message(event, is_light_on)
+
+
 
         # Turn off the light.
         params = {
