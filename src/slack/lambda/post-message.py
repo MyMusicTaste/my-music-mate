@@ -38,8 +38,14 @@ def post_message_to_slack(event):
         print(event)
         if 'attachments' in event and len(event['attachments']) > 0 and 'callback_id' in event['attachments'][0] and 'intents' in event:
             print('!!! STORE TIME STAMP!!!')
+            print('!!! STORE TIME STAMP!!!')
+            print('!!! STORE TIME STAMP!!!')
+            print(event)
             print(response['ts'])
-            print(event['intents'])
+            print(event)
+            print('!!! END STORE TIME STAMP!!!')
+            print('!!! END STORE TIME STAMP!!!')
+            print('!!! END STORE TIME STAMP!!!')
             event['intents']['vote_ts'] = response['ts']
         return
     raise Exception('Failed to post a message to a Slack channel!')

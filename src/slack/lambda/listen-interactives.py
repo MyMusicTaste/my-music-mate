@@ -189,10 +189,13 @@ def handler(event, context):
         retrieve_intents(event)
         log.info(event)
         # TODO!!!
-        # if event['intents']['vote_ts'] == event['slack']['original_message']['ts']:
-        store_vote(event)
-        retrieve_votes(event)
-        update_message(event)
+        print('!!! VOTE TS VS. ORIGINAL MESSAGE TS !!!')
+        print(event['intents']['vote_ts'])
+        print(event['slack']['original_message']['ts'])
+        if event['intents']['vote_ts'] == event['slack']['original_message']['ts']:
+            store_vote(event)
+            retrieve_votes(event)
+            update_message(event)
         log.info(response)
     except Exception as e:
         log.error(json.dumps({"message": str(e)}))

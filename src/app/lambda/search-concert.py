@@ -44,6 +44,7 @@ def mark_queued_concerts(queued):
 
 
 def publish_voting_ui(event, queued, artist_visited):
+    event['intents']['callback_id'] = '1|' + ','.join(artist_visited)
     text = 'Please select one that you are most interested in.'
     attachments = [
         {
@@ -400,7 +401,6 @@ def show_results(event):
         time.sleep(2.5)
         publish_voting_ui(event, concerts_queued, artist_visited)
         activate_voting_timer(event, artist_visited)
-        event['intents']['callback_id'] = '1|' + ','.join(artist_visited)
     else:
         out_of_options(event)
         start_over(event)
@@ -415,7 +415,6 @@ def activate_voting_timer(event, artist_visited):
             'api_token': event['sessionAttributes']['api_token'],
             'bot_token': event['sessionAttributes']['bot_token']
         },
-        'callback_id': '1|' + ','.join(artist_visited),
         'timeout': os.environ['DEFAULT_VOTING_TIMEOUT']
     }
 
@@ -430,7 +429,6 @@ def out_of_options(event):
     # print(response.history)
     text = 'Sorry, we couldn\'t find any concerts meeting your music taste. Let\'s try again.'
     sns_event = {
-        'team': event['sessionAttributes']['team_id'],
         'token': event['sessionAttributes']['bot_token'],
         'channel': event['sessionAttributes']['channel_id'],
         'text': text,
