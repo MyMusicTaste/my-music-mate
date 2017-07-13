@@ -80,10 +80,11 @@ def handler(event, context):
     }
     try:
         time.sleep(int(os.environ['VOTING_EXTENSION_TIMEOUT']))
+        
         retrieve_intents(event)
         log.info(event)
         print('!!! WAITING IS DONE !!!')
-        if event['intents']['timeout'] == '0':
+        if event['intents']['timeout'] == '0' and event['intents']['current_intent'] == 'AskExtend':
             sns_event = {
                 'team': {
                     'team_id': event['slack']['team_id'],
@@ -96,8 +97,7 @@ def handler(event, context):
                     'event': {
                         'channel': event['slack']['channel_id'],
                         'user': event['intents']['host_id'],
-                        'text': 'no',
-                        'callback_id': event['callback_id']
+                        'text': 'no'
                     }
                 }
             }

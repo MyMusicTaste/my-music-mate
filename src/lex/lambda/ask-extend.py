@@ -162,7 +162,6 @@ def activate_voting_timer(event, timeout):
             'api_token': event['sessionAttributes']['api_token'],
             'bot_token': event['sessionAttributes']['bot_token']
         },
-        'callback_id': event['sessionAttributes']['callback_id'],
         'timeout': str(timeout)
     }
 
@@ -194,11 +193,12 @@ def compose_fulfill_response(event):
     retrieve_votes(event)
     get_channel(event)
     if len(event['votes']) > 0:
+
+        event['intents']['current_intent'] = 'EvaluateVotes'
         print('!!! VOTES AND CHANNEL !!!')
         print(event)
         print('!!! CALLBACK ID !!!')
-        print(event['sessionAttributes']['callback_id'])
-        callback_id = event['sessionAttributes']['callback_id'].split('|')
+        callback_id = event['intents']['callback_id'].split('|')
         prev_artists = ''
         if len(callback_id) > 1:
             prev_artists = callback_id[1]
@@ -220,21 +220,21 @@ def compose_fulfill_response(event):
             MessageStructure='json'
         )
 
-        # Update voting buttons as voting result!
-        sns_event = {
-            'token': event['sessionAttributes']['bot_token'],
-            'channel': event['sessionAttributes']['channel_id'],
-            'text': '',
-            'attachments': [],
-            'ts': event['intents']['vote_ts'],
-            'as_user': True
-        }
-        print(sns_event)
-        sns.publish(
-            TopicArn=os.environ['UPDATE_MESSAGE_SNS_ARN'],
-            Message=json.dumps({'default': json.dumps(sns_event)}),
-            MessageStructure='json'
-        )
+        # # Update voting buttons as voting result!
+        # sns_event = {
+        #     'token': event['sessionAttributes']['bot_token'],
+        #     'channel': event['sessionAttributes']['channel_id'],
+        #     'text': '',
+        #     'attachments': [],
+        #     'ts': event['intents']['vote_ts'],
+        #     'as_user': True
+        # }
+        # print(sns_event)
+        # sns.publish(
+        #     TopicArn=os.environ['UPDATE_MESSAGE_SNS_ARN'],
+        #     Message=json.dumps({'default': json.dumps(sns_event)}),
+        #     MessageStructure='json'
+        # )
 
 
         # New voting status (done) as a new message.

@@ -41,7 +41,6 @@ def activate_voting_timer(event, voting_round, artist_visited):
             'api_token': event['api_token'],
             'bot_token': event['token']
         },
-        'callback_id': str(voting_round) + '|' + ','.join(artist_visited),
         'timeout': os.environ['DEFAULT_VOTING_TIMEOUT']
     }
 
