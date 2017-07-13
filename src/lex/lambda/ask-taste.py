@@ -4,15 +4,21 @@
 import os
 import logging
 import json
+import requests
+import boto3
+import time
 from src.dynamodb.intents import DbIntents
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 db_intents = DbIntents(os.environ['INTENTS_TABLE'])
+sns = boto3.client('sns')
 
 
 def compose_validate_response(event):
     event['intents']['current_intent'] = 'AskTaste'
+    print("!! compose validate !!")
+    print(event)
 
     artists = []
     if event['currentIntent']['slots']['Artist']:
@@ -28,19 +34,37 @@ def compose_validate_response(event):
         if genre not in event['intents']['genres']:
             event['intents']['genres'].append(genre)
 
-
+    if not event['currentIntent']['slots']['Artist'] and not event['currentIntent']['slots']['Genre']:
+        if event['inputTranscript'] != 'THIS ASK TASTE INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES':
+            check = requests.get(os.environ['BIT_ARTIST_URL'].format(event['inputTranscript'])).json()
+            if 'errors' not in check:
+                event['intents']['artists'].append(event['inputTranscript'])
+            else:
+                # publish SNS
+                sns_event = {
+                    'token': event['sessionAttributes']['bot_token'],
+                    'channel': event['sessionAttributes']['channel_id'],
+                    'text': "I'm sorry, I'm having trouble finding that artist or genre :( Please check the spelling "
+                            "and try again."
+                }
+                sns.publish(
+                    TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
+                    Message=json.dumps({'default': json.dumps(sns_event)}),
+                    MessageStructure='json'
+                )
+                time.sleep(.5)
     # Check whether boths slots are empty.
     # If so, pass the whole string value to the API
     # If something returns, then manually store into artist.
-    # If not,
+    # If not, publish sns message "I'm sorry, I couldn't understand that. Could you try again?"
 
     # if event['currentIntent']['slots']['Artist'] and event['currentIntent']['slots']['Genre']:
     response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
         'type': 'ConfirmIntent',
         "intentName": "AskTaste",
         'slots': {
-            'Artist': event['currentIntent']['slots']['Artist'],
-            'Genre': event['currentIntent']['slots']['Genre']
+            'Artist': None,
+            'Genre': None
         }
     }}
     # else:
@@ -139,7 +163,7 @@ def handler(event, context):
     try:
         retrieve_intents(event)
         if event['currentIntent'] is not None and event['currentIntent']['confirmationStatus'] == 'Denied' and event[
-            'inputTranscript'].lower() in ['no', 'no thanks', 'nope', 'nah']: # TODO determine if proper strategy
+            'inputTranscript'].lower() in ['no', 'no thanks', 'nope', 'nah']:  # TODO determine if proper strategy
             # Terminating condition.
             print("!!!! TERMINATOR !!!!")
             print(event)
