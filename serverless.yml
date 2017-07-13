@@ -147,6 +147,8 @@ functions:
       BIT_CITY_SEARCH: "http://api.bandsintown.com/artists/{}/events/recommended?location={}&radius={}&app_id=chatbot&api_version=2.0&format=json"
   lex-ask-taste:
     handler: src/lex/lambda/ask-taste.handler
+    environment:
+      BIT_ARTIST_URL: "https://api.bandsintown.com/artists/{}.json?api_version=2.0&app_id=MyMusicMate"
   lex-ask-extend:
     handler: src/lex/lambda/ask-extend.handler
   app-search-concert:
@@ -155,7 +157,6 @@ functions:
       - sns: ${self:custom.namespace}-search-concert
     environment:
       LASTFM_TOP_URL: "http://ws.audioscrobbler.com/2.0/?method=tag.gettopalbums&tag={}&limit=100&api_key=5de66db197047d9796295f4824615bd6&format=json"
-      BIT_ARTIST_URL: "https://api.bandsintown.com/artists/{}.json?api_version=2.0&app_id=MyMusicMate"
       LASTFM_TAG_URL: "http://ws.audioscrobbler.com/2.0/?method=tag.getinfo&tag={}&api_key=5de66db197047d9796295f4824615bd6&format=json"
       BIT_CONCERT_SEARCH_BY_ARTISTS_API: "http://api.bandsintown.com/artists/{}/events/recommended?location={}&radius={}&app_id=chatbot&api_version=2.0&format=json"
       GENRE_TO_ARTIST_MAX: 5
