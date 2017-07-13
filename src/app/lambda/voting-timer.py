@@ -45,15 +45,15 @@ def update_message(event, is_light_on):
     }
     print('!!! SNS EVENT !!!')
     print(sns_event)
-    start = int(time.time())
+    # start = int(time.time())
     sns.publish(
         TopicArn=os.environ['UPDATE_MESSAGE_SNS_ARN'],
         Message=json.dumps({'default': json.dumps(sns_event)}),
         MessageStructure='json'
     )
-    end = int(time.time())
+    # end = int(time.time())
 
-    return end - start
+    # return end - start
 
 
 # def talk_with_lex(event):
@@ -142,6 +142,8 @@ def handler(event, context):
     }
     try:
         sleep_duration = int(event['timeout'])
+        accumulated_duration = 0
+        function_timeout = int(os.environ['VOTING_TIMER_INTERNAL_TIMEOUT'])
         blinking_interval = int(os.environ['VOTING_BLINKING_INTERVAL'])
         is_light_on = True
 
@@ -149,13 +151,17 @@ def handler(event, context):
         vote_ts = event['intents']['vote_ts']
 
         # Sleep with blinking animation
-        while sleep_duration > 0:
 
+        prev_time = time.time()
+        while sleep_duration > 0 and accumulated_duration < function_timeout:
             print('!!! REMAINING TIME !!!')
             print(sleep_duration)
 
             time.sleep(blinking_interval)
-            sleep_duration -= blinking_interval
+
+            now_time = time.time()
+            sleep_duration -= (now_time - prev_time)
+            accumulated_duration += (now_time - prev_time)
             if is_light_on is True:
                 is_light_on = False
             else:
@@ -169,98 +175,118 @@ def handler(event, context):
                 'latest': vote_ts,
                 'oldest': vote_ts
             }
-            start = int(time.time())
             url = 'https://slack.com/api/channels.history?' + urlencode(params)
             response = requests.get(url).json()
-            end = int(time.time())
-
-            sleep_duration -= (end - start)
             if 'ok' in response and response['ok'] is True:
                 if len(response['messages']) == 1:
                     event['message'] = response['messages'][0]
                     print('!!! RETERIVED BUTTON MESSAGE !!!')
                     print(event['message'])
-                    sleep_duration -= update_message(event, is_light_on)
+                    update_message(event, is_light_on)
+            # Update prev_time
+            prev_time = time.time()
 
-
-
-        # Turn off the light.
-        params = {
-            'token': event['slack']['api_token'],
-            'channel': event['slack']['channel_id'],
-            'count': 1,
-            'inclusive': True,
-            'latest': vote_ts,
-            'oldest': vote_ts
-        }
-        url = 'https://slack.com/api/channels.history?' + urlencode(params)
-        response = requests.get(url).json()
-        if 'ok' in response and response['ok'] is True:
-            if len(response['messages']) == 1:
-                event['message'] = response['messages'][0]
-                print('!!! RETERIVED BUTTON MESSAGE !!!')
-                print(event['message'])
-                update_message(event, False)
-
-        retrieve_intents(event)
-        get_channel(event)
-        retrieve_votes(event)
-        if len(event['votes']) == (len(event['channel']['members']) - 1):   # Exclude the bot itself from the voting.
-            event['intents']['current_intent'] = 'EvaluateVotes'
-            text = 'Voting is completed. I will show you the result shortly.'
-            callback_id = event['intents']['callback_id'].split('|')
-            prev_artists = ''
-            if len(callback_id) > 1:
-                prev_artists = callback_id[1]
-
+        if sleep_duration > 0:
+            retrieve_intents(event)
+            print('!!! CALL NEW LAMBDA FUNCTION TO KEEP THE TIMER GOES ON !!!')
+            event['intents']['timeout'] = int(sleep_duration)
+            store_intents(event)
             sns_event = {
-                'team_id': event['slack']['team_id'],
-                'channel_id': event['slack']['channel_id'],
-                'token': event['slack']['bot_token'],
-                'api_token': event['slack']['api_token'],
-                'votes': event['votes'],
-                'members': event['channel']['members'],
-                'round': callback_id[0],
-                'prev_artists': prev_artists,
+                'slack': {
+                    'team_id': event['slack']['team_id'],
+                    'channel_id': event['slack']['channel_id'],
+                    'api_token': event['slack']['api_token'],
+                    'bot_token': event['slack']['bot_token']
+                },
+                'timeout': int(sleep_duration)
             }
-            # Please comment this out if you want to keep the voting buttons up.
+
             sns.publish(
-                TopicArn=os.environ['EVALUATE_VOTES_SNS_ARN'],
+                TopicArn=os.environ['VOTING_TIMER_SNS_ARN'],
                 Message=json.dumps({'default': json.dumps(sns_event)}),
                 MessageStructure='json'
             )
+
         else:
-            sns_event = {
-                'team': {
+            # Turn off the light.
+            params = {
+                'token': event['slack']['api_token'],
+                'channel': event['slack']['channel_id'],
+                'count': 1,
+                'inclusive': True,
+                'latest': vote_ts,
+                'oldest': vote_ts
+            }
+            url = 'https://slack.com/api/channels.history?' + urlencode(params)
+            response = requests.get(url).json()
+            if 'ok' in response and response['ok'] is True:
+                if len(response['messages']) == 1:
+                    event['message'] = response['messages'][0]
+                    print('!!! RETERIVED BUTTON MESSAGE !!!')
+                    print(event['message'])
+                    update_message(event, False)
+
+            retrieve_intents(event)
+            print('!!! SET TIMEOUT AS 0 !!!')
+            event['intents']['timeout'] = '0'
+
+            get_channel(event)
+            retrieve_votes(event)
+            if len(event['votes']) == (len(event['channel']['members']) - 1):   # Exclude the bot itself from the voting.
+                event['intents']['current_intent'] = 'EvaluateVotes'
+                text = 'Voting is completed. I will show you the result shortly.'
+                callback_id = event['intents']['callback_id'].split('|')
+                prev_artists = ''
+                if len(callback_id) > 1:
+                    prev_artists = callback_id[1]
+
+                sns_event = {
                     'team_id': event['slack']['team_id'],
-                    'access_token': event['slack']['api_token'],
-                    'bot': {
-                        'bot_access_token': event['slack']['bot_token']
-                    }
-                },
-                'slack': {
-                    'event': {
-                        'channel': event['slack']['channel_id'],
-                        'user': event['intents']['host_id'],
-                        'text': 'THIS ASK EXTEND INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES'
+                    'channel_id': event['slack']['channel_id'],
+                    'token': event['slack']['bot_token'],
+                    'api_token': event['slack']['api_token'],
+                    'votes': event['votes'],
+                    'members': event['channel']['members'],
+                    'round': callback_id[0],
+                    'prev_artists': prev_artists,
+                }
+                # Please comment this out if you want to keep the voting buttons up.
+                sns.publish(
+                    TopicArn=os.environ['EVALUATE_VOTES_SNS_ARN'],
+                    Message=json.dumps({'default': json.dumps(sns_event)}),
+                    MessageStructure='json'
+                )
+            else:
+                sns_event = {
+                    'team': {
+                        'team_id': event['slack']['team_id'],
+                        'access_token': event['slack']['api_token'],
+                        'bot': {
+                            'bot_access_token': event['slack']['bot_token']
+                        }
+                    },
+                    'slack': {
+                        'event': {
+                            'channel': event['slack']['channel_id'],
+                            'user': event['intents']['host_id'],
+                            'text': 'THIS ASK EXTEND INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES'
+                        }
                     }
                 }
-            }
-            log.info(sns_event)
-            sns.publish(
-                TopicArn=os.environ['DISPATCH_ACTIONS_SNS_ARN'],
-                Message=json.dumps({'default': json.dumps(sns_event)}),
-                MessageStructure='json'
-            )
+                print('!!! MISSING VOTES !!!')
+                log.info(sns_event)
+                sns.publish(
+                    TopicArn=os.environ['DISPATCH_ACTIONS_SNS_ARN'],
+                    Message=json.dumps({'default': json.dumps(sns_event)}),
+                    MessageStructure='json'
+                )
 
-            sns.publish(
-                TopicArn=os.environ['FINISH_VOTING_SNS_ARN'],
-                Message=json.dumps({'default': json.dumps(event)}),
-                MessageStructure='json'
-            )
-
-        event['intents']['timeout'] = '0'
-        store_intents(event)
+                sns.publish(
+                    TopicArn=os.environ['FINISH_VOTING_SNS_ARN'],
+                    Message=json.dumps({'default': json.dumps(event)}),
+                    MessageStructure='json'
+                )
+            store_intents(event)
 
     except Exception as e:
         response = {

@@ -27,6 +27,7 @@ db_intents = DbIntents(os.environ['INTENTS_TABLE'])
 sns = boto3.client('sns')
 
 
+
 STATUS_REVOTE = 'R'
 STATUS_WINNER = 'W'
 STATUS_NOPE = 'N'
@@ -214,10 +215,10 @@ def publish_concert_list(event, queued):
             Message=json.dumps({'default': json.dumps(sns_event)}),
             MessageStructure='json'
         )
-    log.info('!!! ATTACHMENTS !!!')
-    log.info(attachments)
-    print('!!! ATTACHMENTS !!!')
-    print(attachments)
+    # log.info('!!! ATTACHMENTS !!!')
+    # log.info(attachments)
+    # print('!!! ATTACHMENTS !!!')
+    # print(attachments)
     #sns_event = {
     #    'token': event['token'],
     #    'channel': event['channel_id'],

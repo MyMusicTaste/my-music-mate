@@ -88,8 +88,10 @@ def compose_validate_response(event):
     if timeout > 0:
         print('!!! SLOT FILLED !!!')
 
-        if timeout > 1800:
-            timeout = 1800  # Max 30 minutes
+        if timeout > 3600:
+            timeout = 3600  # Max 30 minutes
+        if timeout < 30:
+            timeout = 30
 
         activate_voting_timer(event, timeout)
 

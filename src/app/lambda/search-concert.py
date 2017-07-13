@@ -290,6 +290,7 @@ def search_concerts(event):
                 )).json()
                 print('!!! api_response !!!')
                 print(concerts)
+                count = 0
                 for concert in concerts:
                     if concert['ticket_url'] is not None:
                         artists = []
@@ -327,6 +328,9 @@ def search_concerts(event):
                             print(db_response)
                         except ClientError:
                             log.error('Conditional Check Failed Exception during concert search')
+                    count += 1
+                    if count >= 30:
+                        break;
             except Exception as e:
                 log.error('Error coming from BIT API')
                 print('Error coming from BIT API')
