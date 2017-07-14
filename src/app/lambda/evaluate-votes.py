@@ -310,11 +310,32 @@ def show_ticket_link(event):
             ticket_thumb = db_response['artists'][0]['thumb_url']
         print(ticket_link)
         if ticket_link is not None:
+            artists = []
+            for artist in db_response['artists']:
+                artists.append(artist['name'])
+
             # print(response.history)
-            text = 'Here is a ticket link!'
+            text = 'Here is a ticket link! \nEnjoy the show! :balloon:' \
+                   '<https://s3.amazonaws.com/mmm-dev-serverlessdeploymentbucket-nyw6mgm89sd8/ticket.html?link={}| >'\
+                .format(ticket_link)
             attachments = [
                 {
-                    'text': ticket_link,
+                    'title': db_response['event_name'],
+                    'author_name': ', '.join(artists),
+                    'author_icon': db_response['artists'][0]['thumb_url'],
+                    'fields': [
+                        {
+                            'title': 'Concert Date:',
+                            'value': db_response['event_date'],
+                            'short': True
+                        },
+                        {
+                            'title': 'Concert Location:',
+                            'value': db_response['event_venue']['name'] + ', ' + db_response['event_venue']['city'] + ', ' +
+                                     db_response['event_venue']['region'],
+                            'short': True
+                        }
+                    ]
                     # 'image_url': ticket_image,
                     # 'thumb_url': ticket_thumb
                 }
@@ -323,7 +344,8 @@ def show_ticket_link(event):
                 'token': event['token'],
                 'channel': event['channel_id'],
                 'text': text,
-                'attachments': attachments
+                'attachments': attachments,
+                'unfurl_links': True
             }
             log.info('!!! SNS EVENT !!!')
             log.info(sns_event)
@@ -336,6 +358,7 @@ def show_ticket_link(event):
                 Message=json.dumps({'default': json.dumps(sns_event)}),
                 MessageStructure='json'
             )
+    db_concerts.remove_all(event['channel_id'])
 
 
 def execute_second_vote(event):

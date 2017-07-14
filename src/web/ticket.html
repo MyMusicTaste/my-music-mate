@@ -1,0 +1,37 @@
+<!--
+ Created by jongwonkim on 14/07/2017.
+-->
+
+<!DOCTYPE html>
+<html>
+    <meta property="og:url"                content="TICKET SITE LINK" />
+    <meta property="og:type"               content="article" />
+    <meta property="og:title"              content="Get your tickets now!" />
+    <!--<meta property="og:description"        content="Click the image to buy your tickets." />-->
+    <!--<meta property="og:url" content="https://s3.amazonaws.com/mmm-dev-serverlessdeploymentbucket-nyw6mgm89sd8/ticket.html">-->
+    <meta property="og:image"              content="https://s3.amazonaws.com/mmm-dev-serverlessdeploymentbucket-nyw6mgm89sd8/ticket.jpeg" />
+    <meta property="og:image:width" content="1024">
+    <meta property="og:image:height" content="684">
+</head>
+<body>
+    <script type="text/javascript">
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            document.querySelector('meta[property="og:url"]').setAttribute("content", window.location.href);
+
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
+        }
+
+        window.onload = function() {
+          window.location.replace(getParameterByName('link'));
+        };
+
+
+    </script>
+</body>
+</html>

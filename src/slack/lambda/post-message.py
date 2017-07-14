@@ -14,8 +14,10 @@ log.setLevel(logging.DEBUG)
 db_intents = DbIntents(os.environ['INTENTS_TABLE'])
 
 
-
 def post_message_to_slack(event):
+    unfurl_links = False
+    if 'unfurl_links' in event and event['unfurl_links'] is True:
+        unfurl_links = True
     if 'attachments' in event:
         params = {
             'token': event['token'],
@@ -23,7 +25,7 @@ def post_message_to_slack(event):
             'text': event['text'],
             'attachments': event['attachments'],
             # 'parse': 'full',
-            # 'unfurl_links': False
+            'unfurl_links': unfurl_links
         }
     else:
         params = {

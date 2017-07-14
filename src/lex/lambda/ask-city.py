@@ -120,7 +120,7 @@ def handler(event, context):
             response = compose_validate_response(event)
             store_intents(event)
             print('!!! RESET CONCERTS DB !!!')
-            db_concerts.remove_all(event['sessionAttributes']['channel_id'])
+            # db_concerts.remove_all(event['sessionAttributes']['channel_id'])
             db_votes.reset_votes(event['sessionAttributes']['channel_id'])
         else:
             response = compose_retry_response(event)
