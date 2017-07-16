@@ -57,7 +57,7 @@ def update_message(event, is_light_on, sleep_duration):
         print('!!! TEXT !!!')
         print(text)
     else:
-        text += 'Voting has completed. Please wait while I am collecting the result.'
+        text += 'Voting has completed. Please wait while I collect the result.'
 
     if is_light_on is True:
         message['attachments'][0]['color'] = os.environ['BLINK_ON_COLOR']

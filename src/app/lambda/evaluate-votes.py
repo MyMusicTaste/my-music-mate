@@ -522,7 +522,7 @@ def bring_new_concert_queue(event):
         Message=json.dumps({'default': json.dumps(sns_event)}),
         MessageStructure='json'
     )
-    time.sleep(2)
+    time.sleep(5)
     print('!!! BRING NEW CONCERT QUEUE !!!')
     concerts = db_concerts.fetch_concerts(event['channel_id'])
     print('!!! SHOW CONCERT RESULTS !!!')
@@ -572,11 +572,11 @@ def bring_new_concert_queue(event):
         publish_voting_ui(event, concerts_queued, artist_visited)
     else:
         out_of_options(event)
-        time.sleep(1.5)
+        time.sleep(5)
         start_over(event)
 
 
-def  out_of_options(event):
+def out_of_options(event):
     # print(response.history)
     text = 'Sorry, we couldn\'t find any other concerts matching your music tastes. Let\'s try again.'
     sns_event = {
