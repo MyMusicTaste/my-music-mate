@@ -89,6 +89,8 @@ provider:
     BLINK_OFF_COLOR: '#9febff'
     MESSAGE_DEFAULT_COLOR: '#E8E8E8'
 
+    TICKET_PAGE_LINK: 'https://s3.amazonaws.com/mmm-dev-serverlessdeploymentbucket-nyw6mgm89sd8/ticket.html'
+
 package:
   exclude:
     - .idea/**

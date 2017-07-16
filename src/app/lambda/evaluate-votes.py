@@ -363,9 +363,8 @@ def show_ticket_link(event):
                 artists.append(artist['name'])
 
             # print(response.history)
-            text = 'Here is a ticketing site link! \nEnjoy the show with your friends! :balloon:' \
-                   '<https://s3.amazonaws.com/mmm-dev-serverlessdeploymentbucket-nyw6mgm89sd8/ticket.html?link={}| >'\
-                .format(ticket_link)
+            text = 'Here is a ticketing site link! \nEnjoy the show with your friends! :balloon: <{}?link={}| >'\
+                .format(os.environ['TICKET_PAGE_LINK'], ticket_link)
             attachments = [
                 {
                     'title': db_response['event_name'],
