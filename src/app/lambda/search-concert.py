@@ -49,11 +49,20 @@ def publish_voting_ui(event, queued, artist_visited):
     sleep_duration = int(os.environ['DEFAULT_VOTING_TIMEOUT'])
     minutes = int(sleep_duration / 60)
     seconds = int(sleep_duration - minutes * 60)
-    if minutes > 0:
-        text += str(minutes) + ' minute(s) '
-    if seconds > 0:
-        text += str(seconds) + ' second(s).'
 
+    if minutes > 0:
+        if minutes == 1:
+            text += str(minutes) + ' minute'
+        else:
+            text += str(minutes) + ' minutes'
+    if seconds > 0:
+        if minutes > 0:
+            text += ' '
+        if seconds == 1:
+            text += str(seconds) + ' second'
+        else:
+            text += str(seconds) + ' seconds'
+    text += '.'
 
     attachments = [
         {
@@ -75,6 +84,7 @@ def publish_voting_ui(event, queued, artist_visited):
             'name': concert['event_name'],
             'text': '[0] ' + concert['event_name'],
             'type': 'button',
+            'style': 'primary',
             'value': concert['event_id']
         })
 
@@ -82,7 +92,6 @@ def publish_voting_ui(event, queued, artist_visited):
         'name': 'Other options?',
         'text': '[0] Other options?',
         'type': 'button',
-        'style': 'danger',
         'value': '0'
     })
 

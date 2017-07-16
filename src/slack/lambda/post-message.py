@@ -17,10 +17,13 @@ db_intents = DbIntents(os.environ['INTENTS_TABLE'])
 def post_message_to_slack(event):
     unfurl_links = False
     unfurl_media = True
+    as_user = False
     if 'unfurl_links' in event and event['unfurl_links'] is True:
         unfurl_links = True
     if 'unfurl_media' in event and event['unfurl_media'] is False:
         unfurl_media = False
+    if 'as_user' in event and event['as_user'] is True:
+        as_user = True
     if 'attachments' in event:
         params = {
             'token': event['token'],
@@ -29,14 +32,18 @@ def post_message_to_slack(event):
             'attachments': event['attachments'],
             # 'parse': 'full',
             'unfurl_links': unfurl_links,
-            'unfurl_media': unfurl_media
+            'unfurl_media': unfurl_media,
+            'as_user': as_user
         }
     else:
         params = {
             'token': event['token'],
             'channel': event['channel'],
-            'text': event['text']
+            'text': event['text'],
+            'as_user': as_user
         }
+    if as_user is False:
+        params['username'] = os.environ['BOT_NAME']
     url = 'https://slack.com/api/chat.postMessage?' + urlencode(params)
     response = requests.get(url).json()
     if 'ok' in response and response['ok'] is True:

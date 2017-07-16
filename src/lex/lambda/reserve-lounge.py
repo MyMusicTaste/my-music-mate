@@ -47,6 +47,8 @@ def reserve_lounge(event):
 
 
 def invite_mates(event):
+    if event['intents']['host_id'] is not None:
+        event['intents']['mates'].append(event['intents']['host_id'])
     for mate in event['intents']['mates']:
         params = {
             'token': event['sessionAttributes']['api_token'],
@@ -102,8 +104,7 @@ def compose_fulfill_response(event):
                 mates_string += '<@' + mate + '>'
 
         # Post an invitation message to the host's Bot direct message channel.
-        message = 'You' + mates_string + ' are ' +\
-                  'invited to a channel `' + event['intents']['lounge']['name'] + '`.'
+        message = 'You' + mates_string + ' are invited to a channel <#{}>.'.format(event['intents']['lounge']['id'])
                   
         if db_response['ok']:
             event['intents']['mates'].append(db_response['bot']['bot_user_id'])

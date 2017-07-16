@@ -36,15 +36,28 @@ def update_message(event, is_light_on, sleep_duration):
     if int(sleep_duration) > 0:
         text += 'Please select one that you are most interested in within '
 
-        minutes = int(sleep_duration / 60)
-        seconds = int(sleep_duration - minutes * 60)
+        hours = int(sleep_duration / 3600)
+        minutes = int((sleep_duration - hours * 3600) / 60)
+        seconds = int(sleep_duration - minutes * 60 - hours * 3600)
 
         if minutes > 0:
-            text += str(minutes) + ' minute(s) '
+            if minutes == 1:
+                text += str(minutes) + ' minute'
+            else:
+                text += str(minutes) + ' minutes'
         if seconds > 0:
-            text += str(seconds) + ' second(s).'
+            if minutes > 0:
+                text += ' '
+            if seconds == 1:
+                text += str(seconds) + ' second'
+            else:
+                text += str(seconds) + ' seconds'
+        text += '.'
+
+        print('!!! TEXT !!!')
+        print(text)
     else:
-        text += 'Voting has completed. Please wait for a moment while I am collecting the result.'
+        text += 'Voting has completed. Please wait while I am collecting the result.'
 
     if is_light_on is True:
         message['attachments'][0]['color'] = os.environ['BLINK_ON_COLOR']
@@ -190,6 +203,10 @@ def handler(event, context):
         while sleep_duration > extension_timeout and accumulated_duration < function_timeout:
             print('!!! REMAINING TIME !!!')
             print(sleep_duration)
+
+            if vote_ts is None:
+                retrieve_intents(event)
+                vote_ts = event['intents']['vote_ts']
 
             time.sleep(blinking_interval)
 

@@ -14,6 +14,8 @@ from googleapiclient.discovery import build
 from requests.exceptions import HTTPError
 import random
 import time
+from urllib.parse import urlencode
+import requests
 from urllib.parse import quote_plus
 
 from urllib.request import urlopen
@@ -31,6 +33,31 @@ sns = boto3.client('sns')
 STATUS_REVOTE = 'R'
 STATUS_WINNER = 'W'
 STATUS_NOPE = 'N'
+
+
+def update_message(event):
+    print('!!! UPDATE MESSAGE !!!')
+    message = event['message']
+    text = 'Voting has completed. Please wait while I am collecting the result.'
+
+    message['attachments'][0]['color'] = os.environ['MESSAGE_DEFAULT_COLOR']
+
+    sns_event = {
+        'token': event['token'],
+        'channel': event['channel_id'],
+        'text': text,
+        'attachments': message['attachments'],
+        'ts': message['ts'],
+        'as_user': True
+    }
+    print('!!! SNS EVENT !!!')
+    print(sns_event)
+    # start = int(time.time())
+    sns.publish(
+        TopicArn=os.environ['UPDATE_MESSAGE_SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(sns_event)}),
+        MessageStructure='json'
+    )
 
 
 def activate_voting_timer(event, voting_round, artist_visited):
@@ -58,10 +85,20 @@ def publish_voting_ui(event, queued, artist_visited):
     sleep_duration = int(os.environ['DEFAULT_VOTING_TIMEOUT'])
     minutes = int(sleep_duration / 60)
     seconds = int(sleep_duration - minutes * 60)
+
     if minutes > 0:
-        text += str(minutes) + ' minute(s) '
+        if minutes == 1:
+            text += str(minutes) + ' minute'
+        else:
+            text += str(minutes) + ' minutes'
     if seconds > 0:
-        text += str(seconds) + ' second(s).'
+        if minutes > 0:
+            text += ' '
+        if seconds == 1:
+            text += str(seconds) + ' second'
+        else:
+            text += str(seconds) + ' seconds'
+    text += '.'
 
     attachments = [
         {
@@ -83,6 +120,7 @@ def publish_voting_ui(event, queued, artist_visited):
             'name': concert['event_name'],
             'text': '[0] ' + concert['event_name'],
             'type': 'button',
+            'style': 'primary',
             'value': concert['event_id']
         })
 
@@ -90,7 +128,6 @@ def publish_voting_ui(event, queued, artist_visited):
         'name': 'Other options?',
         'text': '[0] Other options?',
         'type': 'button',
-        'style': 'danger',
         'value': '0'
     })
 
@@ -265,6 +302,7 @@ def count_votes(event):
     new_queue = []
 
     if event['round'] != '2':   # First vote.
+        print('!!! FIRST VOTE !!!')
         vote_result = STATUS_REVOTE
         for key in visited_concerts:
             percentage = visited_concerts[key] / total_votes
@@ -289,13 +327,13 @@ def count_votes(event):
                     new_queue.append(key)
 
     else:   # Second vote.
+        print('!!! SECOND VOTE !!!')
         vote_result = STATUS_NOPE
         for key in visited_concerts:
             percentage = visited_concerts[key] / total_votes
             if percentage >= 0.5 and key != '0':
                 vote_result = STATUS_WINNER
                 vote_winners.append(key)
-                break
 
     event['result'] = {
         'status': vote_result,
@@ -306,6 +344,7 @@ def count_votes(event):
 
 def show_ticket_link(event):
     print('!!! SHOW TICKET LINK!!!')
+    print(event['result']['winners'])
 
     for winner in event['result']['winners']:
         db_response = db_concerts.get_concert(event['channel_id'], winner)
@@ -316,6 +355,7 @@ def show_ticket_link(event):
             ticket_link = db_response['ticket_url']
             ticket_image = db_response['artists'][0]['image_url']
             ticket_thumb = db_response['artists'][0]['thumb_url']
+        print('!!! TICKET LINK !!!')
         print(ticket_link)
         if ticket_link is not None:
             artists = []
@@ -323,7 +363,7 @@ def show_ticket_link(event):
                 artists.append(artist['name'])
 
             # print(response.history)
-            text = 'Here is a ticket link! \nEnjoy the show! :balloon:' \
+            text = 'Here is a ticketing site link! \nEnjoy the show with your friends! :balloon:' \
                    '<https://s3.amazonaws.com/mmm-dev-serverlessdeploymentbucket-nyw6mgm89sd8/ticket.html?link={}| >'\
                 .format(ticket_link)
             attachments = [
@@ -361,7 +401,7 @@ def show_ticket_link(event):
             print(sns_event)
             print('!!! ARN ADDRRESS !!!')
             print(os.environ['POST_MESSAGE_SNS_ARN'])
-            return sns.publish(
+            sns.publish(
                 TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
                 Message=json.dumps({'default': json.dumps(sns_event)}),
                 MessageStructure='json'
@@ -416,6 +456,7 @@ def execute_second_vote(event):
             'name': concert['event_name'],
             'text': '[0] ' + concert['event_name'],
             'type': 'button',
+            'style': 'primary',
             'value': concert['event_id']
         })
 
@@ -610,6 +651,27 @@ def handler(event, context):
     log.info(event)
     count_votes(event)
     retrieve_intents(event)
+
+    # Set the color of the voting button message as grey.
+    params = {
+        'token': event['api_token'],
+        'channel': event['channel_id'],
+        'count': 1,
+        'inclusive': True,
+        'latest': event['intents']['vote_ts'],
+        'oldest': event['intents']['vote_ts']
+    }
+    url = 'https://slack.com/api/channels.history?' + urlencode(params)
+    response = requests.get(url).json()
+    print('!!! HISTORY RESPONSE !!!')
+    print(response)
+    if 'ok' in response and response['ok'] is True:
+        if len(response['messages']) == 1:
+            event['message'] = response['messages'][0]
+            print('!!! RETERIVED BUTTON MESSAGE !!!')
+            print(event['message'])
+            update_message(event)
+
 
     event['intents']['vote_ts'] = '0'
 

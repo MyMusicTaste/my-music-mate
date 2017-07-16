@@ -133,7 +133,7 @@
         "messages": [
           {
             "contentType": "PlainText",
-            "content": "Are you sure you want to create a channel name with {Lounge}?"
+            "content": "Are you sure you want to create a channel name with `{Lounge}`?"
           }
         ],
         "maxAttempts": 5
@@ -334,7 +334,7 @@
         "messages": [
           {
             "contentType": "PlainText",
-            "content": "Do you need extra time for voting? You can extend up to 1 hour."
+            "content": "Do you need extra time for voting? You can extend up to 30 minutes."
           }
         ],
         "maxAttempts": 5
