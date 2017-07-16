@@ -21,19 +21,52 @@ db_intents = DbIntents(os.environ['INTENTS_TABLE'])
 db_votes = DbVotes(os.environ['VOTES_TABLE'])
 
 
-def update_message(event, is_light_on):
+def update_message(event, is_light_on, sleep_duration):
+    retrieve_votes(event)
     print('!!! UPDATE MESSAGE !!!')
     message = event['message']
     text = message['text']
-    if '...' in text:
-        text = text[:-2]
+    # if '...' in text:
+    #     text = text[:-2]
+    # else:
+    #     text += '.'
+
+    text = ''
+
+    if int(sleep_duration) > 0:
+        text += 'Please select one that you are most interested in within '
+
+        minutes = int(sleep_duration / 60)
+        seconds = int(sleep_duration - minutes * 60)
+
+        if minutes > 0:
+            text += str(minutes) + ' minute(s) '
+        if seconds > 0:
+            text += str(seconds) + ' second(s).'
     else:
-        text += '.'
+        text += 'Voting has completed. Please wait for a moment while I am collecting the result.'
 
     if is_light_on is True:
         message['attachments'][0]['color'] = os.environ['BLINK_ON_COLOR']
     else:
         message['attachments'][0]['color'] = os.environ['BLINK_OFF_COLOR']
+
+    if len(message['attachments']) > 0:
+        visited_concerts = {}
+        for vote in event['votes']:
+            if vote['event_id'] not in visited_concerts:
+                visited_concerts[vote['event_id']] = 1
+            else:
+                visited_concerts[vote['event_id']] += 1
+
+        for action in message['attachments'][0]['actions']:
+            found = False
+            for key in visited_concerts:
+                if action['value'] == key:
+                    found = True
+                    action['text'] = '[' + str(visited_concerts[key]) + '] ' + action['name']
+            if found is False:
+                action['text'] = '[0] ' + action['name']
 
     sns_event = {
         'token': event['slack']['bot_token'],
@@ -145,6 +178,7 @@ def handler(event, context):
         accumulated_duration = 0
         function_timeout = int(os.environ['VOTING_TIMER_INTERNAL_TIMEOUT'])
         blinking_interval = int(os.environ['VOTING_BLINKING_INTERVAL'])
+        extension_timeout = int(os.environ['VOTING_EXTENSION_TIMEOUT'])
         is_light_on = True
 
         retrieve_intents(event)
@@ -153,7 +187,7 @@ def handler(event, context):
         # Sleep with blinking animation
 
         prev_time = time.time()
-        while sleep_duration > 0 and accumulated_duration < function_timeout:
+        while sleep_duration > extension_timeout and accumulated_duration < function_timeout:
             print('!!! REMAINING TIME !!!')
             print(sleep_duration)
 
@@ -177,20 +211,25 @@ def handler(event, context):
             }
             url = 'https://slack.com/api/channels.history?' + urlencode(params)
             response = requests.get(url).json()
+            print('!!! HISTORY RESPONSE !!!')
+            print(response)
             if 'ok' in response and response['ok'] is True:
                 if len(response['messages']) == 1:
                     event['message'] = response['messages'][0]
                     print('!!! RETERIVED BUTTON MESSAGE !!!')
                     print(event['message'])
-                    update_message(event, is_light_on)
+                    update_message(event, is_light_on, sleep_duration)
             # Update prev_time
             prev_time = time.time()
 
-        if sleep_duration > 0:
-            retrieve_intents(event)
+        retrieve_intents(event)
+        event['intents']['timeout'] = str(int(sleep_duration))
+        store_intents(event)
+
+        if sleep_duration > extension_timeout:
             print('!!! CALL NEW LAMBDA FUNCTION TO KEEP THE TIMER GOES ON !!!')
-            event['intents']['timeout'] = int(sleep_duration)
-            store_intents(event)
+            # event['intents']['timeout'] = int(sleep_duration)
+            # store_intents(event)
             sns_event = {
                 'slack': {
                     'team_id': event['slack']['team_id'],
@@ -207,56 +246,83 @@ def handler(event, context):
                 MessageStructure='json'
             )
 
-        else:
-            # Turn off the light.
-            params = {
-                'token': event['slack']['api_token'],
-                'channel': event['slack']['channel_id'],
-                'count': 1,
-                'inclusive': True,
-                'latest': vote_ts,
-                'oldest': vote_ts
+        elif event['intents']['current_intent'] != 'AskExtend':
+            event['intents']['current_intent'] = 'AskExtend'
+            sns_event = {
+                'team': {
+                    'team_id': event['slack']['team_id'],
+                    'access_token': event['slack']['api_token'],
+                    'bot': {
+                        'bot_access_token': event['slack']['bot_token']
+                    }
+                },
+                'slack': {
+                    'event': {
+                        'channel': event['slack']['channel_id'],
+                        'user': event['intents']['host_id'],
+                        'text': 'THIS ASK EXTEND INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES'
+                    }
+                }
             }
-            url = 'https://slack.com/api/channels.history?' + urlencode(params)
-            response = requests.get(url).json()
-            if 'ok' in response and response['ok'] is True:
-                if len(response['messages']) == 1:
-                    event['message'] = response['messages'][0]
-                    print('!!! RETERIVED BUTTON MESSAGE !!!')
-                    print(event['message'])
-                    update_message(event, False)
+            print('!!! MISSING VOTES !!!')
+            log.info(sns_event)
+            sns.publish(
+                TopicArn=os.environ['DISPATCH_ACTIONS_SNS_ARN'],
+                Message=json.dumps({'default': json.dumps(sns_event)}),
+                MessageStructure='json'
+            )
+
+            prev_time = time.time()
+            prev_timeout = event['intents']['timeout']
+            print(prev_timeout)
+            while sleep_duration > 0 and int(prev_timeout) >= int(event['intents']['timeout']):
+                print('!!! VOTING TS !!!')
+                vote_ts = event['intents']['vote_ts']
+                print(vote_ts)
+                print('!!! REMAINING TIME !!!')
+                print(sleep_duration)
+                print(prev_timeout)
+                print(event['intents']['timeout'])
+
+                time.sleep(blinking_interval)
+
+                now_time = time.time()
+                sleep_duration -= (now_time - prev_time)
+                if is_light_on is True:
+                    is_light_on = False
+                else:
+                    is_light_on = True
+
+                params = {
+                    'token': event['slack']['api_token'],
+                    'channel': event['slack']['channel_id'],
+                    'count': 1,
+                    'inclusive': True,
+                    'latest': vote_ts,
+                    'oldest': vote_ts
+                }
+                url = 'https://slack.com/api/channels.history?' + urlencode(params)
+                response = requests.get(url).json()
+                if 'ok' in response and response['ok'] is True:
+                    if len(response['messages']) == 1:
+                        event['message'] = response['messages'][0]
+                        print('!!! RETERIVED BUTTON MESSAGE !!!')
+                        print(event['message'])
+                        update_message(event, is_light_on, sleep_duration)
+                retrieve_intents(event)
+                print('!!! REMAINING TIME 2 !!!')
+                print(sleep_duration)
+                print(prev_timeout)
+                print(event['intents']['timeout'])
+                # Update prev_time
+                prev_time = time.time()
 
             retrieve_intents(event)
-            print('!!! SET TIMEOUT AS 0 !!!')
-            event['intents']['timeout'] = '0'
-
-            get_channel(event)
-            retrieve_votes(event)
-            if len(event['votes']) == (len(event['channel']['members']) - 1):   # Exclude the bot itself from the voting.
-                event['intents']['current_intent'] = 'EvaluateVotes'
-                text = 'Voting is completed. I will show you the result shortly.'
-                callback_id = event['intents']['callback_id'].split('|')
-                prev_artists = ''
-                if len(callback_id) > 1:
-                    prev_artists = callback_id[1]
-
-                sns_event = {
-                    'team_id': event['slack']['team_id'],
-                    'channel_id': event['slack']['channel_id'],
-                    'token': event['slack']['bot_token'],
-                    'api_token': event['slack']['api_token'],
-                    'votes': event['votes'],
-                    'members': event['channel']['members'],
-                    'round': callback_id[0],
-                    'prev_artists': prev_artists,
-                }
-                # Please comment this out if you want to keep the voting buttons up.
-                sns.publish(
-                    TopicArn=os.environ['EVALUATE_VOTES_SNS_ARN'],
-                    Message=json.dumps({'default': json.dumps(sns_event)}),
-                    MessageStructure='json'
-                )
-            else:
+            print('!!! FINISHING VOTING PROCESS')
+            print(sleep_duration)
+            print(event['intents']['current_intent'])
+            if sleep_duration <= 0 and event['intents']['current_intent'] == 'AskExtend':
+                print('!!! WAITING IS DONE !!!')
                 sns_event = {
                     'team': {
                         'team_id': event['slack']['team_id'],
@@ -269,11 +335,10 @@ def handler(event, context):
                         'event': {
                             'channel': event['slack']['channel_id'],
                             'user': event['intents']['host_id'],
-                            'text': 'THIS ASK EXTEND INTENT SHOULD NOT BE INVOKED BY ANY UTTERANCES'
+                            'text': 'no'
                         }
                     }
                 }
-                print('!!! MISSING VOTES !!!')
                 log.info(sns_event)
                 sns.publish(
                     TopicArn=os.environ['DISPATCH_ACTIONS_SNS_ARN'],
@@ -281,12 +346,14 @@ def handler(event, context):
                     MessageStructure='json'
                 )
 
-                sns.publish(
-                    TopicArn=os.environ['FINISH_VOTING_SNS_ARN'],
-                    Message=json.dumps({'default': json.dumps(event)}),
-                    MessageStructure='json'
-                )
-            store_intents(event)
+
+
+            # sns.publish(
+            #     TopicArn=os.environ['FINISH_VOTING_SNS_ARN'],
+            #     Message=json.dumps({'default': json.dumps(event)}),
+            #     MessageStructure='json'
+            # )
+        store_intents(event)
 
     except Exception as e:
         response = {

@@ -87,6 +87,7 @@ def compose_validate_response(event):
     print(timeout)
     if timeout > 0:
         print('!!! SLOT FILLED !!!')
+        event['intents']['current_intent'] = 'VotingConcert'
 
         if timeout > 3600:
             timeout = 3600  # Max 30 minutes
@@ -122,6 +123,7 @@ def compose_validate_response(event):
         }
         return response
     else:   # First time getting a extend time.
+        print('!!! LETS FINISH !!!')
         response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
             'type': 'ConfirmIntent',
             "intentName": "AskExtend",
@@ -192,6 +194,8 @@ def get_channel(event):
 
 
 def compose_fulfill_response(event):
+    print('!!! FULFILL RESPONSE !!!')
+    print(event)
     retrieve_votes(event)
     get_channel(event)
     if len(event['votes']) > 0:
@@ -240,23 +244,24 @@ def compose_fulfill_response(event):
 
 
         # New voting status (done) as a new message.
-        message = 'Voting has completed. Please wait for a moment while I am collecting the result.'
+        # message = 'Voting has completed. Please wait for a moment while I am collecting the result.'
 
         response = {
             'dialogAction': {
                 'type': 'Close',
-                'fulfillmentState': 'Fulfilled',
-                'message': {
-                    'contentType': 'PlainText',
-                    'content': message
-                }
+                'fulfillmentState': 'Fulfilled'
+                # 'message': {
+                #     'contentType': 'PlainText',
+                #     'content': message
+                # }
             }
         }
         return response
     else:
+        print('!!! VOTING IS DONE WITHOUT ANY VOTE !!!')
         event['intents']['current_intent'] = 'ConversationDone'
         # New voting status (done) as a new message.
-        message = 'It seems like you guys hate me. Bye bye!'
+        message = 'It seems like you guys seems bit busy. Call me again when you have time to respond!'
 
         response = {
             'dialogAction': {

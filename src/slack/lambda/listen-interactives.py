@@ -125,21 +125,21 @@ def update_message(event):
     #         MessageStructure='json'
     #     )
 
-    sns_event = {
-        'token': bot_token,
-        'channel': channel,
-        'text': text,
-        'attachments': attachments,
-        'ts': time_stamp,
-        'as_user': True
-    }
-    print('!!! SNS EVENT !!!')
-    print(sns_event)
-    return sns.publish(
-        TopicArn=os.environ['UPDATE_MESSAGE_SNS_ARN'],
-        Message=json.dumps({'default': json.dumps(sns_event)}),
-        MessageStructure='json'
-    )
+    # sns_event = {
+    #     'token': bot_token,
+    #     'channel': channel,
+    #     'text': text,
+    #     'attachments': attachments,
+    #     'ts': time_stamp,
+    #     'as_user': True
+    # }
+    # print('!!! SNS EVENT !!!')
+    # print(sns_event)
+    # return sns.publish(
+    #     TopicArn=os.environ['UPDATE_MESSAGE_SNS_ARN'],
+    #     Message=json.dumps({'default': json.dumps(sns_event)}),
+    #     MessageStructure='json'
+    # )
 
 
 def store_vote(event):

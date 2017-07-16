@@ -54,7 +54,15 @@ def activate_voting_timer(event, voting_round, artist_visited):
 
 def publish_voting_ui(event, queued, artist_visited):
     event['intents']['callback_id'] = '1|' + ','.join(artist_visited)
-    text = 'Please select one that you are most interested in.'
+    text = 'Please select one that you are most interested in within '
+    sleep_duration = int(os.environ['DEFAULT_VOTING_TIMEOUT'])
+    minutes = int(sleep_duration / 60)
+    seconds = int(sleep_duration - minutes * 60)
+    if minutes > 0:
+        text += str(minutes) + ' minute(s) '
+    if seconds > 0:
+        text += str(seconds) + ' second(s).'
+
     attachments = [
         {
             'fallback': 'You are unable to vote',
@@ -614,6 +622,7 @@ def handler(event, context):
     print(callback_id)
     print(event)
 
+    time.sleep(int(os.environ['VOTE_RESULT_WAITING']))
     if event['result']['status'] == STATUS_WINNER:
         show_ticket_link(event)
     elif event['result']['status'] == STATUS_REVOTE:

@@ -47,7 +47,7 @@ provider:
         - arn:aws:sns:*:*:${self:custom.namespace}-search-concert
         - arn:aws:sns:*:*:${self:custom.namespace}-evaluate-votes
         - arn:aws:sns:*:*:${self:custom.namespace}-voting-timer
-        - arn:aws:sns:*:*:${self:custom.namespace}-finish-voting
+#        - arn:aws:sns:*:*:${self:custom.namespace}-finish-voting
     - Effect: Allow
       Action:
         - lex:PostText
@@ -77,10 +77,11 @@ provider:
     VOTING_TIMER_INTERNAL_TIMEOUT: 240
     VOTING_EXTENSION_TIMEOUT: 15
     VOTING_BLINKING_INTERVAL: 2
+    VOTE_RESULT_WAITING: 5
     POST_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
     DISPATCH_ACTIONS_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-dispatch-actions" ] ]  }
     VOTING_TIMER_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-voting-timer" ] ]  }
-    FINISH_VOTING_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-finish-voting" ] ]  }
+#    FINISH_VOTING_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-finish-voting" ] ]  }
     EVALUATE_VOTES_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-evaluate-votes" ] ]  }
     UPDATE_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-update-message" ] ]  }
 
@@ -169,10 +170,10 @@ functions:
     handler: src/app/lambda/voting-timer.handler
     events:
       - sns: ${self:custom.namespace}-voting-timer
-  app-finish-voting:
-    handler: src/app/lambda/finish-voting.handler
-    events:
-      - sns: ${self:custom.namespace}-finish-voting
+#  app-finish-voting:
+#    handler: src/app/lambda/finish-voting.handler
+#    events:
+#      - sns: ${self:custom.namespace}-finish-voting
 
 
 #    The following are a few example events you can configure
