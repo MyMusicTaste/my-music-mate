@@ -38,7 +38,7 @@ STATUS_NOPE = 'N'
 def update_message(event):
     print('!!! UPDATE MESSAGE !!!')
     message = event['message']
-    text = 'Voting has completed. Please wait while I am collecting the result.'
+    text = 'Voting has completed. Please wait while I collect the result.'
 
     message['attachments'][0]['color'] = os.environ['MESSAGE_DEFAULT_COLOR']
 
@@ -81,7 +81,7 @@ def activate_voting_timer(event, voting_round, artist_visited):
 
 def publish_voting_ui(event, queued, artist_visited):
     event['intents']['callback_id'] = '1|' + ','.join(artist_visited)
-    text = 'Please select one that you are most interested in within '
+    text = 'Please select the concert you are most interested in within '
     sleep_duration = int(os.environ['DEFAULT_VOTING_TIMEOUT'])
     minutes = int(sleep_duration / 60)
     seconds = int(sleep_duration - minutes * 60)
@@ -251,7 +251,7 @@ def publish_concert_list(event, queued):
         sns_event = {
             'token': event['token'],
             'channel': event['channel_id'],
-            'text': "Here is the {} option. I chose this because you are interested in {}. <{}| >".format(
+            'text': "Here is the {} option. I chose this because of your interest in {}. <{}| >".format(
                 order, concert['interest'], youtubeurl),
             'attachments': attachments
         }
@@ -420,7 +420,18 @@ def execute_second_vote(event):
     print(queued)
 
     # try:
-
+    sns_event = {
+        'token': event['token'],
+        'channel': event['channel_id'],
+        'text': "It looks like there wasn't a clear winner after the previous vote. I've eliminated any unwanted "
+                "concerts so please take a look at the remaining choices and vote again."
+    }
+    sns.publish(
+        TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(sns_event)}),
+        MessageStructure='json'
+    )
+    time.sleep(2)
     print('!!! DELETE PREVIOUS VOTES !!!')
     for member in event['members']:
         print(event['channel_id'])
@@ -434,7 +445,7 @@ def execute_second_vote(event):
 
     event['intents']['callback_id'] = '2'
 
-    text = 'It was too close to call. Let\'s try another vote.'
+    text = 'Here are your new voting options.'
     attachments = [
         {
             'fallback': 'You are unable to vote',
@@ -500,7 +511,18 @@ def bring_new_concert_queue(event):
         print(member)
         db_response = db_votes.remove_previous(event['channel_id'], '_' + member)
 
-
+    sns_event = {
+        'token': event['token'],
+        'channel': event['channel_id'],
+        'text': "It looks like you guys didn't really like that last group of concerts. Let me see if there were any"
+                "more concerts for me to show you."
+    }
+    sns.publish(
+        TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
+        Message=json.dumps({'default': json.dumps(sns_event)}),
+        MessageStructure='json'
+    )
+    time.sleep(2)
     print('!!! BRING NEW CONCERT QUEUE !!!')
     concerts = db_concerts.fetch_concerts(event['channel_id'])
     print('!!! SHOW CONCERT RESULTS !!!')
@@ -550,13 +572,13 @@ def bring_new_concert_queue(event):
         publish_voting_ui(event, concerts_queued, artist_visited)
     else:
         out_of_options(event)
-        time.sleep(.5)
+        time.sleep(1.5)
         start_over(event)
 
 
-def out_of_options(event):
+def  out_of_options(event):
     # print(response.history)
-    text = 'Sorry, we couldn\'t find any other concerts meeting your music taste. Let\'s try again.'
+    text = 'Sorry, we couldn\'t find any other concerts matching your music tastes. Let\'s try again.'
     sns_event = {
         'token': event['token'],
         'channel': event['channel_id'],

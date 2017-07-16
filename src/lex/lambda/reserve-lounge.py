@@ -125,8 +125,8 @@ def compose_fulfill_response(event):
         event['sessionAttributes']['channel_id'] = event['intents']['lounge']['id']
         message = 'Hi, I am your music mate! ' +\
                   '<@' + event['intents']['host_id'] + '> ' +\
-                  'asked me to invite you all for going to a concert together. ' +\
-                  'For suggesting the best options for you, I want to know what kind of music you guys like.'
+                  'asked me to invite you all to find a concert to go to together. ' +\
+                  'To help me suggest the best options for you, please tell me your musical preferences.'
         publish_to_sns(event, message)
 
         time.sleep(2.5)
@@ -159,7 +159,7 @@ def compose_fulfill_response(event):
                 'type': 'ElicitSlot',
                 'message': {
                     'contentType': 'PlainText',
-                    'content': "It seems like the channel already exists. Please choose a different name."
+                    'content': "It seems like that channel already exists. Please choose a different name."
                 },
                 'intentName': 'ReserveLounge',
                 'slotToElicit': 'Lounge',
