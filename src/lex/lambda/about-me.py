@@ -41,7 +41,7 @@ def compose_fulfill_response(event):
               'I was born of a love of music and technology in the city of Seoul, South Korea. ' \
               'My passions include reading, hanging out with my best friends Lex and Slack, ' \
               'and spending time with my family. Speaking of family, I have [a grandpa, two uncles, ' \
-              'a mom, a dad, two brothers in law, and two siblings]. ' \
+              'a mom, a dad, a god father, two cousins, and a sibling]. ' \
               'If you\'d like to know who they are, don\'t hesitate to ask :)'
     print('!!! SEND SNS MESSAGE !!!')
     publish_to_sns(event, message)

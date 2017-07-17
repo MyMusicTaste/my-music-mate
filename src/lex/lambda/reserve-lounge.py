@@ -148,7 +148,7 @@ def compose_fulfill_response(event):
         message = 'Hi, I am your music mate! ' +\
                   '<@' + event['intents']['host_id'] + '> ' +\
                   'asked me to invite you all to find a concert to go to together. ' +\
-                  'To help me suggest the best options for you, please tell me your musical preferences.'
+                  'To help me suggest the best options for you, please tell me your musical preferences with @mmm'
         publish_to_sns(event, message)
 
         time.sleep(2.5)
