@@ -94,7 +94,7 @@ def compose_fulfill_response(event):
             'dialogAction': {
                 'type': 'ElicitSlot',
                 'intentName': 'InviteMate',
-                'slotToElicit': '​Mate',
+                'slotToElicit': 'Mate',
                 'message': {
                     'contentType': 'PlainText',
                     'content': 'Unless you want to know more about my family, tell me whom would you like to invite.'
