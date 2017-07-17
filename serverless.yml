@@ -29,7 +29,7 @@ provider:
       Resource:
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.TEAMS_TABLE}
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.INTENTS_TABLE}
-        - arn:aws:dynamodb:*:*:table/${self:provider.environment.TALKS_TABLE}
+#        - arn:aws:dynamodb:*:*:table/${self:provider.environment.TALKS_TABLE}
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.CONCERTS_TABLE}
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.VOTES_TABLE}
 #    - Effect: Allow  # This need to be uncommented if you want to make a lambda function to call another one.
@@ -66,7 +66,7 @@ provider:
     NAMESPACE: ${self:custom.namespace}
     TEAMS_TABLE: ${self:custom.namespace}-teams
     INTENTS_TABLE: ${self:custom.namespace}-intents
-    TALKS_TABLE: ${self:custom.namespace}-talks
+#    TALKS_TABLE: ${self:custom.namespace}-talks
     CONCERTS_TABLE: ${self:custom.namespace}-concerts
     VOTES_TABLE: ${self:custom.namespace}-votes
 
@@ -244,23 +244,23 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
-    TalksDynamoDbTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:provider.environment.TALKS_TABLE}
-        AttributeDefinitions:
-          - AttributeName: team_id
-            AttributeType: S
-          - AttributeName: caller_id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: team_id
-            KeyType: HASH
-          - AttributeName: caller_id
-            KeyType: RANGE
-        ProvisionedThroughput:
-          ReadCapacityUnits: 5
-          WriteCapacityUnits: 5
+#    TalksDynamoDbTable:
+#      Type: AWS::DynamoDB::Table
+#      Properties:
+#        TableName: ${self:provider.environment.TALKS_TABLE}
+#        AttributeDefinitions:
+#          - AttributeName: team_id
+#            AttributeType: S
+#          - AttributeName: caller_id
+#            AttributeType: S
+#        KeySchema:
+#          - AttributeName: team_id
+#            KeyType: HASH
+#          - AttributeName: caller_id
+#            KeyType: RANGE
+#        ProvisionedThroughput:
+#          ReadCapacityUnits: 5
+#          WriteCapacityUnits: 5
     ConcertsDynamoDbTable:
       Type: AWS::DynamoDB::Table
       Properties:

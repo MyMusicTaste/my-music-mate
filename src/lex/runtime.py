@@ -20,13 +20,13 @@ class LexRunTime(object):
         message = re.sub('>', '', message)
         return message
 
-    def post_message(self, team_id, channel_id, api_token, bot_token, caller_id, callback_id, message):
+    def post_message(self, lex_identifier, team_id, channel_id, api_token, bot_token, caller_id, callback_id, message):
         message = self.filter_message(channel_id, message)
 
         return self.lex.post_text(
             botName=self.name,
             botAlias=self.alias,
-            userId=api_token,
+            userId=lex_identifier,
             sessionAttributes={
                 'team_id': team_id,
                 'channel_id': channel_id,

@@ -135,6 +135,7 @@ def handler(event, context):
     }
     try:
         event = get_slack_event(event)
+        print(event)
         if 'type' in event['slack'] and event['slack']['type'] == 'url_verification':
             # Response to Slack challenge.
             response['body'] = json.dumps({"challenge": event['slack']['challenge']})

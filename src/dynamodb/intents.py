@@ -32,7 +32,8 @@ class DbIntents(DbTable):
                 'tastes',
                 'timeout',
                 'callback_id',
-                'vote_ts'
+                'vote_ts',
+                'lex_identifier'
             ]
         )
 
@@ -51,7 +52,8 @@ class DbIntents(DbTable):
                 'tastes': {},
                 'timeout': 0,
                 'callback_id': None,
-                'vote_ts': None
+                'vote_ts': None,
+                'lex_identifier': None
             }
         item = response['Item']
         if 'host_id' not in item:
@@ -75,16 +77,17 @@ class DbIntents(DbTable):
             item['tastes'] = {}
         if 'timeout' not in item:
             item['timeout'] = 0
+        item['timeout'] = str(item['timeout'])
         if 'callback_id' not in item:
             item['callback_id'] = None
         if 'vote_ts' not in item:
             item['vote_ts'] = None
-        item['timeout'] = str(item['timeout'])
+        if 'lex_identifier' not in item:
+            item['lex_identifier'] = None
         return item
-
-
 
     def switch_channel(self, channel_id, keys, attributes):
         self.delete_item(keys)
+        # attributes['lex_identifier'] = keys['channel_id']
         keys['channel_id'] = channel_id
         return self.store_intents(keys=keys, attributes=attributes)
