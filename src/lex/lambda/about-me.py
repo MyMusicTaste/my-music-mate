@@ -64,7 +64,6 @@ def compose_fulfill_response(event):
                 },
             }
         }
-        return response
     elif prev_intent == 'AskExtend':
         print('!!! ASK EXTEND !!!')
         response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
@@ -73,17 +72,16 @@ def compose_fulfill_response(event):
                 'contentType': 'PlainText',
                 'content': 'Now, tell me know if you need to extend the voting time.'
             },
-            "intentName": "AskExtend",
+            'intentName': 'AskExtend',
             'slots': {
                 'Extend': 'PT0S'
             }
         }}
-        return response
     elif prev_intent == 'AskTaste':
         print('!!! ASK TASTE !!!')
         response = {'sessionAttributes': event['sessionAttributes'],'dialogAction': {
             'type': 'ConfirmIntent',
-            "intentName": "AskTaste",
+            'intentName': 'AskTaste',
             'slots': {
                 'Artist': None,
                 'Genre': None
@@ -91,7 +89,6 @@ def compose_fulfill_response(event):
         }}
     elif prev_intent == 'InviteMate':
         print('!!! INVITE MATE !!!')
-
         response = {
             'sessionAttributes': event['sessionAttributes'],
             'dialogAction': {
@@ -107,25 +104,23 @@ def compose_fulfill_response(event):
                 },
             }
         }
-        return response
     elif prev_intent == 'ReserveLounge':
         print('!!! RESERVE LOUNGE !!!')
         response = {
             'sessionAttributes': event['sessionAttributes'],
             'dialogAction': {
                 'type': 'ElicitSlot',
+                'intentName': 'ReserveLounge',
+                'slotToElicit': 'Lounge',
                 'message': {
                     'contentType': 'PlainText',
                     'content': 'Okay. What name would you like to use for the channel?'
                 },
-                'intentName': 'ReserveLounge',
-                'slotToElicit': 'Lounge',
                 'slots': {
                     'Lounge': None
                 }
             }
         }
-        return response
     else:
         response = {
             'dialogAction': {
@@ -133,7 +128,7 @@ def compose_fulfill_response(event):
                 'fulfillmentState': 'Fulfilled'
             }
         }
-        return response
+    return response
 
 
     # response = {
