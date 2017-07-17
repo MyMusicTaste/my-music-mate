@@ -205,21 +205,28 @@ def publish_concert_list(event, queued):
         result = search_response.get("items", [])
         youtubeurl = "http://youtube.com/watch?v=%s" % result[0]["id"]["videoId"]
         order = ''
+        emoji = ''
         if i == 0:
             if len(queued) == i + 1:
-                order = ''
+                order = 'only'
+                emoji = ':point_up:'
             else:
                 order = 'first'
+                emoji = ':point_up:'
         if i == 1:
             if len(queued) == i + 1:
                 order = 'last'
+                emoji = ':v:'
             else:
                 order = 'second'
+                emoji = ':v:'
         elif i == 2:
             if len(queued) == i + 1:
                 order = 'last'
+                emoji = ':spock-hand:'
             else:
                 order = 'last'
+            emoji = ':spock-hand:'
 
         #pretext += 'Here is the {} option. I chose this because you are interested in {}.'.format(
         #    order, concert['interest'])
@@ -251,8 +258,8 @@ def publish_concert_list(event, queued):
         sns_event = {
             'token': event['token'],
             'channel': event['channel_id'],
-            'text': "Here is the {} option. I chose this because of your interest in {}. <{}| >".format(
-                order, concert['interest'], youtubeurl),
+            'text': '{}Here is the {} option. <{}| >'.format(
+                emoji, order, youtubeurl),
             'attachments': attachments
         }
         sns.publish(
@@ -363,7 +370,7 @@ def show_ticket_link(event):
                 artists.append(artist['name'])
 
             # print(response.history)
-            text = 'Here is a ticketing site link! \nEnjoy the show with your friends! :balloon: <{}?link={}| >'\
+            text = 'Here is a ticket site link! \nEnjoy the show with your friends! :balloon: <{}?link={}| >'\
                 .format(os.environ['TICKET_PAGE_LINK'], ticket_link)
             attachments = [
                 {
