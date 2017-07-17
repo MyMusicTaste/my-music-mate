@@ -270,7 +270,7 @@ def add_genre_tastes(event):
     log.info(event)
     genres = event['intents']['genres']
     for genre in genres:
-        api_response = requests.get(os.environ['LASTFM_TOP_URL'].format(genre))
+        api_response = requests.get(os.environ['LASTFM_TOP_URL'].format(genre, os.environ['LASTFM_KEY']))
         log.info('!!! API RESPONSE !!!')
         log.info(api_response)
         top_albums = json.loads(api_response.text)['albums']['album']
