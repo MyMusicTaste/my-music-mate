@@ -34,4 +34,4 @@ If there were at least 3 concert results that matched your musical tastes, MyMus
 
 Once voting is complete, MyMusicMate will tally the votes and the next action will vary according to the outcome. If there is a clear winner, MMM will display the concert link for users to purchase tickets.  If a large percentage of users did not like any of the concert options, the unwanted concerts will be discarded and replaced with new options from the concert queue, if they exist.  If votes were split, the least popular concert(s) will be discarded and users will be brought to a second, and final vote.
 
-If the concert queue does not have enough concerts to perform a vote, users will be prompted to enter new musical preferences and a new concert search will begin.
+If the concert queue does not have enough concerts to initiate a vote, users will be prompted to enter new musical preferences and a new concert search will begin.
