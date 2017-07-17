@@ -200,8 +200,8 @@ def compose_validate_response(event):
                 'team': event['sessionAttributes']['team_id'],
                 'token': event['sessionAttributes']['bot_token'],
                 'channel': member,
-                'text': text,
-                'as_user': True
+                'text': text
+                # 'as_user': True
             }
             log.info('!!! SNS EVENT !!!')
             log.info(sns_event)

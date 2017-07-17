@@ -552,7 +552,8 @@ def bring_new_concert_queue(event):
         db_response = db_concerts.get_concert(event['channel_id'], survived_concert_id)
         if db_response is not None:
             concerts_queued.append(db_response)
-    random.shuffle(concerts)
+    if os.environ['SHUFFLE_CONCERT_LIST'] == '1':
+        random.shuffle(concerts)
     for concert in concerts:
         if len(concerts_queued) < int(os.environ['CONCERT_VOTE_OPTIONS_MAX']):
             print('!!! artist_visited !!!')
@@ -584,6 +585,7 @@ def bring_new_concert_queue(event):
         time.sleep(2.5)
         publish_voting_ui(event, concerts_queued, artist_visited)
     else:
+        event['intents']['current_intent'] = 'AskTaste'
         out_of_options(event)
         time.sleep(5)
         start_over(event)

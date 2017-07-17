@@ -277,7 +277,8 @@ def add_genre_tastes(event):
         log.info('!!! TOP ALBUMS !!!')
         log.info(top_albums)
         # TODO When we shuffled the list, there is lot of chance that we pick artists who don't have concert schedules
-        random.shuffle(top_albums)
+        if os.environ['SHUFFLE_CONCERT_LIST'] == '1':
+            random.shuffle(top_albums)
         log.info('!!! SHUFFLED TOP ALBUMS !!!')
         log.info(top_albums)
         for i, album in enumerate(top_albums):
@@ -372,7 +373,9 @@ def show_results(event):
     log.info(concerts)
     artist_visited = []
     concerts_queued = []
-    random.shuffle(concerts)
+
+    if os.environ['SHUFFLE_CONCERT_LIST'] == '1':
+        random.shuffle(concerts)
 
     for concert in concerts:
         if len(concerts_queued) < int(os.environ['CONCERT_VOTE_OPTIONS_MAX']):
@@ -406,7 +409,8 @@ def show_results(event):
             print('!!! concerts_queued2 !!!')
             print(concerts_queued)
             artists = concert['artists']
-            random.shuffle(artists)
+            if os.environ['SHUFFLE_CONCERT_LIST'] == '1':
+                random.shuffle(artists)
             # Second loop through concerts - get any concerts
             temp_artist_visited = []
             need_to_be_queued = True
@@ -432,6 +436,7 @@ def show_results(event):
         publish_voting_ui(event, concerts_queued, artist_visited)
         activate_voting_timer(event, artist_visited)
     else:
+        event['intents']['current_intent'] = 'AskTaste'
         out_of_options(event)
         start_over(event)
 

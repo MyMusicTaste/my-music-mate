@@ -61,7 +61,7 @@ def compose_fulfill_response(event):
                 'slotToElicit': 'City',
                 'slots': {
                     'City': None
-                },
+                }
             }
         }
     elif prev_intent == 'AskExtend':
@@ -79,7 +79,7 @@ def compose_fulfill_response(event):
         }}
     elif prev_intent == 'AskTaste':
         print('!!! ASK TASTE !!!')
-        response = {'sessionAttributes': event['sessionAttributes'],'dialogAction': {
+        response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
             'type': 'ConfirmIntent',
             'intentName': 'AskTaste',
             'slots': {
@@ -100,8 +100,8 @@ def compose_fulfill_response(event):
                     'content': 'Unless you want to know more about my family, tell me whom would you like to invite.'
                 },
                 'slots': {
-                    '​Mate': None
-                },
+                    'Mate': None
+                }
             }
         }
     elif prev_intent == 'ReserveLounge':
@@ -114,7 +114,7 @@ def compose_fulfill_response(event):
                 'slotToElicit': 'Lounge',
                 'message': {
                     'contentType': 'PlainText',
-                    'content': 'Okay. What name would you like to use for the channel?'
+                    'content': 'Do you want to know about my family more? or do you want to choose a channel name?'
                 },
                 'slots': {
                     'Lounge': None

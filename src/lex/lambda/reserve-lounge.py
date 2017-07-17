@@ -172,6 +172,7 @@ def compose_fulfill_response(event):
         #         'content': 'Hi, I am your music mate!'
         #     }
         # }}
+        event['intents']['current_intent'] = 'AskTaste'
         return response
     else:
         event['intents']['lounge']['name'] = None
@@ -237,6 +238,7 @@ def handler(event, context):
         if event['currentIntent'] is not None and event['currentIntent']['confirmationStatus'] == 'Confirmed':
             # Terminating condition.
             response = compose_fulfill_response(event)
+
         elif event['currentIntent'] is not None and event['currentIntent']['confirmationStatus'] == 'Denied':
             response = compose_reset_response(event)
         else:

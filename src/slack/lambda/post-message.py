@@ -42,8 +42,8 @@ def post_message_to_slack(event):
             'text': event['text'],
             'as_user': as_user
         }
-    if as_user is False:
-        params['username'] = os.environ['BOT_NAME']
+    # if as_user is False:
+    #     params['username'] = os.environ['BOT_NAME']
     url = 'https://slack.com/api/chat.postMessage?' + urlencode(params)
     response = requests.get(url).json()
     if 'ok' in response and response['ok'] is True:

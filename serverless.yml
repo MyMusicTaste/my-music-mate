@@ -74,9 +74,9 @@ provider:
     LEX_NAME: ${self:custom.lex.name}
     LEX_ALIAS: ${self:custom.lex.alias}
     CONCERT_VOTE_OPTIONS_MAX: 3
-    DEFAULT_VOTING_TIMEOUT: 60
     VOTING_TIMER_INTERNAL_TIMEOUT: 240
-    VOTING_EXTENSION_TIMEOUT: 30
+    DEFAULT_VOTING_TIMEOUT: 60    # Total voting time.
+    VOTING_EXTENSION_TIMEOUT: 30  # Time that invoke the voting time alert message.
     VOTING_BLINKING_INTERVAL: 2
     VOTE_RESULT_WAITING: 5
     POST_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
@@ -91,6 +91,8 @@ provider:
     MESSAGE_DEFAULT_COLOR: '#E8E8E8'
 
     TICKET_PAGE_LINK: 'https://s3.amazonaws.com/mmm-dev-serverlessdeploymentbucket-nyw6mgm89sd8/ticket.html'
+
+    SHUFFLE_CONCERT_LIST: '0'
 
 package:
   exclude:

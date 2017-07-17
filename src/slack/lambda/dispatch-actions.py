@@ -35,30 +35,30 @@ def retrieve_intents(event):
 def talk_with_lex(event):
     retrieve_intents(event)
     # Block the lex invoke during voting.
-    if event['intents']['current_intent'] != 'VotingConcert' and event['intents']['current_intent'] != 'EvaluateVotes':
-        if 'callback_id' not in event['slack']['event']:
-            event['slack']['event']['callback_id'] = ''
+    # if event['intents']['current_intent'] != 'VotingConcert' and event['intents']['current_intent'] != 'EvaluateVotes':
+    if 'callback_id' not in event['slack']['event']:
+        event['slack']['event']['callback_id'] = ''
 
-        lex_identifier = event['intents']['lex_identifier']
-        if lex_identifier is None:
-            lex_identifier = event['team']['team_id'] + event['slack']['event']['channel'] + event['slack']['event']['user'] + str(int(time.time()))
-            event['intents']['lex_identifier'] = lex_identifier
-            store_intents(event)
+    lex_identifier = event['intents']['lex_identifier']
+    if lex_identifier is None:
+        lex_identifier = event['team']['team_id'] + event['slack']['event']['channel'] + event['slack']['event']['user'] + str(int(time.time()))
+        event['intents']['lex_identifier'] = lex_identifier
+        store_intents(event)
 
-        print('!!! LEX IDENTIFIER !!!')
-        print(lex_identifier)
-        print(event['intents'])
+    print('!!! LEX IDENTIFIER !!!')
+    print(lex_identifier)
+    print(event['intents'])
 
-        event['lex'] = lex.post_message(
-            lex_identifier=lex_identifier,
-            team_id=event['team']['team_id'],
-            channel_id=event['slack']['event']['channel'],
-            api_token=event['team']['access_token'],
-            bot_token=event['team']['bot']['bot_access_token'],
-            caller_id=event['slack']['event']['user'],
-            callback_id=event['slack']['event']['callback_id'],
-            message=event['slack']['event']['text']
-        )
+    event['lex'] = lex.post_message(
+        lex_identifier=lex_identifier,
+        team_id=event['team']['team_id'],
+        channel_id=event['slack']['event']['channel'],
+        api_token=event['team']['access_token'],
+        bot_token=event['team']['bot']['bot_access_token'],
+        caller_id=event['slack']['event']['user'],
+        callback_id=event['slack']['event']['callback_id'],
+        message=event['slack']['event']['text']
+    )
 
 
 def publish_to_sns(event):
@@ -90,6 +90,7 @@ def publish_to_sns(event):
 def handler(event, context):
     log.info(json.dumps(event))
     event = json.loads(event['Records'][0]['Sns']['Message'])
+    print(event)
     response = {
         "statusCode": 200,
         "body": json.dumps({"message": 'message has been sent successfully.'})
