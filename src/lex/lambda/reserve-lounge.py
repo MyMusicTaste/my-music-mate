@@ -59,6 +59,28 @@ def invite_mates(event):
         requests.get(url)
 
 
+def compose_reset_response(event):
+    print('!!! RESET SLOT !!!')
+    event['intents']['current_intent'] = 'ReserveLounge'
+    event['intents']['lounge']['name'] = None
+    response = {
+        'sessionAttributes': event['sessionAttributes'],
+        'dialogAction': {
+            'type': 'ElicitSlot',
+            'message': {
+                'contentType': 'PlainText',
+                'content': 'Then, what name do you want to use for the channel?'
+            },
+            'intentName': 'ReserveLounge',
+            'slotToElicit': 'Lounge',
+            'slots': {
+                'Lounge': None
+            }
+        }
+    }
+    return response
+
+
 def compose_validate_response(event):
     event['intents']['current_intent'] = 'ReserveLounge'
     slot_lounge = None
@@ -215,6 +237,8 @@ def handler(event, context):
         if event['currentIntent'] is not None and event['currentIntent']['confirmationStatus'] == 'Confirmed':
             # Terminating condition.
             response = compose_fulfill_response(event)
+        elif event['currentIntent'] is not None and event['currentIntent']['confirmationStatus'] == 'Denied':
+            response = compose_reset_response(event)
         else:
             # Processing the user input.
             response = compose_validate_response(event)
