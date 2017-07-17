@@ -414,6 +414,12 @@ def show_ticket_link(event):
             )
     db_concerts.remove_all(event['channel_id'])
 
+    event['intents']['current_intent'] = 'ConversationDone'
+    # event['intents']['genres'] = []
+    # event['intents']['artists'] = []
+    # event['intents']['city'] = None
+    # event['intents']['tastes'] = {}
+
 
 def execute_second_vote(event):
     print('!!! EXECUTE SECOND VOTE !!!')
