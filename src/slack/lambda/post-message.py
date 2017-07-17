@@ -40,6 +40,8 @@ def post_message_to_slack(event):
             'token': event['token'],
             'channel': event['channel'],
             'text': event['text'],
+            'unfurl_links': unfurl_links,
+            'unfurl_media': unfurl_media,
             'as_user': as_user
         }
     # if as_user is False:

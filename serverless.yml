@@ -10,7 +10,6 @@ custom:
     name: MyMusicMate
     alias: dev
     blueprint: src/lex/blueprint.json
-
 provider:
   name: aws
   runtime: python3.6
@@ -90,9 +89,14 @@ provider:
     BLINK_OFF_COLOR: '#9febff'
     MESSAGE_DEFAULT_COLOR: '#E8E8E8'
 
-    TICKET_PAGE_LINK: 'https://s3.amazonaws.com/mmm-dev-serverlessdeploymentbucket-nyw6mgm89sd8/ticket.html'
+    SHUFFLE_CONCERT_LIST: '0' # 1 for production, 0 for dev mode.
 
-    SHUFFLE_CONCERT_LIST: '0'
+    S3_BUCKET_ARN: { "Fn::Join" : [":", ["arn:aws:s3:${self:provider.region}", { "Ref" : "AWS::AccountId" }, { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+    S3_BUCKET_ADDRESS: { "Fn::Join" : ["/", ["https://s3.amazonaws.com", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+
+    TICKET_PAGE_LINK: { "Fn::Join" : ["/", ["https://s3.amazonaws.com", { "Ref" : "ServerlessDeploymentBucket" }, "ticket.html" ] ]  }
+    TICKET_IMAGE_LINK: { "Fn::Join" : ["/", ["https://s3.amazonaws.com", { "Ref" : "ServerlessDeploymentBucket" }, "mmm_ticket.png" ] ]  }
+    DEVS_BUCKET_ADDRESS: { "Fn::Join" : ["/", ["https://s3.amazonaws.com", { "Ref" : "ServerlessDeploymentBucket" }, 'devs' ] ]  }
 
 package:
   exclude:
@@ -143,6 +147,8 @@ functions:
           method: post
   lex-about-me:
     handler: src/lex/lambda/about-me.handler
+  lex-about-family:
+    handler: src/lex/lambda/about-family.handler
   lex-invite-mate:
     handler: src/lex/lambda/invite-mate.handler
   lex-reserve-lounge:
@@ -312,3 +318,4 @@ resources:
 plugins:
   - serverless-python-requirements
   - serverless-lex-deploy
+

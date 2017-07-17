@@ -7,7 +7,15 @@
       "maxAttempts": 5,
       "messages": [
         {
-          "content": "Sorry, could you specify a little bit?",
+          "content": "I'm sorry, I don't understand.  Could you repeat that please?",
+          "contentType": "PlainText"
+        },
+        {
+          "content": "I apologize, I'm having trouble understanding.  Could you say that again?",
+          "contentType": "PlainText"
+        },
+        {
+          "content": "Sorry, I don't follow. Can you repeat that please?",
           "contentType": "PlainText"
         }
       ]
@@ -58,7 +66,9 @@
       "sampleUtterances": [
         "Hi",
         "Hello",
-        "What's up"
+        "What's up",
+        "What can you do",
+        "Tell me what you can do"
       ],
       "confirmationPrompt": {
         "messages": [
@@ -383,6 +393,59 @@
       },
       "dialogCodeHook": {
         "uri": "arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:custom.namespace}-lex-about-me",
+        "messageVersion": "1.0"
+      },
+      "fulfillmentActivity": {
+        "type": "ReturnIntent"
+      }
+    },
+
+    {
+      "name": "AboutFamily",
+      "slots": [
+        {
+          "name": "Family",
+          "slotConstraint": "Required",
+          "slotType": "AMAZON.PERSON",
+          "valueElicitationPrompt": {
+            "messages": [
+              {
+                "contentType": "PlainText",
+                "content": "THIS VALUE ELICITATION PROMPT SHOULD NOT BE PRINTED IN ANY SITUATION"
+              }
+            ],
+            "maxAttempts": 5
+          },
+          "priority": 1,
+          "sampleUtterances": [
+
+          ]
+        }
+      ],
+      "sampleUtterances": [
+        "Who is your {Family}",
+        "Who are your {Family}",
+        "Tell me about your {Family}"
+      ],
+      "confirmationPrompt": {
+        "messages": [
+          {
+            "contentType": "PlainText",
+            "content": "THIS CONFIRMATION PROMPT SHOULD NOT BE PRINTED IN ANY SITUATION"
+          }
+        ],
+        "maxAttempts": 5
+      },
+      "rejectionStatement": {
+        "messages": [
+          {
+            "contentType": "PlainText",
+            "content": "THIS REJECT STATEMENT SHOULD NOT BE PRINTED IN ANY SITUATION"
+          }
+        ]
+      },
+      "dialogCodeHook": {
+        "uri": "arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:custom.namespace}-lex-about-family",
         "messageVersion": "1.0"
       },
       "fulfillmentActivity": {
