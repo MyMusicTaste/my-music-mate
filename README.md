@@ -1,8 +1,7 @@
 # MMT-Slack-Bot
-
+This is the README for MyMusicMate, the friendly concert search Slackbot built for the [AWS Chatbot Challenge 2017](https://aws.amazon.com/events/chatbot-challenge/).  For usage and installation instructions, please [click here.](INSTALL.md)
 ## Table of Contents
 - [Introduction](#introduction)
-- [Installation](#installation)
 - [Inspiration](#inspiration)
 - [What It Does](#what-it-does)
 - [How We Built It](#how-we-built-it)
@@ -10,24 +9,13 @@
 - [Accomplishments That We're Proud Of](#accomplishments-that-were-proud-of)
 - [What We Learned](#what-we-learned)
 - [What's Next for MyMusicMate](#whats-next-for-mymusicmate)
-- [Commands](#commands)
-- [TODOs](#todos)
+- [Who We Are](#who-we-are)
 
 
 ## [Introduction](#introduction)
 MyMusicMate is a friendly chatbot that helps you and your friends find a concert to go together based on your collective music tastes!
 
 It's built with: [Amazon Lex](https://aws.amazon.com/lex/), [DynamoDB](https://aws.amazon.com/dynamodb/), [SNS](https://aws.amazon.com/sns/), and [Lambda](https://aws.amazon.com/lambda/) with the [Serverless Framework](https://serverless.com/) handling the deployment; [BandsInTown](http://rss.bandsintown.com/api/overview), [LastFM](http://www.last.fm/api), and [YouTube](https://developers.google.com/youtube/v3/) APIs for retrieval of concerts, artist information, and concert videos, respectively; and finally [Slack](https://slack.com/), for putting the *chat* in *chatbot*.
-
-
-## [Installation](#installation)
-Before deployment, you will need to provide some information for MyMusicMate to function properly.  Please open the `serverless.yml` configuration file and enter the following information
-- `custom: aws: id` - Amazon AWS account number
-- `environment : SLACK_APP_ID` - Slack App Client ID
-- `environment : SLACK_APP_SECRET` -  Slack App Client Secret
-- `environment : SLACK_APP_TOKEN` -  Slack App VerificationToken 
-- `environment : LASTFM_KEY` - LastFM API key.  To obtain, create an API account and request key as per the instructions [here](http://www.last.fm/api).
-- `environment : DEVELOPER_KEY` - Google/YouTube API key. To obtain, sign into the Google Developers Console and create an API key as per the instructions [here](https://developers.google.com/youtube/registering_an_application#Create_API_Keys).
 
 
 ## [Inspiration](#inspiration)
@@ -101,11 +89,6 @@ We're also pretty happy with our concert queue/voting logic.  Ultimately we want
 **Smarter YouTube searches.**  We'd like to redefine our YouTube search to prioritize videos from Artists' official Vevo pages and use the YouTube Music Insights API to prioritize videos based on popularity by location, depending on the user's city.
 
 
-## [Commands](#commands)
-- `sls deploy` - deploy lambda functions, API gateways, DynamoDB tables to AWS
-- `sls lex` - deploy a lex bot to AWS
-
-## [TODOs](#todos)
-- Create a lex with boto3 lex-model api
-- Create a flow to move between lex intents
+## [Who We Are](#who-we-are)
+- <team info>
 
