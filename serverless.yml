@@ -138,6 +138,8 @@ functions:
       - http:
           path: interactives
           method: post
+  lex-about-me:
+    handler: src/lex/lambda/about-me.handler
   lex-invite-mate:
     handler: src/lex/lambda/invite-mate.handler
   lex-reserve-lounge:

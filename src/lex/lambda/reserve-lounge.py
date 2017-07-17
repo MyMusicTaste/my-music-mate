@@ -69,7 +69,7 @@ def compose_reset_response(event):
             'type': 'ElicitSlot',
             'message': {
                 'contentType': 'PlainText',
-                'content': 'Then, what name do you want to use for the channel?'
+                'content': 'Okay. What name would you like to use for the channel?'
             },
             'intentName': 'ReserveLounge',
             'slotToElicit': 'Lounge',

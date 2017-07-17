@@ -54,13 +54,11 @@
             "I would like to invite {Mate}"
           ]
         }
-
       ],
       "sampleUtterances": [
         "Hi",
         "Hello",
-        "Who are you",
-        "What is up"
+        "What's up"
       ],
       "confirmationPrompt": {
         "messages": [
@@ -354,9 +352,42 @@
       "fulfillmentActivity": {
         "type": "ReturnIntent"
       }
+    },
+
+
+    {
+      "name": "AboutMe",
+      "slots": [],
+      "sampleUtterances": [
+        "Who are you",
+        "What are you",
+        "Introduce yourself",
+        "I want to know about you"
+      ],
+      "confirmationPrompt": {
+        "messages": [
+          {
+            "contentType": "PlainText",
+            "content": "THIS CONFIRMATION PROMPT SHOULD NOT BE PRINTED IN ANY SITUATION"
+          }
+        ],
+        "maxAttempts": 5
+      },
+      "rejectionStatement": {
+        "messages": [
+          {
+            "contentType": "PlainText",
+            "content": "THIS REJECT STATEMENT SHOULD NOT BE PRINTED IN ANY SITUATION"
+          }
+        ]
+      },
+      "dialogCodeHook": {
+        "uri": "arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:custom.namespace}-lex-about-me",
+        "messageVersion": "1.0"
+      },
+      "fulfillmentActivity": {
+        "type": "ReturnIntent"
+      }
     }
-
-
-
   ]
 }
