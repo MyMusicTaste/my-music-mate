@@ -1,0 +1,37 @@
+# Installation and Usage Instructions for MyMusicMate
+
+## Installation
+Installation and setup of MyMusicMate happens in three stages: Create your Slack app, configure/deploy MyMusicMate to AWS using the Serverless Framework, and update your Slack app with AWS API endpoints.
+### Create your Slack App
+- Create a new Slack application and take note of the App Credentials (Client ID, Client Secret, and Verification)
+- Create a bot user for your application and give it a username
+- Under `OAuth & Permissions`, make sure the following options are listed under `Select Permission Scopes`:
+  - `bot; channels:history; channels:read; channels:write; chat:write:bot; chat:write:user`
+### Configure/Deploy MyMusicTaste
+Open the `serverless.yml` configuration file and enter the following information
+- `custom: aws: id` - Amazon AWS account number
+- `environment : SLACK_APP_ID` - Slack App Client ID
+- `environment : SLACK_APP_SECRET` -  Slack App Client Secret
+- `environment : SLACK_APP_TOKEN` -  Slack App VerificationToken 
+- `environment : LASTFM_KEY` - LastFM API key.  To obtain, create an API account and request key as per the instructions [here](http://www.last.fm/api).
+- `environment : DEVELOPER_KEY` - Google/YouTube API key. To obtain, sign into the Google Developers Console and create an API key as per the instructions [here](https://developers.google.com/youtube/registering_an_application#Create_API_Keys).
+
+Once the configuration file has been updated, execute `sls deploy` to deploy the application to AWS and take note of the generated `install/events/interactives` API endpoints. Then execute `sls lex` to create the Lex bot.
+### Update Slack App
+- In your Slack application settings under `Event Subscriptions` add your `events` API endpoint as your `Request URL` and subscribe to the bot events `message.channels` and `message.im`.
+- Under `OAuth & Permissions`, add your `install` API endpoint as your `Redirect URL`.
+- Under `Interactive Messages`, add your `interactives` API endpoint as your `Request URL`.
+
+At this point MyMusicMate should be fully deployed and ready to help you find a concert!
+
+## Usage
+### Intro/Invite
+Using MyMusicMate is a breeze. Simply type a greeting ("Hi," "Hello") and MyMusicMate will give you a short introduction before asking you which friends you'd like to invite to a chatroom. Type one or more usernames and MMM will add them to a queue to be invited. Then let MMM know which channel name you'd like to use.  If you enter an existing channel name, MMM will let you know and prompt you once more for a new channel name.
+### Musical Tastes
+Once users are gathered, MyMusicMate will ask you to enter your favorite genres or artists to help look for concerts.  You do not have to specify whether your answer is a genre or an artist; MMM will use the Lex slots `Amazon.Artist` and `Amazon.Genre` to figure it out. When you are finished, answer "no" when you are prompted for any more musical preferences. Finally, enter your city in the format `<City>,<State>` and MMM will search for concerts for you and your friends to vote on. If an invalid city is entered, MMM will re-prompt the user for a location.
+### Concert Voting
+If there were at least 3 concert results that matched your musical tastes, MyMusicMate will now give users a chance to vote for a concert they would like to go to.  Users will be provided with an artist name, venue name, date, as well as a live concert YouTube video to aid in making a decision.  Users have 3 minutes (by default) to vote for a concert. If more time is needed, users may request an extension during the voting process.  If the voting period is almost finished and users have not voted yet, MMM will send them a private message reminding them to vote.
+
+Once voting is complete, MyMusicMate will tally the votes and the next action will vary according to the outcome. If there is a clear winner, MMM will display the concert link for users to purchase tickets.  If a large percentage of users did not like any of the concert options, the unwanted concerts will be discarded and replaced with new options from the concert queue, if they exist.  If votes were split, the least popular concert(s) will be decided and users will be brought to a second, and final vote.
+
+If the concert queue does not have enough concerts to perform a vote, users will be prompted to enter new musical preferences and a new concert search will begin.
