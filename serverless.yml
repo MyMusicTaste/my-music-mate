@@ -97,6 +97,7 @@ package:
     - .idea/**
     - mmm/**  # Virtual environment directory.
     - node_modules/**
+    - emoji/**
     - requirements.txt
     - package.json
     - serverless.yml
