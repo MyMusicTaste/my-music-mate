@@ -90,5 +90,13 @@ We're also pretty happy with our concert queue/voting logic.  Ultimately we want
 
 
 ## [Who We Are](#who-we-are)
-- <team info>
+- Jinwook Baek (nujabes8@mymusictaste.com) - CTO at MyMusicTaste
+- Seokhui Hong (kowell21@mymusictaste.com) - Product Manager at MyMusicTaste
+- Jaekeon Hwang (jaekeon@mymusictaste.com) - Infra Engineer at MyMusicTaste
+- Paul Elliot (paul@mymusictaste.com) - Data Team Manager at MyMusicTaste
+- Jonathon Son (jay@mymusictaste.com) - Data Engineer at MyMusicTaste
+- Taeheon Ki (kokonak@mymusictaste.com) - iOS Developer at MyMusicTaste
+- Moonju Kang (moonju@mymusictaste.com) - Designer at MyMusicTaste
+- Jongwon Kim (jongwonkim@mymusictaste.com) - FrontEnd Developer at MyMusicTaste
+ 
 
