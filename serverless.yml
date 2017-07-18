@@ -7,7 +7,7 @@ custom:
     id: __AWS_ACCOUNT_ID__
   lex:
     name: MyMusicMate
-    alias: dev
+    alias: prod
     blueprint: src/lex/blueprint.json
 #    deploy: after:deploy:deploy  #Uncomment this if you want to deploy the Lex bot with the `sls deploy`.
   static:
@@ -18,7 +18,7 @@ provider:
   runtime: python3.6
   timeout: 300
 
-  stage: beta
+  stage: prod
   region: us-east-1
 
   iamRoleStatements:
