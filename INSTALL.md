@@ -4,7 +4,8 @@
 ### AWS Command Line Interface
 First you must download and configure the [AWS Command Line Interface](https://aws.amazon.com/cli/). This will be used for all aws-related activity.
 
-## <node.js/environment setup>
+## Node.js and Serverless
+Follow the instructions [here](https://serverless.com/framework/docs/providers/aws/guide/installation/) and install Node.js (version 4 or highter) and install Serverless by running `npm install -g serverless`.
 
 ### Download and Install Requirements
 Download MyMusicMate project files from the [Github repo](https://github.com/MyMusicTaste/my-music-mate) and install the requirements by running `pip install -r requirements.txt`
@@ -25,9 +26,10 @@ Open the `serverless.yml` configuration file and enter the following information
 
 Once the configuration file has been updated, execute `sls deploy` to deploy the application to AWS and take note of the generated `install/events/interactives` API endpoints. Then execute `sls lex` to create the Lex bot.
 ### Update Slack App
-- In your Slack application settings under `Event Subscriptions` add your `events` API endpoint as your `Request URL` and subscribe to the bot events `message.channels` and `message.im`.
+- In your Slack application settings under `Event Subscriptions` add your `events` API endpoint as your `Request URL` and subscribe to the bot events `message.channels` and `message.im` and team event `message.channels`.
 - Under `OAuth & Permissions`, add your `install` API endpoint as your `Redirect URL`.
 - Under `Interactive Messages`, add your `interactives` API endpoint as your `Request URL`.
+- Add the Slack app to your domain by using the [Slack Button](https://api.slack.com/docs/slack-button), making sure to select the `bot` option.
 
 At this point MyMusicMate should be fully deployed and ready to help you find a concert!
 
