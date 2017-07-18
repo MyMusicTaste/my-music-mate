@@ -15,7 +15,7 @@ This is the README for MyMusicMate, the friendly concert search Slackbot built f
 ## [Introduction](#introduction)
 MyMusicMate is a friendly chatbot that helps you and your friends find a concert to go together based on your collective music tastes!
 
-It's built with: [Amazon Lex](https://aws.amazon.com/lex/), [DynamoDB](https://aws.amazon.com/dynamodb/), [SNS](https://aws.amazon.com/sns/), and [Lambda](https://aws.amazon.com/lambda/) with the [Serverless Framework](https://serverless.com/) handling the deployment; [BandsInTown](http://rss.bandsintown.com/api/overview), [LastFM](http://www.last.fm/api), and [YouTube](https://developers.google.com/youtube/v3/) APIs for retrieval of concerts, artist information, and concert videos, respectively; and finally [Slack](https://slack.com/), for putting the *chat* in *chatbot*.
+It's built with: [Amazon Lex](https://aws.amazon.com/lex/), [DynamoDB](https://aws.amazon.com/dynamodb/), [SNS](https://aws.amazon.com/sns/), [s3](https://aws.amazon.com/s3/), and [Lambda](https://aws.amazon.com/lambda/) with the [Serverless Framework](https://serverless.com/) handling the deployment; [BandsInTown](http://rss.bandsintown.com/api/overview), [LastFM](http://www.last.fm/api), and [YouTube](https://developers.google.com/youtube/v3/) APIs for retrieval of concerts, artist information, and concert videos, respectively; and finally [Slack](https://slack.com/), for putting the *chat* in *chatbot*.
 
 
 ## [Inspiration](#inspiration)
@@ -47,7 +47,7 @@ DynamoDB tables are used to store data that must persist through the application
 
 MyMusicMate leverages multiple APIs to validate user input and find events for users. The LastFM Album Search API is used to get related artists by genre, while the BandsInTown Artist and Concert Search APIs are used to verify artist names, US city names, and search for concerts by specified and related artists.  Finally, the YouTube Search API is used to search for live concert videos, after which all of the content is rolled up and passed to the Slack messaging API in neatly formatted messages.
 
-Our team used the Serverless Framework to build and deploy our application onto the AWS stack.  One of our developers also created a plug-in for the Serverless framework to deploy our Lex bot from a blueprint file, which is hopefully available as a npm package by the time you read this :)
+Our team used the Serverless Framework to build and deploy our application onto the AWS stack.  During deployment, we retrieve s3 bucket information from CloudFormation and upload our redirect page and images of the MyMusicMate family accordingly.  One of our developers also created a plug-in for the Serverless framework to deploy our Lex bot from a blueprint file, which is hopefully available as a npm package by the time you read this :)
 
 
 ## [Challenges We Ran Into](#challenges-we-ran-into)
