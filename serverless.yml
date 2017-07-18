@@ -10,6 +10,7 @@ custom:
     name: MyMusicMate
     alias: dev
     blueprint: src/lex/blueprint.json
+    deploy: after:deploy:deploy
 provider:
   name: aws
   runtime: python3.6
