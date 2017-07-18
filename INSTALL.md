@@ -22,18 +22,20 @@ Download MyMusicMate project files from the [Github repo](https://github.com/MyM
 ### Configure/Deploy MyMusicTaste
 Open the `serverless.yml` configuration file and enter the following information
 - `custom: aws: id` - Amazon AWS account number
-- `environment : SLACK_APP_ID` - Slack App Client ID
+- `environment : SLACK_APP_ID` - Slack App Client ID (Make sure you wrap the value with ' ' so that the slack app id can be recognized as a string value, not decimal, ex> '189333670117.214221418612').
 - `environment : SLACK_APP_SECRET` -  Slack App Client Secret
 - `environment : SLACK_APP_TOKEN` -  Slack App VerificationToken 
 - `environment : LASTFM_KEY` - LastFM API key.  To obtain, create an API account and request key as per the instructions [here](http://www.last.fm/api).
 - `environment : DEVELOPER_KEY` - Google/YouTube API key. To obtain, sign into the Google Developers Console and create an API key as per the instructions [here](https://developers.google.com/youtube/registering_an_application#Create_API_Keys).
 
-Once the configuration file has been updated, execute `sls deploy` to deploy the application to AWS and take note of the generated `install/events/interactives` API endpoints. Then execute `sls lex` to create the Lex bot.
+Once the configuration file has been updated, execute `sls deploy` to deploy the application to AWS and take note of the generated `install/events/interactives` API endpoints (you can check on the terminal). Then execute `sls lex` to create the Lex bot (There is a slight timing issue on the serverless-lex-deploy plugin, so if get an error message, please run `sls lex` command two or three times).
+
 ### Update Slack App
-- In your Slack application settings under `Event Subscriptions` add your `events` API endpoint as your `Request URL` and subscribe to the bot events `message.channels` and `message.im` and team event `message.channels`.
+- In your Slack application settings under `Event Subscriptions` add your `events` API endpoint as your `Request URL` and subscribe to the <strong>bot events</strong> `message.channels` and `message.im`.
 - Under `OAuth & Permissions`, add your `install` API endpoint as your `Redirect URL`.
 - Under `Interactive Messages`, add your `interactives` API endpoint as your `Request URL`.
-- Add the Slack app to your domain by using the [Slack Button](https://api.slack.com/docs/slack-button), making sure to select the `bot` option.
+- Add the Slack app to your domain by opening the `install.html` file on the s3 bucket (which you can find the address on the terminal once `sls static` is executed with the name 'Slack App Install Page Link').
+  - ! Never install the app via `Install App option` on api.slack.com page because the token won't be saved on your DynamoDB !
 
 At this point MyMusicMate should be fully deployed and ready to help you find a concert!
 
