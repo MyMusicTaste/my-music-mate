@@ -1,19 +1,17 @@
 service: mmm
-frameworkVersion: "~1.16.1"
 
 custom:
   namespace: ${self:service}-${self:custom.stage}
   stage: ${opt:stage, self:provider.stage}
   aws:
-    id: 120387605022
+    id: __AWS_ACCOUNT_ID__
   lex:
     name: MyMusicMate
     alias: dev
     blueprint: src/lex/blueprint.json
-#    deploy: after:deploy:deploy  #TODO-JW: Lex deployment timing issue.
+#    deploy: after:deploy:deploy  #Uncomment this if you want to deploy the Lex bot with the `sls deploy`.
   static:
-    source: '/src/web/'
-    destination: '/dist/'
+    root: '/src/web/'
     deploy: after:deploy:deploy
 provider:
   name: aws
@@ -33,14 +31,8 @@ provider:
       Resource:
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.TEAMS_TABLE}
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.INTENTS_TABLE}
-#        - arn:aws:dynamodb:*:*:table/${self:provider.environment.TALKS_TABLE}
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.CONCERTS_TABLE}
         - arn:aws:dynamodb:*:*:table/${self:provider.environment.VOTES_TABLE}
-#    - Effect: Allow  # This need to be uncommented if you want to make a lambda function to call another one.
-#      Action:
-#        - lex:invokeFunction
-#      Resource:
-#        - arn:aws:lambda:*:*:function:${self:custom.namespace}-voting-timer
     - Effect: Allow
       Action:
         - SNS:Publish
@@ -51,27 +43,25 @@ provider:
         - arn:aws:sns:*:*:${self:custom.namespace}-search-concert
         - arn:aws:sns:*:*:${self:custom.namespace}-evaluate-votes
         - arn:aws:sns:*:*:${self:custom.namespace}-voting-timer
-#        - arn:aws:sns:*:*:${self:custom.namespace}-finish-voting
     - Effect: Allow
       Action:
         - lex:PostText
       Resource:
         - arn:aws:lex:*:*:bot:${self:custom.lex.name}:*
 
-
   environment:
+    SLACK_APP_ID: __SLACK_APP_ID__
+    SLACK_APP_SECRET: __SLACK_APP_SECRET__
+    SLACK_APP_TOKEN: __SLACK_APP_TOKEN__
+    LASTFM_KEY: __LASTFM_KEY__
+    DEVELOPER_KEY: __DEVELOPER_KEY__
+
     BOT_NAME: ${self:service}
-    SLACK_APP_ID: '189333670117.214221418612'
-    SLACK_APP_SECRET: 6e6529421b7b081435fcbea0b3b2069f
-    SLACK_APP_TOKEN: SLudgMP8euTmETaV0I4JLptU
-    LASTFM_KEY: 5de66db197047d9796295f4824615bd6
-    DEVELOPER_KEY: AIzaSyDIIdKhq8-xmtlYFrIE1xvdlqrfgaurrDI
     YOUTUBE_API_SERVICE_NAME: youtube
     YOUTUBE_API_VERSION: v3
     NAMESPACE: ${self:custom.namespace}
     TEAMS_TABLE: ${self:custom.namespace}-teams
     INTENTS_TABLE: ${self:custom.namespace}-intents
-#    TALKS_TABLE: ${self:custom.namespace}-talks
     CONCERTS_TABLE: ${self:custom.namespace}-concerts
     VOTES_TABLE: ${self:custom.namespace}-votes
 
@@ -80,13 +70,12 @@ provider:
     CONCERT_VOTE_OPTIONS_MAX: 3
     VOTING_TIMER_INTERNAL_TIMEOUT: 300
     DEFAULT_VOTING_TIMEOUT: 250    # Total voting time.
-    VOTING_EXTENSION_TIMEOUT: 125  # Time that invoke the voting time reminder message.
+    VOTING_EXTENSION_TIMEOUT: 125  # The remaining time the bot send a reminder message to unvoted members.
     VOTING_BLINKING_INTERVAL: 2
     VOTE_RESULT_WAITING: 5
     POST_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
     DISPATCH_ACTIONS_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-dispatch-actions" ] ]  }
     VOTING_TIMER_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-voting-timer" ] ]  }
-#    FINISH_VOTING_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-finish-voting" ] ]  }
     EVALUATE_VOTES_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-evaluate-votes" ] ]  }
     UPDATE_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-update-message" ] ]  }
 
@@ -94,7 +83,7 @@ provider:
     BLINK_OFF_COLOR: '#9febff'
     MESSAGE_DEFAULT_COLOR: '#E8E8E8'
 
-    SHUFFLE_CONCERT_LIST: '1' # 1 for production, 0 for dev mode.
+    SHUFFLE_CONCERT_LIST: '1' # 1 for production, 0 for dev mode. If the value is 0, the bot won't shuffle the result, showing always the same result.
 
     S3_BUCKET_ARN: { "Fn::Join" : [":", ["arn:aws:s3:${self:provider.region}", { "Ref" : "AWS::AccountId" }, { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
     S3_BUCKET_ADDRESS: { "Fn::Join" : ["/", ["https://s3.amazonaws.com", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
@@ -105,16 +94,15 @@ provider:
 
 package:
   exclude:
-    - dist/**
     - .idea/**
-    - mmm/**
+    - mmm/**  # Virtual environment directory.
     - node_modules/**
     - requirements.txt
     - package.json
     - serverless.yml
     - .gitignore
+    - INSTALL.md
     - README.md
-
 
 functions:
   slack-install-app:
@@ -129,7 +117,7 @@ functions:
   slack-listen-events:
     handler: src/slack/lambda/listen-events.handler
     environment:
-      SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-dispatch-actions" ] ]  }  # same as `arn:aws:sns:*:*:${self:custom.namespace}-dispatch-actions` but environment values require String format.
+      SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-dispatch-actions" ] ]  }
     events:
       - http:
           path: events
@@ -193,45 +181,7 @@ functions:
     handler: src/app/lambda/voting-timer.handler
     events:
       - sns: ${self:custom.namespace}-voting-timer
-#  app-finish-voting:
-#    handler: src/app/lambda/finish-voting.handler
-#    events:
-#      - sns: ${self:custom.namespace}-finish-voting
 
-
-#    The following are a few example events you can configure
-#    NOTE: Please make sure to change your handler code to work with those events
-#    Check the event documentation for details
-#    events:
-#      - http:
-#          path: users/create
-#          method: get
-#      - s3: ${env:BUCKET}
-#      - schedule: rate(10 minutes)
-#      - sns: greeter-topic
-#      - stream: arn:aws:dynamodb:region:XXXXXX:table/foo/stream/1970-01-01T00:00:00.000
-#      - alexaSkill
-#      - iot:
-#          sql: "SELECT * FROM 'some_topic'"
-#      - cloudwatchEvent:
-#          event:
-#            source:
-#              - "aws.ec2"
-#            detail-type:
-#              - "EC2 Instance State-change Notification"
-#            detail:
-#              state:
-#                - pending
-#      - cloudwatchLog: '/aws/lambda/hello'
-#      - cognitoUserPool:
-#          pool: MyUserPool
-#          trigger: PreSignUp
-
-#    Define function environment variables here
-#    environment:
-#      variable2: value2
-
-# you can add CloudFormation resource templates here
 resources:
   Resources:
     TeamsDynamoDbTable:
@@ -264,23 +214,6 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
-#    TalksDynamoDbTable:
-#      Type: AWS::DynamoDB::Table
-#      Properties:
-#        TableName: ${self:provider.environment.TALKS_TABLE}
-#        AttributeDefinitions:
-#          - AttributeName: team_id
-#            AttributeType: S
-#          - AttributeName: caller_id
-#            AttributeType: S
-#        KeySchema:
-#          - AttributeName: team_id
-#            KeyType: HASH
-#          - AttributeName: caller_id
-#            KeyType: RANGE
-#        ProvisionedThroughput:
-#          ReadCapacityUnits: 5
-#          WriteCapacityUnits: 5
     ConcertsDynamoDbTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -315,14 +248,6 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
 
 plugins:
   - serverless-python-requirements

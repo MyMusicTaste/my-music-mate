@@ -2,19 +2,23 @@
 
 ## Installation
 ### AWS Command Line Interface
-First you must download and configure the [AWS Command Line Interface](https://aws.amazon.com/cli/). This will be used for all aws-related activity.
+First you must download and configure the [AWS Command Line Interface](https://aws.amazon.com/cli/). This will be used for all aws-related activity. (Make sure that you register an AWS account with permissions to CRUD Lambda, SNS, S3, DynamoDB, API Gateway on AWS CLI with `aws configure` command).
 
-## Node.js and Serverless
-Follow the instructions [here](https://serverless.com/framework/docs/providers/aws/guide/installation/) and install Node.js (version 4 or highter) and install Serverless by running `npm install -g serverless`.
+## Node.js and Python version
+Install Node.js (version 6 or higher) from [here](https://nodejs.org/en/download/), and Python3 (version 3.6.1 or higher) from [here](https://www.python.org/downloads/release/python-361/).
 
-### Download and Install Requirements
-Download MyMusicMate project files from the [Github repo](https://github.com/MyMusicTaste/my-music-mate) and install the requirements by running `pip install -r requirements.txt`
+## Serverless framework
+Follow the instructions [here](https://serverless.com/framework/docs/providers/aws/guide/installation/) to install the latest version of the Serverless framework by running `npm install -g serverless`.
+
+## Download the source files and Install Requirements
+Download MyMusicMate project files from the [Github repo](https://github.com/MyMusicTaste/my-music-mate) and install the requirements by running `pip install -r requirements.txt` and `npm install` on the project root directory. (Make sure the serverless-lex-deploy and serverless-static-s3 plugins are located under the node_modules directory).
 
 ### Create your Slack App
-- Create a new Slack application and take note of the App Credentials (Client ID, Client Secret, and Verification)
-- Create a bot user for your application and give it a username
+- Create a new Slack application and take note of the App Credentials (Client ID, Client Secret, and Verification).
+- Create a bot user for your application and give it a username (ex> @mmm).
 - Under `OAuth & Permissions`, make sure the following options are listed under `Select Permission Scopes`:
   - `bot; channels:history; channels:read; channels:write; chat:write:bot; chat:write:user`
+  
 ### Configure/Deploy MyMusicTaste
 Open the `serverless.yml` configuration file and enter the following information
 - `custom: aws: id` - Amazon AWS account number
