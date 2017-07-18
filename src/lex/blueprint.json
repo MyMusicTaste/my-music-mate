@@ -59,8 +59,7 @@
           },
           "priority": 1,
           "sampleUtterances": [
-            "I would like to invite {Mate}",
-            "I also want to add {Mate}"
+            "I would like to invite {Mate}"
           ]
         }
       ],
@@ -346,7 +345,7 @@
         "messages": [
           {
             "contentType": "PlainText",
-            "content": "Do you need extra time for voting? You can extend up to 30 minutes."
+            "content": "THIS CONFIRMATION PROMPT SHOULD NOT BE PRINTED"
           }
         ],
         "maxAttempts": 5

@@ -62,212 +62,245 @@ def store_intents(event):
 
 
 def compose_validate_response(event):
-    event['intents']['current_intent'] = 'AskExtend'
-    slot_extend = None
-    timeout = 0  # Sec.
-    hour_found = True
-    min_found = True
-    sec_found = True
-    hour_first = 0
-    hour_last = 0
-    sec_first = 0
-    sec_last = 0
-    min_first = 0
-    min_last = 0
-    if event['currentIntent']['slots']['Extend']:
-        slot_extend = event['currentIntent']['slots']['Extend']
-        print('!!! SLOT RAW VALUE !!!')
-        print(slot_extend)
+    # event['intents']['current_intent'] = 'AskExtend'
+    # slot_extend = None
+    # timeout = 0  # Sec.
+    # hour_found = True
+    # min_found = True
+    # sec_found = True
+    # hour_first = 0
+    # hour_last = 0
+    # sec_first = 0
+    # sec_last = 0
+    # min_first = 0
+    # min_last = 0
+    # if event['currentIntent']['slots']['Extend']:
+    #     slot_extend = event['currentIntent']['slots']['Extend']
+    #     print('!!! SLOT RAW VALUE !!!')
+    #     print(slot_extend)
+    #
+    #     try:
+    #         hour_last = slot_extend.index('H')
+    #         if hour_last > -1:
+    #             hour_first = hour_last
+    #             while hour_first >= 0:
+    #                 hour_first -= 1
+    #                 if slot_extend[hour_first].isdigit() is False:
+    #                     break
+    #             timeout += int(slot_extend[hour_first + 1:hour_last]) * 60 * 60  # Convert min to sec.
+    #     except ValueError as e:
+    #         min_found = False
+    #
+    #     try:
+    #         min_last = slot_extend.index('M')
+    #         if min_last > -1:
+    #             min_first = min_last
+    #             while min_first >= 0:
+    #                 min_first -= 1
+    #                 if slot_extend[min_first].isdigit() is False:
+    #                     break
+    #             timeout += int(slot_extend[min_first + 1:min_last]) * 60  # Convert min to sec.
+    #     except ValueError as e:
+    #         min_found = False
+    #
+    #     try:
+    #         sec_last = slot_extend.index('S')
+    #         if sec_last > -1:
+    #             sec_first = sec_last
+    #             while sec_first >= 0:
+    #                 sec_first -= 1
+    #                 if slot_extend[sec_first].isdigit() is False:
+    #                     break
+    #             timeout += int(slot_extend[sec_first + 1:sec_last])  # Convert min to sec.
+    #     except ValueError as e:
+    #         min_found = False
+    #
+    # print('!!! TIMEOUT VALUE !!!')
+    # print(timeout)
+    # if timeout > 0:
+    #     print('!!! SLOT FILLED !!!')
+    #     event['intents']['current_intent'] = 'VotingConcert'
+    #
+    #     if timeout > 3600:
+    #         timeout = 3600  # Max 30 minutes.
+    #     # Required to the minimum timeout greater than extension cycle.
+    #     if timeout < int(os.environ['VOTING_EXTENSION_TIMEOUT']) + 15:
+    #         timeout = int(os.environ['VOTING_EXTENSION_TIMEOUT']) + 15
+    #
+    #     # activate_voting_timer(event, timeout) DEVIL
+    #
+    #     # message = 'I extended the voting time for '
+    #     #
+    #     # hours = int(timeout / 3600)
+    #     # minutes = int((timeout - hours * 3600) / 60)
+    #     # seconds = timeout - minutes * 60 - hours * 3600
+    #     #
+    #     # if minutes > 0:
+    #     #     if minutes == 1:
+    #     #         message += str(minutes) + ' minute'
+    #     #     else:
+    #     #         message += str(minutes) + ' minutes'
+    #     # if seconds > 0:
+    #     #     if minutes > 0:
+    #     #         message += ' '
+    #     #     if seconds == 1:
+    #     #         message += str(seconds) + ' second'
+    #     #     else:
+    #     #         message += str(seconds) + ' seconds'
+    #
+    #     message = 'I sent a reminder to people who haven\'t voted yet.'
+    #
+    #     print('!!! MESSAGE !!!')
+    #     print(message)
+    #
+    #     # get_slack_im_list(event)
+    #     # ims = event['ims']
+    #     members = event['channel']['members']
+    #     votes = event['votes']
+    #
+    #     # print ('!!! IMS !!!')
+    #     # print(ims)
+    #
+    #     print('!!! BOT USER ID')
+    #     print(event['team']['bot']['bot_user_id'])
+    #     print('!!! MEMBERS')
+    #     print(members)
+    #
+    #     unvoted_members = []
+    #
+    #     for member in members:
+    #         found = False
+    #         for vote in votes:
+    #             if vote['user_id'][1:] == member:
+    #                 found = True
+    #         if found is False and event['team']['bot']['bot_user_id'] != member:  # Exclude the bot user
+    #             unvoted_members.append(member)
+    #
+    #     # post_channels = []
+    #
+    #     # for im in ims:
+    #     #     found = False
+    #     #     for member in unvoted_members:
+    #     #         if im['user'] == member:
+    #     #             found = True
+    #     #     if found is True:
+    #     #         post_channels.append(im['id'])
+    #
+    #     text = 'Check out <#{}>. Your friends are choosing a concert to go together!'\
+    #         .format(event['sessionAttributes']['channel_id'])
+    #
+    #     print('!!! SEND REMINDER !!!')
+    #     print(unvoted_members)
+    #     # print(post_channels)
+    #     print(text)
+    #
+    #     # Send a reminder message to each user's direct message.
+    #     for member in unvoted_members:
+    #         sns_event = {
+    #             'team': event['sessionAttributes']['team_id'],
+    #             'token': event['sessionAttributes']['bot_token'],
+    #             'channel': member,
+    #             'text': text
+    #             # 'as_user': True
+    #         }
+    #         log.info('!!! SNS EVENT !!!')
+    #         log.info(sns_event)
+    #         print('!!! SNS EVENT !!!')
+    #         print(sns_event)
+    #         print('!!! ARN ADDRRESS !!!')
+    #         print(os.environ['POST_MESSAGE_SNS_ARN'])
+    #         sns.publish(
+    #             TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
+    #             Message=json.dumps({'default': json.dumps(sns_event)}),
+    #             MessageStructure='json'
+    #         )
+    #
+    #     response = {
+    #         'dialogAction': {
+    #             'type': 'Close',
+    #             'fulfillmentState': 'Fulfilled',
+    #             'message': {
+    #                 'contentType': 'PlainText',
+    #                 'content': message
+    #             }
+    #         }
+    #     }
+    #     return response
+    # else:   # First time getting a extend time.
+    members = event['channel']['members']
+    votes = event['votes']
 
-        try:
-            hour_last = slot_extend.index('H')
-            if hour_last > -1:
-                hour_first = hour_last
-                while hour_first >= 0:
-                    hour_first -= 1
-                    if slot_extend[hour_first].isdigit() is False:
-                        break
-                timeout += int(slot_extend[hour_first + 1:hour_last]) * 60 * 60  # Convert min to sec.
-        except ValueError as e:
-            min_found = False
+    print('!!! BOT USER ID')
+    print(event['team']['bot']['bot_user_id'])
+    print('!!! MEMBERS')
+    print(members)
 
-        try:
-            min_last = slot_extend.index('M')
-            if min_last > -1:
-                min_first = min_last
-                while min_first >= 0:
-                    min_first -= 1
-                    if slot_extend[min_first].isdigit() is False:
-                        break
-                timeout += int(slot_extend[min_first + 1:min_last]) * 60  # Convert min to sec.
-        except ValueError as e:
-            min_found = False
+    unvoted_members = []
+    reminder_members = []
 
-        try:
-            sec_last = slot_extend.index('S')
-            if sec_last > -1:
-                sec_first = sec_last
-                while sec_first >= 0:
-                    sec_first -= 1
-                    if slot_extend[sec_first].isdigit() is False:
-                        break
-                timeout += int(slot_extend[sec_first + 1:sec_last])  # Convert min to sec.
-        except ValueError as e:
-            min_found = False
+    for member in members:
+        found = False
+        for vote in votes:
+            if vote['user_id'][1:] == member:
+                found = True
+        if found is False and event['team']['bot']['bot_user_id'] != member:    # Exclude the bot user
+            unvoted_members.append('<@' + member + '>')
+            reminder_members.append(member)
 
-    print('!!! TIMEOUT VALUE !!!')
-    print(timeout)
-    if timeout > 0:
-        print('!!! SLOT FILLED !!!')
-        event['intents']['current_intent'] = 'VotingConcert'
+    message = ', '.join(unvoted_members)
+    if len(unvoted_members) == 0:
+        message = 'It seems like everyone voted. Just wait for a few moment'
+    elif len(unvoted_members) > 1:
+        message += ' have not voted yet. I will send a reminder!'
+    else:
+        message += ' has not voted yet. I will send a reminder!'
 
-        if timeout > 3600:
-            timeout = 3600  # Max 30 minutes.
-        # Required to the minimum timeout greater than extension cycle.
-        if timeout < int(os.environ['VOTING_EXTENSION_TIMEOUT']):
-            timeout = int(os.environ['VOTING_EXTENSION_TIMEOUT'])
 
-        activate_voting_timer(event, timeout)
 
-        message = 'I extended the voting time for '
+    text = 'Check out <#{}>. Your friends are choosing a concert to go together!' \
+        .format(event['sessionAttributes']['channel_id'])
 
-        hours = int(timeout / 3600)
-        minutes = int((timeout - hours * 3600) / 60)
-        seconds = timeout - minutes * 60 - hours * 3600
+    print('!!! SEND REMINDER !!!')
+    print(unvoted_members)
+    # print(post_channels)
+    print(text)
 
-        if minutes > 0:
-            if minutes == 1:
-                message += str(minutes) + ' minute'
-            else:
-                message += str(minutes) + ' minutes'
-        if seconds > 0:
-            if minutes > 0:
-                message += ' '
-            if seconds == 1:
-                message += str(seconds) + ' second'
-            else:
-                message += str(seconds) + ' seconds'
-
-        message += ', and I also sent a reminder to people who haven\'t voted yet.'
-
-        print('!!! MESSAGE !!!')
-        print(message)
-
-        # get_slack_im_list(event)
-        # ims = event['ims']
-        members = event['channel']['members']
-        votes = event['votes']
-
-        # print ('!!! IMS !!!')
-        # print(ims)
-
-        print('!!! BOT USER ID')
-        print(event['team']['bot']['bot_user_id'])
-        print('!!! MEMBERS')
-        print(members)
-
-        unvoted_members = []
-
-        for member in members:
-            found = False
-            for vote in votes:
-                if vote['user_id'][1:] == member:
-                    found = True
-            if found is False and event['team']['bot']['bot_user_id'] != member:  # Exclude the bot user
-                unvoted_members.append(member)
-
-        # post_channels = []
-
-        # for im in ims:
-        #     found = False
-        #     for member in unvoted_members:
-        #         if im['user'] == member:
-        #             found = True
-        #     if found is True:
-        #         post_channels.append(im['id'])
-
-        text = 'Check out <#{}>. Your friends are choosing a concert to go together!'\
-            .format(event['sessionAttributes']['channel_id'])
-
-        print('!!! SEND REMINDER !!!')
-        print(unvoted_members)
-        # print(post_channels)
-        print(text)
-
-        # Send a reminder message to each user's direct message.
-        for member in unvoted_members:
-            sns_event = {
-                'team': event['sessionAttributes']['team_id'],
-                'token': event['sessionAttributes']['bot_token'],
-                'channel': member,
-                'text': text
-                # 'as_user': True
-            }
-            log.info('!!! SNS EVENT !!!')
-            log.info(sns_event)
-            print('!!! SNS EVENT !!!')
-            print(sns_event)
-            print('!!! ARN ADDRRESS !!!')
-            print(os.environ['POST_MESSAGE_SNS_ARN'])
-            sns.publish(
-                TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
-                Message=json.dumps({'default': json.dumps(sns_event)}),
-                MessageStructure='json'
-            )
-
-        response = {
-            'dialogAction': {
-                'type': 'Close',
-                'fulfillmentState': 'Fulfilled',
-                'message': {
-                    'contentType': 'PlainText',
-                    'content': message
-                }
-            }
+    # Send a reminder message to each user's direct message.
+    for member in reminder_members:
+        sns_event = {
+            'team': event['sessionAttributes']['team_id'],
+            'token': event['sessionAttributes']['bot_token'],
+            'channel': member,
+            'text': text
+            # 'as_user': True
         }
-        return response
-    else:   # First time getting a extend time.
-        members = event['channel']['members']
-        votes = event['votes']
+        log.info('!!! SNS EVENT !!!')
+        log.info(sns_event)
+        print('!!! SNS EVENT !!!')
+        print(sns_event)
+        print('!!! ARN ADDRRESS !!!')
+        print(os.environ['POST_MESSAGE_SNS_ARN'])
+        sns.publish(
+            TopicArn=os.environ['POST_MESSAGE_SNS_ARN'],
+            Message=json.dumps({'default': json.dumps(sns_event)}),
+            MessageStructure='json'
+        )
 
-        print('!!! BOT USER ID')
-        print(event['team']['bot']['bot_user_id'])
-        print('!!! MEMBERS')
-        print(members)
-
-        unvoted_members = []
-
-        for member in members:
-            found = False
-            for vote in votes:
-                if vote['user_id'][1:] == member:
-                    found = True
-            if found is False and event['team']['bot']['bot_user_id'] != member:    # Exclude the bot user
-                unvoted_members.append('<@' + member + '>')
-
-        message = ', '.join(unvoted_members)
-        if len(unvoted_members) == 0:
-            message = 'Let me know if you still need extra time. You can extend up to 30 minutes.'
-        elif len(unvoted_members) > 1:
-            message += ' have not voted yet. Let me know if you need extra time. You can extend up to 30 minutes.'
-        else:
-            message += ' has not voted yet. Let me know if you need extra time. You can extend up to 30 minutes.'
-
-        print(unvoted_members)
-        print('!!! MESSAGE !!!')
-        print(message)
-        response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
-            'type': 'ConfirmIntent',
-            'message': {
-                'contentType': 'PlainText',
-                'content': message
-            },
-            "intentName": "AskExtend",
-            'slots': {
-                'Extend': 'PT0S'
-            }
-        }}
-        return response
+    print(unvoted_members)
+    print('!!! MESSAGE !!!')
+    print(message)
+    response = {'sessionAttributes': event['sessionAttributes'], 'dialogAction': {
+        'type': 'ConfirmIntent',
+        'message': {
+            'contentType': 'PlainText',
+            'content': message
+        },
+        "intentName": "AskExtend",
+        'slots': {
+            'Extend': 'PT0S'
+        }
+    }}
+    return response
 
 
         # print('!!! ElicitSlot !!!')

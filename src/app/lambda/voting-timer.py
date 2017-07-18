@@ -203,10 +203,14 @@ def handler(event, context):
         while sleep_duration > extension_timeout and accumulated_duration < function_timeout:
             print('!!! REMAINING TIME !!!')
             print(sleep_duration)
+            print('!!! VOTE_TS !!!')
+            print(vote_ts)
 
-            if vote_ts is None:
+            if vote_ts is None or vote_ts == '0' or vote_ts == 0:
                 retrieve_intents(event)
                 vote_ts = event['intents']['vote_ts']
+                print('!!! SPARE VOTE_TS !!!')
+                print(vote_ts)
 
             time.sleep(blinking_interval)
 
@@ -263,7 +267,7 @@ def handler(event, context):
                 MessageStructure='json'
             )
 
-        elif event['intents']['current_intent'] != 'AskExtend':
+        else:
             event['intents']['current_intent'] = 'AskExtend'
             sns_event = {
                 'team': {
@@ -296,7 +300,12 @@ def handler(event, context):
                 print('!!! VOTING TS !!!')
                 vote_ts = event['intents']['vote_ts']
                 print(vote_ts)
-                print('!!! REMAINING TIME !!!')
+                if vote_ts is None or vote_ts == '0' or vote_ts == 0:
+                    retrieve_intents(event)
+                    vote_ts = event['intents']['vote_ts']
+                    print('!!! SPARE VOTE_TS !!!')
+                    print(vote_ts)
+                print('!!! REMAINING TIME 333 !!!')
                 print(sleep_duration)
                 print(prev_timeout)
                 print(event['intents']['timeout'])
@@ -338,7 +347,7 @@ def handler(event, context):
             print('!!! FINISHING VOTING PROCESS')
             print(sleep_duration)
             print(event['intents']['current_intent'])
-            if sleep_duration <= 0 and event['intents']['current_intent'] == 'AskExtend':
+            if sleep_duration <= 0:
                 print('!!! WAITING IS DONE !!!')
                 sns_event = {
                     'team': {

@@ -61,9 +61,9 @@ provider:
 
   environment:
     BOT_NAME: ${self:service}
-    SLACK_APP_ID: '189333670117.206796368962'
-    SLACK_APP_SECRET: 65fd12e59aa8517ddda3d9aaeaff13d0
-    SLACK_APP_TOKEN: z0eX6y1zLzOjjJmdlNBXcsL5
+    SLACK_APP_ID: '189333670117.214221418612'
+    SLACK_APP_SECRET: 6e6529421b7b081435fcbea0b3b2069f
+    SLACK_APP_TOKEN: SLudgMP8euTmETaV0I4JLptU
     LASTFM_KEY: 5de66db197047d9796295f4824615bd6
     DEVELOPER_KEY: AIzaSyDIIdKhq8-xmtlYFrIE1xvdlqrfgaurrDI
     YOUTUBE_API_SERVICE_NAME: youtube
@@ -79,8 +79,8 @@ provider:
     LEX_ALIAS: ${self:custom.lex.alias}
     CONCERT_VOTE_OPTIONS_MAX: 3
     VOTING_TIMER_INTERNAL_TIMEOUT: 240
-    DEFAULT_VOTING_TIMEOUT: 90    # Total voting time.
-    VOTING_EXTENSION_TIMEOUT: 30  # Time that invoke the voting time alert message.
+    DEFAULT_VOTING_TIMEOUT: 270    # Total voting time.
+    VOTING_EXTENSION_TIMEOUT: 120  # Time that invoke the voting time reminder message.
     VOTING_BLINKING_INTERVAL: 2
     VOTE_RESULT_WAITING: 5
     POST_MESSAGE_SNS_ARN: { "Fn::Join" : [":", ["arn:aws:sns:${self:provider.region}", { "Ref" : "AWS::AccountId" }, "${self:custom.namespace}-post-message" ] ]  }
@@ -94,7 +94,7 @@ provider:
     BLINK_OFF_COLOR: '#9febff'
     MESSAGE_DEFAULT_COLOR: '#E8E8E8'
 
-    SHUFFLE_CONCERT_LIST: '0' # 1 for production, 0 for dev mode.
+    SHUFFLE_CONCERT_LIST: '1' # 1 for production, 0 for dev mode.
 
     S3_BUCKET_ARN: { "Fn::Join" : [":", ["arn:aws:s3:${self:provider.region}", { "Ref" : "AWS::AccountId" }, { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
     S3_BUCKET_ADDRESS: { "Fn::Join" : ["/", ["https://s3.amazonaws.com", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
