@@ -89,6 +89,7 @@ We're also pretty happy with our concert queue/voting logic.  Ultimately we want
 **Smarter YouTube searches.**  We'd like to redefine our YouTube search to prioritize videos from Artists' official Vevo pages and use the YouTube Music Insights API to prioritize videos based on popularity by location, depending on the user's city.
 
 
+
 ## [Who We Are](#who-we-are)
 - Jinwook Baek (nujabes8@mymusictaste.com) - CTO at MyMusicTaste
 - Seokhui Hong (kowell21@mymusictaste.com) - Product Manager at MyMusicTaste

@@ -34,7 +34,7 @@ Once the configuration file has been updated, execute `sls deploy` to deploy the
 - In your Slack application settings under `Event Subscriptions` add your `events` API endpoint as your `Request URL` and subscribe to the <strong>bot events</strong> `message.channels` and `message.im`.
 - Under `OAuth & Permissions`, add your `install` API endpoint as your `Redirect URL`.
 - Under `Interactive Messages`, add your `interactives` API endpoint as your `Request URL`.
-- Add the Slack app to your domain by opening the `install.html` file on the s3 bucket (which you can find the address on the terminal once `sls static` is executed with the name 'Slack App Install Page Link').
+- Add the Slack app to your Slack domain by opening the `install.html` file on the s3 bucket (which you can find the address on the terminal once `sls static` is executed with the name 'Slack App Install Page Link').
   - ! Never install the app via `Install App option` on api.slack.com page because the token won't be saved on your DynamoDB !
 
 At this point MyMusicMate should be fully deployed and ready to help you find a concert! Click the `APPS` button on your slack domain and click `View` MyMusicMate bot, and send direct message (ex><strong> hello~</strong>) to the bot.
