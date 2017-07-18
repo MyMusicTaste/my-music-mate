@@ -20,7 +20,7 @@ provider:
   runtime: python3.6
   timeout: 300
 
-  stage: dev
+  stage: beta
   region: us-east-1
 
   iamRoleStatements:
