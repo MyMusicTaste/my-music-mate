@@ -1,6 +1,8 @@
 # Installation and Usage Instructions for MyMusicMate
 
 ## Installation
+This installation process is tested on macOS Sierra 10.12.5
+
 ### AWS Command Line Interface
 First you must download and configure the [AWS Command Line Interface](https://aws.amazon.com/cli/). This will be used for all aws-related activity. (Make sure that you register an AWS account with permissions to CRUD Lambda, SNS, S3, DynamoDB, API Gateway on AWS CLI with `aws configure` command).
 
