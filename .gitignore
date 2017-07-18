@@ -27,6 +27,7 @@ mmm/
 # NPM
 node_modules/*
 !node_modules/serverless-lex-deploy/
+!node_modules/serverless-static-s3/
 package-lock.json
 
 # Etc
