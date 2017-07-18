@@ -58,6 +58,29 @@ def invite_mates(event):
         url = 'https://slack.com/api/channels.invite?' + urlencode(params)
         requests.get(url)
 
+    # Make the auth user leave the room.
+    params = {
+        'token': event['sessionAttributes']['api_token'],
+        'channel': event['intents']['lounge']['id']
+    }
+    url = 'https://slack.com/api/channels.info?' + urlencode(params)
+    response = requests.get(url).json()
+    if 'ok' in response and response['ok'] is True:
+        members = response['channel']['members']
+        mates = event['intents']['mates']
+
+        print('!!! LETS DECIDE TO LEAVE OR NOT !!!')
+        print(members)
+        print(mates)
+
+        if len(members) != len(mates):
+            params = {
+                'token': event['sessionAttributes']['api_token'],
+                'channel': event['intents']['lounge']['id'],
+            }
+            url = 'https://slack.com/api/channels.leave?' + urlencode(params)
+            requests.get(url)
+
 
 def compose_reset_response(event):
     print('!!! RESET SLOT !!!')
