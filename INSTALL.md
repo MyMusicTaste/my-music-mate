@@ -1,7 +1,14 @@
 # Installation and Usage Instructions for MyMusicMate
 
 ## Installation
-Installation and setup of MyMusicMate happens in three stages: Create your Slack app, configure/deploy MyMusicMate to AWS using the Serverless Framework, and update your Slack app with AWS API endpoints.
+### AWS Command Line Interface
+First you must download and configure the [AWS Command Line Interface](https://aws.amazon.com/cli/). This will be used for all aws-related activity.
+
+## <node.js/environment setup>
+
+### Download and Install Requirements
+Download MyMusicMate project files from the [Github repo](https://github.com/MyMusicTaste/my-music-mate) and install the requirements by running `pip install -r requirements.txt`
+
 ### Create your Slack App
 - Create a new Slack application and take note of the App Credentials (Client ID, Client Secret, and Verification)
 - Create a bot user for your application and give it a username
