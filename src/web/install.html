@@ -1,5 +1,6 @@
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
     <style>
         * {
@@ -18,7 +19,21 @@
         body.fail {
             background-color: #dedede;
         }
+        .background {
+            position: absolute;
+            left: 10%;
+            width: 80%;
+            top: 10%;
+            height: 80%;
+            background-image: url('./images/mmm_background.png');
+            -webkit-background-size: cover;
+            background-size: cover;
+        }
+        body.fail > .background {
+            opacity: 0.7;
+        }
         .install_button {
+            padding-top: 2px;
             margin: auto;
             display: block;
             text-align: center;
@@ -47,17 +62,18 @@
             -webkit-background-size: contain;
             background-size: contain;
             background-repeat: no-repeat;
-            width: 36px;
-            height: 36px;
+            width: 24px;
+            height: 24px;
             padding-right: 8px;
+            margin-bottom: 2px;
         }
         .mmm_logo {
             margin: auto;
             display: block;
             text-align: center;
-            width: 50%;
+            width: 45%;
             height: auto;
-            margin-bottom: 48px;
+            margin-bottom: 64px;
         }
         .container {
             position: absolute;
@@ -98,6 +114,7 @@
             vertical-align: middle;
         }
         .popup_text .title {
+            font-weight: 700;
             font-size: 60px;
         }
         .popup_text .description {
@@ -105,6 +122,90 @@
         }
         .hidden {
             display: none;
+        }
+
+        /* Mobile Device Media Query */
+        @media screen and (max-width: 1024px) and (orientation: landscape) {
+            .mmm_logo {
+                margin: auto;
+                display: block;
+                text-align: center;
+                width: 80%;
+                height: auto;
+                margin-bottom: 10%;
+            }
+            .popup {
+                height: 200px;
+            }
+            .popup_icon {
+                display: block;
+                width: 56px;
+                height: 56px;
+            }
+            .popup_text {
+                margin-top: 16px;
+                display: block;
+            }
+            .popup_text .title {
+                font-size: 24px;
+            }
+            .popup_text .description {
+                margin-top: 8px;
+                font-size: 14px;
+            }
+            .wrapper {
+                padding: 40px 0 40px 10%;
+                text-align: center;
+            }
+            .popup {
+                position: absolute;
+                width: 100%;
+                top: calc(50% - 120px);
+            }
+            .install_button {
+                max-width: 80%;
+            }
+        }
+        @media screen and (max-width: 1024px) and (orientation: portrait) {
+            .mmm_logo {
+                margin: auto;
+                display: block;
+                text-align: center;
+                width: 80%;
+                height: auto;
+                margin-bottom: 10%;
+            }
+            .popup {
+                height: 200px;
+            }
+            .popup_icon {
+                display: block;
+                width: 56px;
+                height: 56px;
+            }
+            .popup_text {
+                margin-top: 16px;
+                display: block;
+            }
+            .popup_text .title {
+                font-size: 24px;
+            }
+            .popup_text .description {
+                margin-top: 8px;
+                font-size: 14px;
+            }
+            .wrapper {
+                padding: 40px 0 40px 10%;
+                text-align: center;
+            }
+            .popup {
+                position: absolute;
+                width: 100%;
+                top: calc(50% - 120px);
+            }
+            .install_button {
+                max-width: 80%;
+            }
         }
     </style>
 
@@ -146,22 +247,23 @@
 </head>
 
 <body>
+    <div class="background"></div>
     <div class="container hidden">
         <img class="mmm_logo" src="./images/mmm_web_logo.png">
-        <a href="https://slack.com/oauth/authorize?scope=bot,channels:history,channels:read,channels:write,chat:write:bot&client_id=189333670117.206796368962"><button class="install_button"><span class="slack_icon"></span><span class="strong">MyMusicMate</span> for <span class="strong">Slack</span></button></a>
+        <a href="https://slack.com/oauth/authorize?scope=bot,channels:history,channels:read,channels:write,chat:write:bot&client_id=189333670117.206796368962"><button class="install_button"><span class="slack_icon"></span><span class="slack_text"><span class="strong">MyMusicMate</span> for <span class="strong">Slack</span></span></button></a>
     </div>
     <div class="popup hidden">
         <div id="success" class="wrapper hidden">
               <span class="popup_icon"></span>
               <span class="popup_text">
                   <div class="title">Success!</div>
-                  <div class="description"><span class="strong">MyMusicMate</span><span>is waiting for you in Slack&hearts;</span></div>
+                  <div class="description"><span class="strong">MyMusicMate</span><span> is waiting for you in Slack&hearts;</span></div>
               </span>
         </div>
         <div id="fail" class="wrapper hidden">
               <span class="popup_icon"></span>
               <span class="popup_text">
-                  <div class="title">Fail!</div>
+                  <div class="title">Fail</div>
                   <div class="description"><span>Please try again.</span></div>
               </span>
         </div>

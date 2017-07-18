@@ -59,7 +59,8 @@
           },
           "priority": 1,
           "sampleUtterances": [
-            "I would like to invite {Mate}"
+            "I would like to invite {Mate}",
+            "I also want to add {Mate}"
           ]
         }
       ],
