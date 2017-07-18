@@ -37,7 +37,9 @@ Once the configuration file has been updated, execute `sls deploy` to deploy the
 - Add the Slack app to your domain by opening the `install.html` file on the s3 bucket (which you can find the address on the terminal once `sls static` is executed with the name 'Slack App Install Page Link').
   - ! Never install the app via `Install App option` on api.slack.com page because the token won't be saved on your DynamoDB !
 
-At this point MyMusicMate should be fully deployed and ready to help you find a concert!
+At this point MyMusicMate should be fully deployed and ready to help you find a concert! Click the `APPS` button on your slack domain and click `View` MyMusicMate bot, and send direct message (ex><strong> hello~</strong>) to the bot.
+
+If you are having a trouble, feel free to contact me via [jongwonkim@mymusictaste.com](jongwonkim@mymusictaste.com).
 
 ## Usage
 ### Intro/Invite
