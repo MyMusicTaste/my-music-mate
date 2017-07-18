@@ -30,8 +30,10 @@ def request_token(event):
 def handler(event, context):
     log.info(json.dumps(event))
     response = {
-        "statusCode": 200,
-        "body": json.dumps({"message": os.environ['BOT_NAME'] + ' has been installed.'})
+        "statusCode": 302,
+        'headers': {
+            'Location': os.environ['SUCCESS_URL']
+        }
     }
     try:
         if event['queryStringParameters'] is not None and event['queryStringParameters']['code'] is not None:
@@ -41,8 +43,10 @@ def handler(event, context):
             Exception('Slack API Error while fetching a temporary token!')
     except Exception as e:
         response = {
-            "statusCode": 400,
-            "body": json.dumps({"message": str(e)})
+            "statusCode": 302,
+            'headers': {
+                'Location': os.environ['FAIL_URL']
+            }
         }
     finally:
         log.info(response)

@@ -117,6 +117,9 @@ functions:
       - http:
           path: install
           method: get
+    environment:
+      SUCCESS_URL: { "Fn::Join" : ["/", ["https://s3.amazonaws.com", { "Ref" : "ServerlessDeploymentBucket" }, "install.html?status=success" ] ]  }
+      FAIL_URL: { "Fn::Join" : ["/", ["https://s3.amazonaws.com", { "Ref" : "ServerlessDeploymentBucket" }, "install.html?status=fail" ] ]  }
   slack-listen-events:
     handler: src/slack/lambda/listen-events.handler
     environment:
