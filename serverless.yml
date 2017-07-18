@@ -10,11 +10,11 @@ custom:
     name: MyMusicMate
     alias: dev
     blueprint: src/lex/blueprint.json
-#    deploy: None #after:deploy:deploy
+#    deploy: after:deploy:deploy  #TODO-JW: Lex deployment timing issue.
   static:
     source: '/src/web/'
     destination: '/dist/'
-#    deploy: None #after:deploy:deploy
+    deploy: after:deploy:deploy
 provider:
   name: aws
   runtime: python3.6
@@ -79,7 +79,7 @@ provider:
     LEX_ALIAS: ${self:custom.lex.alias}
     CONCERT_VOTE_OPTIONS_MAX: 3
     VOTING_TIMER_INTERNAL_TIMEOUT: 240
-    DEFAULT_VOTING_TIMEOUT: 60    # Total voting time.
+    DEFAULT_VOTING_TIMEOUT: 90    # Total voting time.
     VOTING_EXTENSION_TIMEOUT: 30  # Time that invoke the voting time alert message.
     VOTING_BLINKING_INTERVAL: 2
     VOTE_RESULT_WAITING: 5
