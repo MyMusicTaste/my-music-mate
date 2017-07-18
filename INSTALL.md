@@ -29,6 +29,7 @@ Once the configuration file has been updated, execute `sls deploy` to deploy the
 - In your Slack application settings under `Event Subscriptions` add your `events` API endpoint as your `Request URL` and subscribe to the bot events `message.channels` and `message.im` and team event `message.channels`.
 - Under `OAuth & Permissions`, add your `install` API endpoint as your `Redirect URL`.
 - Under `Interactive Messages`, add your `interactives` API endpoint as your `Request URL`.
+- Add the Slack app to your domain by using the [Slack Button](https://api.slack.com/docs/slack-button), making sure to select the `bot` option.
 
 At this point MyMusicMate should be fully deployed and ready to help you find a concert!
 
