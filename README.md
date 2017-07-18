@@ -4,6 +4,7 @@ This is the README for MyMusicMate, the friendly concert search Slackbot built f
 - [Introduction](#introduction)
 - [Inspiration](#inspiration)
 - [What It Does](#what-it-does)
+- [Demo Video](#demo)
 - [How We Built It](#how-we-built-it)
 - [Challenges We Ran Into](#challenges-we-ran-into)
 - [Accomplishments That We're Proud Of](#accomplishments-that-were-proud-of)
@@ -37,6 +38,9 @@ MyMusicMate then takes this information and uses the BandsInTown Concert Search 
 
 Finally, MyMusicMate takes the list of concert results and concert videos and displays them in the Slack channel, allowing users to mull their decision over and place a vote for which concert the group should go to.  And don't worry - if your group can't agree on a concert, MyMusicMate will be happy to offer new suggestions or get new musical preferences until it can find what's right for you!
 
+
+## [Demo Video](#demo)
+https://youtu.be/wf5HKRkPlbY
 
 ## [How We Built It](#how-we-built-it)
 At its core, MyMusicMate is a Slack chatbot powered by Amazon Lex for its conversation logic. Lex intents are used to guide the user into inviting friends into a new Slack channel, gather everyone's musical tastes, and enter a location so MyMusicMate can start searching for concerts.  After the initial intent is triggered by a sample utterance, flow from intent to intent is handled by Amazon Lambda functions until concert voting is ready to begin. Once voting is complete, the application will either terminate if a success condition is met, or trigger a previous intent to gather more information from users.
