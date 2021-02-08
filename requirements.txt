@@ -4,7 +4,7 @@ certifi==2017.4.17
 chardet==3.0.4
 docutils==0.13.1
 google-api-python-client==1.6.2
-httplib2==0.10.3
+httplib2==0.19.0
 idna==2.5
 jmespath==0.9.3
 oauth2client==4.1.2
